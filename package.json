@@ -1,0 +1,10 @@
+{
+  "name": "slidewire",
+  "private": true,
+  "devDependencies": {
+    "playwright": "^1.52.0"
+  },
+  "scripts": {
+    "browser:install": "playwright install chromium"
+  }
+}

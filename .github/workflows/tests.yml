@@ -1,0 +1,70 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - master
+      - workos
+  pull_request:
+    branches:
+      - develop
+      - main
+      - master
+      - workos
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    environment: Testing
+    strategy:
+      matrix:
+        php-version: ['8.4', '8.5']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Run Tests
+        run: composer test
+
+  browser:
+    runs-on: ubuntu-latest
+    environment: Testing
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install Playwright package
+        run: npm install
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium
+
+      - name: Run Browser Tests
+        run: composer test:browser:ci
