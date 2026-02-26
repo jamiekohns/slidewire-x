@@ -8,11 +8,16 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
 use Illuminate\View\Component;
+use WendellAdriel\SlideWire\Support\CodeBlockPrecompiler;
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
+use WendellAdriel\SlideWire\Support\SlideContext;
 
 class Markdown extends Component
 {
-    public function __construct(protected CodeHighlighter $highlighter) {}
+    public function __construct(
+        protected CodeHighlighter $highlighter,
+        protected SlideContext $context,
+    ) {}
 
     public function render(): View|Closure|string
     {
@@ -21,7 +26,13 @@ class Markdown extends Component
 
     public function toHtml(string $markdown): string
     {
-        $withHighlightedCode = $this->highlighter->replaceCodeBlocks($markdown);
+        $markdown = CodeBlockPrecompiler::decode($markdown);
+
+        $withHighlightedCode = $this->highlighter->replaceCodeBlocks(
+            $markdown,
+            $this->context->highlightTheme(),
+            $this->context->presentationTheme(),
+        );
 
         return Str::markdown($withHighlightedCode);
     }

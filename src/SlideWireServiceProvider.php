@@ -10,10 +10,12 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use WendellAdriel\SlideWire\Commands\MakeSlideCommand;
 use WendellAdriel\SlideWire\Commands\SlidePdfCommand;
+use WendellAdriel\SlideWire\Support\CodeBlockPrecompiler;
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
 use WendellAdriel\SlideWire\Support\PresentationPathResolver;
+use WendellAdriel\SlideWire\Support\SlideContext;
 use WendellAdriel\SlideWire\Support\SlideMarkdownParser;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
@@ -29,6 +31,7 @@ class SlideWireServiceProvider extends ServiceProvider
         $this->app->singleton(PresentationCompiler::class);
         $this->app->singleton(EffectiveSettingsResolver::class);
         $this->app->singleton(ThemeResolver::class);
+        $this->app->singleton(SlideContext::class);
     }
 
     public function boot(): void
@@ -36,6 +39,7 @@ class SlideWireServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'slidewire');
 
         Blade::componentNamespace('WendellAdriel\\SlideWire\\View\\Components', 'slidewire');
+        Blade::prepareStringsForCompilationUsing(new CodeBlockPrecompiler());
 
         if (! Route::hasMacro('slidewire')) {
             Route::macro('slidewire', fn (string $uri, string $presentation): \Illuminate\Routing\Route => Route::livewire($uri, 'slidewire::presentation-deck')

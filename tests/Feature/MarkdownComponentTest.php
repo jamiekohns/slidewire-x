@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Blade;
+use WendellAdriel\SlideWire\Support\SlideContext;
 
 it('renders markdown through the markdown component', function (): void {
     $html = Blade::render(<<<'BLADE'
@@ -18,4 +19,121 @@ BLADE);
     expect($html)
         ->toContain('<h2>Hello</h2>')
         ->toContain('phiki');
+});
+
+it('preserves Blade component syntax inside code fences', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::markdown>
+```blade
+<x-slidewire::deck theme="night">
+    <x-slidewire::slide>Hello</x-slidewire::slide>
+</x-slidewire::deck>
+```
+</x-slidewire::markdown>
+BLADE);
+
+    // The code block should contain the original Blade syntax as highlighted code, not compiled HTML
+    // Phiki should highlight it (contains 'phiki' class) and the source should be preserved as text
+    expect($html)->toContain('phiki')
+        ->and($html)->toContain('language-blade')
+        // The original tag names should appear as escaped text in the highlighted output
+        ->and($html)->toContain('x-slidewire::deck')
+        ->and($html)->toContain('x-slidewire::slide');
+});
+
+it('inherits deck theme for highlight theme resolution', function (): void {
+    // The 'white' theme maps to 'github-light' highlight theme in config
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::deck theme="white">
+    <x-slidewire::slide>
+        <x-slidewire::markdown>
+```php
+echo 'hello';
+```
+        </x-slidewire::markdown>
+    </x-slidewire::slide>
+</x-slidewire::deck>
+BLADE);
+
+    // github-light theme should be applied (Phiki adds theme name as class)
+    expect($html)->toContain('github-light');
+});
+
+it('inherits slide theme override for highlight theme resolution', function (): void {
+    // Deck uses 'night' (github-dark) but slide overrides with 'white' (github-light)
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::deck theme="night">
+    <x-slidewire::slide theme="white">
+        <x-slidewire::markdown>
+```php
+echo 'hello';
+```
+        </x-slidewire::markdown>
+    </x-slidewire::slide>
+</x-slidewire::deck>
+BLADE);
+
+    expect($html)->toContain('github-light');
+});
+
+it('uses deck highlight-theme when explicitly set', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::deck highlight-theme="solarized-light">
+    <x-slidewire::slide>
+        <x-slidewire::markdown>
+```php
+echo 'hello';
+```
+        </x-slidewire::markdown>
+    </x-slidewire::slide>
+</x-slidewire::deck>
+BLADE);
+
+    expect($html)->toContain('solarized-light');
+});
+
+it('uses default highlight theme when no deck or slide theme is set', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::markdown>
+```php
+echo 'hello';
+```
+</x-slidewire::markdown>
+BLADE);
+
+    // Default highlight theme from config is github-dark
+    expect($html)->toContain('github-dark');
+});
+
+it('clears slide context after slide renders', function (): void {
+    $context = app(SlideContext::class);
+
+    Blade::render(<<<'BLADE'
+<x-slidewire::deck theme="night">
+    <x-slidewire::slide theme="white">
+        <p>Content</p>
+    </x-slidewire::slide>
+</x-slidewire::deck>
+BLADE);
+
+    // After rendering, the context should be cleared
+    expect($context->presentationTheme())->toBeNull()
+        ->and($context->highlightTheme())->toBeNull();
+});
+
+it('preserves HTML tags inside code fences from Blade compilation', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::markdown>
+```html
+<div class="container">
+    <h1>Title</h1>
+    <p>Content</p>
+</div>
+```
+</x-slidewire::markdown>
+BLADE);
+
+    // The HTML should be highlighted as code, not rendered as actual HTML elements
+    expect($html)->toContain('phiki')
+        ->and($html)->toContain('language-html');
 });

@@ -7,10 +7,12 @@ namespace WendellAdriel\SlideWire\View\Components;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use WendellAdriel\SlideWire\Support\SlideContext;
 
 class Slide extends Component
 {
     public function __construct(
+        protected SlideContext $context,
         public ?string $transition = null,
         public ?string $transitionSpeed = null,
         public ?string $background = null,
@@ -30,10 +32,16 @@ class Slide extends Component
         public ?string $theme = null,
     ) {
         $this->transition ??= (string) config('slidewire.defaults.transition', 'slide');
+        $this->context->setSlide($this->theme);
     }
 
     public function render(): View|Closure|string
     {
-        return view('slidewire::components.slide');
+        return function (array $data): string {
+            $html = view('slidewire::components.slide', $data)->render();
+            $this->context->clearSlide();
+
+            return $html;
+        };
     }
 }

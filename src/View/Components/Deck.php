@@ -7,10 +7,12 @@ namespace WendellAdriel\SlideWire\View\Components;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use WendellAdriel\SlideWire\Support\SlideContext;
 
 class Deck extends Component
 {
     public function __construct(
+        protected SlideContext $context,
         public ?string $theme = null,
         public ?string $transition = null,
         public ?string $transitionSpeed = null,
@@ -23,10 +25,17 @@ class Deck extends Component
         public ?string $keyboard = null,
         public ?string $touch = null,
         public ?string $highlightTheme = null,
-    ) {}
+    ) {
+        $this->context->setDeck($this->theme, $this->highlightTheme);
+    }
 
     public function render(): View|Closure|string
     {
-        return view('slidewire::components.deck');
+        return function (array $data): string {
+            $html = view('slidewire::components.deck', $data)->render();
+            $this->context->clearDeck();
+
+            return $html;
+        };
     }
 }
