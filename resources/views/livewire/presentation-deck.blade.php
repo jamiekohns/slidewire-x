@@ -71,7 +71,7 @@
                 x-bind:class="frameClass({{ $slideIndex }})"
                 x-ref="slide{{ $slideIndex }}"
                 wire:key="slide-{{ $slide['id'] }}"
-                class="slidewire-frame {{ $slide['class'] }}"
+                class="slidewire-frame {{ $slide['class'] }} {{ ($effective['theme'] ?? '') !== '' ? 'slidewire-theme-' . ($effective['theme'] ?? '') : '' }}"
                 data-transition="{{ $effective['transition'] ?? config('slidewire.defaults.transition') }}"
                 data-transition-speed="{{ $effective['transition_speed'] ?? config('slidewire.defaults.transition_speed', 'default') }}"
                 data-auto-animate="{{ $meta['auto_animate'] ?? $deckMeta['auto_animate'] ?? 'false' }}"
@@ -145,6 +145,10 @@
         .slidewire-progress-bar { height: 100%; background: linear-gradient(90deg, #38bdf8, #f8fafc); transition: width .2s ease; }
         .slidewire-fragment { opacity: 0; transform: translateY(10px); transition: opacity .2s ease, transform .2s ease; }
         .slidewire-fragment.slidewire-fragment-visible { opacity: 1; transform: translateY(0); }
+        .slidewire-content h1, .slidewire-content h2, .slidewire-content h3,
+        .slidewire-content h4, .slidewire-content h5, .slidewire-content h6 { line-height: 1.2; }
+
+        {!! $typographyCss !!}
     </style>
 
     @script

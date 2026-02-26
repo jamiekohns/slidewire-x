@@ -16,10 +16,6 @@ This macro:
 - passes the presentation key through route defaults
 - generates route names like `slidewire.demo.product-launch`
 
-## Compatibility Helper
-
-`SlideWire::route()` is still available and now delegates to `Route::slidewire()`.
-
 ## Nested Presentations
 
 Nested keys are supported:

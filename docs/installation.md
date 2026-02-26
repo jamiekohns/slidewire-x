@@ -59,10 +59,3 @@ Route::slidewire('/slides/hello', 'demo/hello');
 ```
 
 Open `/slides/hello`.
-
-## Local Development via Path Repository
-
-```bash
-composer config repositories.slidewire '{"type":"path","url":"../slidewire","options":{"symlink":true}}'
-composer require wendelladriel/slidewire:@dev
-```
