@@ -6,23 +6,23 @@ namespace WendellAdriel\SlideWire\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Spatie\LaravelPdf\Enums\Orientation;
-use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\Browsershot\Browsershot;
 use Throwable;
+use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
+use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 class SlidePdfCommand extends Command
 {
     protected $signature = 'slidewire:pdf
         {presentation : The presentation path, e.g. team/q1-kickoff}
         {--output= : Output path for the generated PDF}
-        {--format= : PDF paper format (a4, letter, etc)}
-        {--orientation= : portrait or landscape}
-        {--notes : Include notes in output}';
+        {--format=a4 : PDF paper format (a4, letter, etc)}
+        {--orientation=landscape : portrait or landscape}';
 
     protected $description = 'Export a SlideWire presentation to PDF';
 
-    public function handle(PresentationCompiler $compiler): int
+    public function handle(PresentationCompiler $compiler, EffectiveSettingsResolver $settingsResolver, ThemeResolver $themeResolver): int
     {
         $presentation = trim((string) $this->argument('presentation'), '/');
         $compiled = $compiler->compile($presentation);
@@ -37,30 +37,54 @@ class SlidePdfCommand extends Command
         // Flatten 2D grid to linear slide list for PDF export
         $slides = $compiler->flattenSlides($columns);
 
+        // Add h/v coordinates for effective settings resolution
+        $indexedSlides = array_values(array_map(
+            function (array $slide, int $index): array {
+                $slide['h'] = $index;
+                $slide['v'] = 0;
+
+                return $slide;
+            },
+            $slides,
+            array_keys($slides),
+        ));
+
+        // Resolve effective settings (theme, typography, etc.) for each slide
+        $effectiveSlides = $settingsResolver->resolve($indexedSlides, $compiled['deck_meta']);
+
         $output = $this->option('output') ?: storage_path('app/' . $presentation . '.pdf');
         File::ensureDirectoryExists(dirname($output));
 
-        $format = (string) ($this->option('format') ?: config('slidewire.pdf.format', 'a4'));
-        $orientation = (string) ($this->option('orientation') ?: config('slidewire.pdf.orientation', 'portrait'));
-        $includeNotes = (bool) ($this->option('notes') ?: config('slidewire.pdf.include_notes', false));
+        $format = (string) $this->option('format');
+        $orientation = (string) $this->option('orientation');
+
+        // Render the Blade template to an HTML string with inlined CSS
+        $html = view('slidewire::pdf.deck', [
+            'effectiveSlides' => $effectiveSlides,
+            'deckMeta' => $compiled['deck_meta'],
+            'presentation' => $presentation,
+            'themeTypography' => $themeResolver->typographyClassMap(),
+            'configuredThemes' => $themeResolver->backgroundClassMap(),
+            'googleFontsUrl' => $themeResolver->googleFontsUrl(),
+            'codeFontFamily' => $themeResolver->codeFontFamily(),
+            'inlineCss' => $this->resolveViteCss(),
+        ])->render();
 
         try {
-            $pdf = Pdf::view('slidewire::pdf.deck', [
-                'slides' => $slides,
-                'includeNotes' => $includeNotes,
-                'presentation' => $presentation,
-            ])->format($format);
+            $browsershot = Browsershot::html($html)
+                ->noSandbox()
+                ->format($format)
+                ->showBackground()
+                ->waitUntilNetworkIdle();
 
             if ($orientation === 'landscape') {
-                $pdf->orientation(Orientation::Landscape);
-            } else {
-                $pdf->orientation(Orientation::Portrait);
+                $browsershot->landscape();
             }
 
-            $pdf->save($output);
+            $browsershot->savePdf($output);
         } catch (Throwable $e) {
             $this->error("Unable to export PDF: {$e->getMessage()}");
-            $this->line('<comment>Ensure spatie/laravel-pdf has a configured driver.</comment>');
+            $this->line('<comment>Ensure Chromium/Chrome and Node.js are available on the system.</comment>');
 
             return self::FAILURE;
         }
@@ -68,5 +92,51 @@ class SlidePdfCommand extends Command
         $this->info("SlideWire PDF exported to [{$output}].");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Read the Vite manifest and inline the CSS content for PDF rendering.
+     *
+     * Browsershot renders HTML from a temporary file, so relative asset URLs
+     * from @vite directives won't resolve. This reads the built CSS directly
+     * and returns it as a string for embedding in a <style> tag.
+     */
+    private function resolveViteCss(): string
+    {
+        $manifestPath = public_path('build/manifest.json');
+
+        if (! File::exists($manifestPath)) {
+            return '';
+        }
+
+        $manifest = json_decode(File::get($manifestPath), true);
+
+        if (! is_array($manifest)) {
+            return '';
+        }
+
+        $css = '';
+
+        foreach ($manifest as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+
+            if (! isset($entry['file'])) {
+                continue;
+            }
+
+            if (! str_ends_with((string) $entry['file'], '.css')) {
+                continue;
+            }
+
+            $cssPath = public_path('build/' . $entry['file']);
+
+            if (File::exists($cssPath)) {
+                $css .= File::get($cssPath);
+            }
+        }
+
+        return $css;
     }
 }

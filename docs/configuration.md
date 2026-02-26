@@ -143,8 +143,7 @@ When a Google Fonts family is configured, SlideWire automatically injects precon
 
 Defaults to an empty array (no custom fonts loaded).
 
-## PDF (`pdf`)
+## PDF Export
 
-- `format` (e.g. `a4`, `letter`)
-- `orientation` (`portrait`, `landscape`)
-- `include_notes` (boolean)
+PDF export is handled by the `slidewire:pdf` Artisan command and defaults to A4 landscape.
+Override via command options `--format=` and `--orientation=`.

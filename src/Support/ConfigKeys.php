@@ -47,12 +47,6 @@ final class ConfigKeys
 
     public const string FONTS = 'slidewire.fonts';
 
-    public const string PDF_FORMAT = 'slidewire.pdf.format';
-
-    public const string PDF_ORIENTATION = 'slidewire.pdf.orientation';
-
-    public const string PDF_INCLUDE_NOTES = 'slidewire.pdf.include_notes';
-
     /**
      * Required keys for each theme entry in the nested schema.
      *

@@ -100,10 +100,4 @@ return [
         'Inter' => ['source' => 'google', 'weights' => [400, 600, 700]],
         'JetBrains Mono' => ['source' => 'google', 'weights' => [400, 700]],
     ],
-
-    'pdf' => [
-        'format' => 'a4',
-        'orientation' => 'portrait',
-        'include_notes' => false,
-    ],
 ];
