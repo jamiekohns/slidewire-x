@@ -9,6 +9,13 @@ use WendellAdriel\SlideWire\SlideWireServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutVite();
+    }
+
     protected function getPackageProviders($app): array
     {
         return [

@@ -98,7 +98,12 @@
                     </video>
                 @endif
 
-                <div class="slidewire-content">
+                @php
+                    $slideThemeName = $effective['theme'] ?? $deckMeta['theme'] ?? config('slidewire.defaults.theme', 'default');
+                    $slideTypography = $themeTypography[$slideThemeName] ?? ['title' => '', 'text' => ''];
+                @endphp
+
+                <div class="slidewire-content {{ $slideTypography['text'] }}">
                     {!! $slide['html'] !!}
                 </div>
             </section>
@@ -147,8 +152,6 @@
         .slidewire-fragment.slidewire-fragment-visible { opacity: 1; transform: translateY(0); }
         .slidewire-content h1, .slidewire-content h2, .slidewire-content h3,
         .slidewire-content h4, .slidewire-content h5, .slidewire-content h6 { line-height: 1.2; }
-
-        {!! $typographyCss !!}
     </style>
 
     @script

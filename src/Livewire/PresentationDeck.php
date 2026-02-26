@@ -161,7 +161,6 @@ class PresentationDeck extends Component
         $effectiveSlides = $settingsResolver->resolve($this->slides, $this->deckMeta);
         $configuredThemes = $themeResolver->backgroundClassMap();
         $themeTypography = $themeResolver->typographyClassMap();
-        $typographyCss = $themeResolver->typographyCss();
         $googleFontsUrl = $themeResolver->googleFontsUrl();
         $slideThemes = $themeResolver->slideThemes($effectiveSlides);
         $hasVerticalSlides = $themeResolver->hasVerticalSlides($this->gridShape);
@@ -170,7 +169,6 @@ class PresentationDeck extends Component
             'effectiveSlides' => $effectiveSlides,
             'configuredThemes' => $configuredThemes,
             'themeTypography' => $themeTypography,
-            'typographyCss' => $typographyCss,
             'googleFontsUrl' => $googleFontsUrl,
             'slideThemes' => $slideThemes,
             'hasVerticalSlides' => $hasVerticalSlides,

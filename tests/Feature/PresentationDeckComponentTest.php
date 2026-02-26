@@ -49,59 +49,19 @@ it('renders theme background classes from nested theme config', function (): voi
 });
 
 // ========================================================================
-// Theme typography CSS tests
+// @vite directive in layout
 // ========================================================================
 
-it('injects typography CSS style block into rendered deck', function (): void {
-    Route::slidewire('/slides/demo', 'demo');
+it('includes @vite directive in the blank layout template', function (): void {
+    $layoutPath = realpath(__DIR__ . '/../../resources/views/layouts/blank.blade.php');
 
-    $response = test()->get('/slides/demo');
-    $content = $response->getContent();
-
-    // Typography CSS rules should be present in the style block
-    expect($content)->toContain('.slidewire-theme-default .slidewire-content h1')
-        ->and($content)->toContain('.slidewire-theme-default .slidewire-content {');
+    expect($layoutPath)->not->toBeFalse()
+        ->and(file_get_contents($layoutPath))->toContain('@vite');
 });
 
-it('injects correct title color CSS for the default theme', function (): void {
-    Route::slidewire('/slides/demo', 'demo');
-
-    $response = test()->get('/slides/demo');
-    $content = $response->getContent();
-
-    // Default theme title color: text-slate-50 => #f8fafc
-    expect($content)->toContain('color: #f8fafc');
-});
-
-it('injects correct title font-size CSS for the default theme', function (): void {
-    Route::slidewire('/slides/demo', 'demo');
-
-    $response = test()->get('/slides/demo');
-    $content = $response->getContent();
-
-    // Default theme title size: text-4xl => 2.25rem
-    expect($content)->toContain('font-size: 2.25rem');
-});
-
-it('injects correct text color CSS for the default theme', function (): void {
-    Route::slidewire('/slides/demo', 'demo');
-
-    $response = test()->get('/slides/demo');
-    $content = $response->getContent();
-
-    // Default theme text color: text-slate-200 => #e2e8f0
-    expect($content)->toContain('color: #e2e8f0');
-});
-
-it('injects correct text font-size CSS for the default theme', function (): void {
-    Route::slidewire('/slides/demo', 'demo');
-
-    $response = test()->get('/slides/demo');
-    $content = $response->getContent();
-
-    // Default theme text size: text-lg => 1.125rem
-    expect($content)->toContain('font-size: 1.125rem');
-});
+// ========================================================================
+// Theme class application tests
+// ========================================================================
 
 it('applies slidewire-theme class to slide frame elements', function (): void {
     Route::slidewire('/slides/demo', 'demo');
@@ -124,15 +84,92 @@ it('applies slide-level theme class when slide overrides theme', function (): vo
         ->and($content)->toContain('slidewire-theme-white');
 });
 
-it('includes typography CSS for both night and white themes in precedence deck', function (): void {
+// ========================================================================
+// Theme typography class application tests
+// ========================================================================
+
+it('applies text typography classes to slidewire-content div', function (): void {
+    Route::slidewire('/slides/demo', 'demo');
+
+    $response = test()->get('/slides/demo');
+    $content = $response->getContent();
+
+    // Default theme text: text-slate-200 text-lg
+    // These classes should appear on the slidewire-content div
+    expect($content)->toContain('slidewire-content text-slate-200 text-lg');
+});
+
+it('applies correct typography classes when slide overrides theme', function (): void {
     Route::slidewire('/slides/precedence', 'precedence');
 
     $response = test()->get('/slides/precedence');
     $content = $response->getContent();
 
-    // Night theme title: text-slate-200 => #e2e8f0
-    expect($content)->toContain('.slidewire-theme-night .slidewire-content h1');
+    // Slide 2 uses theme=white, so text typography should be text-zinc-600 text-lg
+    expect($content)->toContain('slidewire-content text-zinc-600 text-lg');
 
-    // White theme title: text-zinc-800 => #27272a
-    expect($content)->toContain('.slidewire-theme-white .slidewire-content h1');
+    // Other slides use night theme, so text typography should be text-slate-300 text-lg
+    expect($content)->toContain('slidewire-content text-slate-300 text-lg');
+});
+
+// ========================================================================
+// Per-slide Tailwind class preservation tests
+// ========================================================================
+
+it('preserves per-slide Tailwind background classes on frame elements', function (): void {
+    Route::slidewire('/slides/demo', 'demo');
+
+    $response = test()->get('/slides/demo');
+    $content = $response->getContent();
+
+    // demo slide 1: class="bg-slate-900 text-white"
+    expect($content)->toContain('bg-slate-900 text-white');
+});
+
+it('preserves per-slide gradient classes on frame elements', function (): void {
+    Route::slidewire('/slides/gradient', 'gradient');
+
+    $response = test()->get('/slides/gradient');
+    $content = $response->getContent();
+
+    // gradient slide 1: class="bg-gradient-to-br from-blue-900 to-slate-950 text-slate-50"
+    expect($content)->toContain('bg-gradient-to-br from-blue-900 to-slate-950 text-slate-50');
+});
+
+it('applies white theme class when slide overrides theme in gradient deck', function (): void {
+    Route::slidewire('/slides/gradient', 'gradient');
+
+    $response = test()->get('/slides/gradient');
+    $content = $response->getContent();
+
+    // gradient slide 3 uses theme="white"
+    expect($content)->toContain('slidewire-theme-white');
+});
+
+// ========================================================================
+// Alpine theme data tests
+// ========================================================================
+
+it('passes configured themes to Alpine as background class data', function (): void {
+    Route::slidewire('/slides/demo', 'demo');
+
+    $response = test()->get('/slides/demo');
+    $content = $response->getContent();
+
+    // configuredThemes should include the background class strings for themes
+    // These are serialized into the Alpine x-data
+    expect($content)->toContain('bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950');
+});
+
+it('passes theme typography data to Alpine component', function (): void {
+    Route::slidewire('/slides/demo', 'demo');
+
+    $response = test()->get('/slides/demo');
+    $content = $response->getContent();
+
+    // themeTypography is the last argument to slidewireDeck()
+    expect($content)->toContain('text-slate-50')
+        ->and($content)->toContain('text-4xl')
+        ->and($content)->toContain('text-slate-200')
+        ->and($content)->toContain('text-lg');
 });
