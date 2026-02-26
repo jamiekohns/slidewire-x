@@ -14,16 +14,16 @@ it('resolves highlight theme from explicit parameter', function (): void {
 it('resolves highlight theme from nested theme config highlight_theme', function (): void {
     $highlighter = app(CodeHighlighter::class);
 
-    expect($highlighter->resolveHighlightTheme(null, 'white'))->toBe('github-light');
-    expect($highlighter->resolveHighlightTheme(null, 'night'))->toBe('github-dark');
-    expect($highlighter->resolveHighlightTheme(null, 'solarized'))->toBe('solarized-light');
+    expect($highlighter->resolveHighlightTheme(null, 'white'))->toBe('catppuccin-latte');
+    expect($highlighter->resolveHighlightTheme(null, 'night'))->toBe('catppuccin-mocha');
+    expect($highlighter->resolveHighlightTheme(null, 'solarized'))->toBe('catppuccin-latte');
 });
 
 it('falls back to config default when theme has no highlight_theme', function (): void {
     $highlighter = app(CodeHighlighter::class);
 
-    expect($highlighter->resolveHighlightTheme(null, 'custom-unmapped'))->toBe('github-dark');
-    expect($highlighter->resolveHighlightTheme())->toBe('github-dark');
+    expect($highlighter->resolveHighlightTheme(null, 'custom-unmapped'))->toBe('catppuccin-mocha');
+    expect($highlighter->resolveHighlightTheme())->toBe('catppuccin-mocha');
 });
 
 it('produces highlighted output with custom highlight theme', function (): void {
@@ -39,7 +39,7 @@ it('resolves highlight theme for all built-in themes', function (): void {
     $themes = config('slidewire.themes', []);
 
     foreach ($themes as $name => $config) {
-        $expected = is_array($config) ? ($config['highlight_theme'] ?? 'github-dark') : 'github-dark';
+        $expected = is_array($config) ? ($config['highlight_theme'] ?? 'catppuccin-mocha') : 'catppuccin-mocha';
         $resolved = $highlighter->resolveHighlightTheme(null, $name);
 
         expect($resolved)->toBe($expected, "Theme '{$name}' should resolve to '{$expected}'");

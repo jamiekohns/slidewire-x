@@ -94,7 +94,17 @@ it('returns empty typography strings for non-array theme entries', function (): 
         ->and($map['legacy']['text'])->toBe('');
 });
 
-it('returns null google fonts url when no google fonts are configured', function (): void {
+it('returns google fonts url for default font configuration', function (): void {
+    $resolver = app(ThemeResolver::class);
+    $url = $resolver->googleFontsUrl();
+
+    expect($url)->toContain('fonts.googleapis.com')
+        ->and($url)->toContain('Inter')
+        ->and($url)->toContain('JetBrains');
+});
+
+it('returns null google fonts url when fonts config is empty', function (): void {
+    config()->set('slidewire.fonts', []);
     $resolver = app(ThemeResolver::class);
 
     expect($resolver->googleFontsUrl())->toBeNull();
@@ -113,6 +123,23 @@ it('builds google fonts url when google fonts are configured', function (): void
         ->and($url)->toContain('Inter')
         ->and($url)->toContain('400;600;700')
         ->and($url)->not->toContain('Georgia');
+});
+
+it('resolves code font family from configured mono font', function (): void {
+    $resolver = app(ThemeResolver::class);
+    $fontFamily = $resolver->codeFontFamily();
+
+    expect($fontFamily)->toContain('JetBrains Mono')
+        ->and($fontFamily)->toContain('monospace');
+});
+
+it('falls back to system monospace stack when no mono font is configured', function (): void {
+    config()->set('slidewire.fonts', []);
+    $resolver = app(ThemeResolver::class);
+    $fontFamily = $resolver->codeFontFamily();
+
+    expect($fontFamily)->toContain('ui-monospace')
+        ->and($fontFamily)->not->toContain('JetBrains');
 });
 
 it('extracts slide themes from effective slides', function (): void {

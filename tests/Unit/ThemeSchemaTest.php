@@ -48,6 +48,11 @@ it('does not have legacy theme_highlight_map config key', function (): void {
     expect(config('slidewire.theme_highlight_map'))->toBeNull();
 });
 
-it('fonts config defaults to empty array', function (): void {
-    expect(config('slidewire.fonts'))->toBe([]);
+it('fonts config includes default google fonts', function (): void {
+    $fonts = config('slidewire.fonts');
+
+    expect($fonts)->toHaveKey('Inter')
+        ->and($fonts)->toHaveKey('JetBrains Mono')
+        ->and($fonts['Inter']['source'])->toBe('google')
+        ->and($fonts['JetBrains Mono']['source'])->toBe('google');
 });

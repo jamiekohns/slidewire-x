@@ -61,6 +61,31 @@ class ThemeResolver
     }
 
     /**
+     * Build the CSS font-family value for code blocks from configured Google fonts.
+     *
+     * Uses the first font in the 'fonts' config that has a name containing "Mono"
+     * or falls back to the system monospace stack.
+     */
+    public function codeFontFamily(): string
+    {
+        $fontConfig = config('slidewire.fonts', []);
+
+        // Find the first monospace/code font in the config
+        $codeFont = collect($fontConfig)
+            ->filter(fn (mixed $config, string $family): bool => str_contains($family, 'Mono'))
+            ->keys()
+            ->first();
+
+        $fallback = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+
+        if ($codeFont !== null) {
+            return "'{$codeFont}', {$fallback}";
+        }
+
+        return $fallback;
+    }
+
+    /**
      * Build a Google Fonts URL from configured font families, or null if no Google fonts.
      */
     public function googleFontsUrl(): ?string

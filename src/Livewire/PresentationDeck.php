@@ -162,6 +162,7 @@ class PresentationDeck extends Component
         $configuredThemes = $themeResolver->backgroundClassMap();
         $themeTypography = $themeResolver->typographyClassMap();
         $googleFontsUrl = $themeResolver->googleFontsUrl();
+        $codeFontFamily = $themeResolver->codeFontFamily();
         $slideThemes = $themeResolver->slideThemes($effectiveSlides);
         $hasVerticalSlides = $themeResolver->hasVerticalSlides($this->gridShape);
 
@@ -170,6 +171,7 @@ class PresentationDeck extends Component
             'configuredThemes' => $configuredThemes,
             'themeTypography' => $themeTypography,
             'googleFontsUrl' => $googleFontsUrl,
+            'codeFontFamily' => $codeFontFamily,
             'slideThemes' => $slideThemes,
             'hasVerticalSlides' => $hasVerticalSlides,
         ]);

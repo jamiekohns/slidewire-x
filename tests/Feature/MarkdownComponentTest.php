@@ -42,7 +42,7 @@ BLADE);
 });
 
 it('inherits deck theme for highlight theme resolution', function (): void {
-    // The 'white' theme maps to 'github-light' highlight theme in config
+    // The 'white' theme maps to 'catppuccin-latte' highlight theme in config
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::deck theme="white">
     <x-slidewire::slide>
@@ -55,12 +55,12 @@ echo 'hello';
 </x-slidewire::deck>
 BLADE);
 
-    // github-light theme should be applied (Phiki adds theme name as class)
-    expect($html)->toContain('github-light');
+    // catppuccin-latte theme should be applied (Phiki adds theme name as class)
+    expect($html)->toContain('catppuccin-latte');
 });
 
 it('inherits slide theme override for highlight theme resolution', function (): void {
-    // Deck uses 'night' (github-dark) but slide overrides with 'white' (github-light)
+    // Deck uses 'night' (catppuccin-mocha) but slide overrides with 'white' (catppuccin-latte)
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::deck theme="night">
     <x-slidewire::slide theme="white">
@@ -73,7 +73,7 @@ echo 'hello';
 </x-slidewire::deck>
 BLADE);
 
-    expect($html)->toContain('github-light');
+    expect($html)->toContain('catppuccin-latte');
 });
 
 it('uses deck highlight-theme when explicitly set', function (): void {
@@ -101,8 +101,8 @@ echo 'hello';
 </x-slidewire::markdown>
 BLADE);
 
-    // Default highlight theme from config is github-dark
-    expect($html)->toContain('github-dark');
+    // Default highlight theme from config is catppuccin-mocha
+    expect($html)->toContain('catppuccin-mocha');
 });
 
 it('clears slide context after slide renders', function (): void {

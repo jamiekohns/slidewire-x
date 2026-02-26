@@ -152,6 +152,10 @@
         .slidewire-fragment.slidewire-fragment-visible { opacity: 1; transform: translateY(0); }
         .slidewire-content h1, .slidewire-content h2, .slidewire-content h3,
         .slidewire-content h4, .slidewire-content h5, .slidewire-content h6 { line-height: 1.2; }
+        .slidewire-content pre.phiki,
+        .slidewire-content pre.slidewire-code { padding: 1.25rem 1.5rem; margin: 1rem 0; border-radius: 0.75rem; overflow-x: auto; font-size: 0.9em; line-height: 1.6; }
+        .slidewire-content pre.slidewire-code { background: #24292e; color: #e1e4e8; }
+        .slidewire-content pre code, .slidewire-content code { font-family: {{ $codeFontFamily }}; }
     </style>
 
     @script

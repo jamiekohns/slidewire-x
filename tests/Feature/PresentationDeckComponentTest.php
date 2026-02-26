@@ -94,9 +94,9 @@ it('applies text typography classes to slidewire-content div', function (): void
     $response = test()->get('/slides/demo');
     $content = $response->getContent();
 
-    // Default theme text: text-slate-200 text-lg
+    // Default theme text: Inter text-slate-200 text-lg
     // These classes should appear on the slidewire-content div
-    expect($content)->toContain('slidewire-content text-slate-200 text-lg');
+    expect($content)->toContain('slidewire-content Inter text-slate-200 text-lg');
 });
 
 it('applies correct typography classes when slide overrides theme', function (): void {
@@ -105,11 +105,11 @@ it('applies correct typography classes when slide overrides theme', function ():
     $response = test()->get('/slides/precedence');
     $content = $response->getContent();
 
-    // Slide 2 uses theme=white, so text typography should be text-zinc-600 text-lg
-    expect($content)->toContain('slidewire-content text-zinc-600 text-lg');
+    // Slide 2 uses theme=white, so text typography should be Inter text-zinc-600 text-lg
+    expect($content)->toContain('slidewire-content Inter text-zinc-600 text-lg');
 
-    // Other slides use night theme, so text typography should be text-slate-300 text-lg
-    expect($content)->toContain('slidewire-content text-slate-300 text-lg');
+    // Other slides use night theme, so text typography should be Inter text-slate-300 text-lg
+    expect($content)->toContain('slidewire-content Inter text-slate-300 text-lg');
 });
 
 // ========================================================================

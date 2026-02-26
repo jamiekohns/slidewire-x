@@ -17,24 +17,24 @@ it('renders code blocks with phiki syntax highlighting through the full pipeline
         ->and($content)->toContain('language-php');
 });
 
-it('applies night theme highlight (github-dark) for deck with theme=night', function (): void {
+it('applies night theme highlight (catppuccin-mocha) for deck with theme=night', function (): void {
     Route::slidewire('/slides/codeblock', 'codeblock');
 
     $response = test()->get('/slides/codeblock');
     $content = $response->getContent();
 
-    // First slide inherits deck theme=night, which maps to github-dark
-    expect($content)->toContain('github-dark');
+    // First slide inherits deck theme=night, which maps to catppuccin-mocha
+    expect($content)->toContain('catppuccin-mocha');
 });
 
-it('applies white theme highlight (github-light) for slide with theme=white', function (): void {
+it('applies white theme highlight (catppuccin-latte) for slide with theme=white', function (): void {
     Route::slidewire('/slides/codeblock', 'codeblock');
 
     $response = test()->get('/slides/codeblock');
     $content = $response->getContent();
 
-    // Second slide overrides with theme=white, which maps to github-light
-    expect($content)->toContain('github-light');
+    // Second slide overrides with theme=white, which maps to catppuccin-latte
+    expect($content)->toContain('catppuccin-latte');
 });
 
 it('preserves Blade component syntax in code blocks through compilation', function (): void {
