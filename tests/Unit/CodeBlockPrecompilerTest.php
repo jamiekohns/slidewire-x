@@ -191,3 +191,86 @@ plain text code
     $decoded = CodeBlockPrecompiler::decode($result);
     expect($decoded)->toContain('plain text code');
 });
+
+it('encodes slot content inside code component tags', function (): void {
+    $precompiler = new CodeBlockPrecompiler();
+
+    $template = '<x-slidewire::code language="php">
+echo "hello";
+</x-slidewire::code>';
+
+    $result = $precompiler($template);
+
+    expect($result)->not->toContain('echo "hello"')
+        ->and($result)->toContain(CodeBlockPrecompiler::PLACEHOLDER_PREFIX)
+        ->and($result)->toContain(CodeBlockPrecompiler::PLACEHOLDER_SUFFIX);
+});
+
+it('round-trips code component slot encode and decode correctly', function (): void {
+    $precompiler = new CodeBlockPrecompiler();
+
+    $template = '<x-slidewire::code language="php">
+$deck = new Compiler();
+$slides = $deck->compile("demo");
+</x-slidewire::code>';
+
+    $encoded = $precompiler($template);
+    $decoded = CodeBlockPrecompiler::decode($encoded);
+
+    expect($decoded)->toContain('$deck = new Compiler()')
+        ->and($decoded)->toContain('$slides = $deck->compile("demo")');
+});
+
+it('protects Blade component syntax inside code component from compilation', function (): void {
+    $precompiler = new CodeBlockPrecompiler();
+
+    $template = '<x-slidewire::code language="blade">
+<x-slidewire::deck theme="night">
+    <x-slidewire::slide>Hello</x-slidewire::slide>
+</x-slidewire::deck>
+</x-slidewire::code>';
+
+    $result = $precompiler($template);
+
+    // The Blade component tags should be encoded, not visible for Blade to compile
+    expect($result)->not->toContain('<x-slidewire::deck')
+        ->and($result)->not->toContain('<x-slidewire::slide');
+
+    // After decoding, the original Blade syntax should be restored
+    $decoded = CodeBlockPrecompiler::decode($result);
+
+    expect($decoded)->toContain('<x-slidewire::deck theme="night">')
+        ->and($decoded)->toContain('<x-slidewire::slide>Hello</x-slidewire::slide>');
+});
+
+it('handles code component with attributes alongside markdown protection', function (): void {
+    $precompiler = new CodeBlockPrecompiler();
+
+    $template = '<x-slidewire::markdown>
+```php
+echo "in markdown";
+```
+</x-slidewire::markdown>
+<x-slidewire::code language="php" theme="github-dark">
+echo "in code";
+</x-slidewire::code>';
+
+    $result = $precompiler($template);
+
+    expect($result)->not->toContain('echo "in markdown"')
+        ->and($result)->not->toContain('echo "in code"');
+
+    $decoded = CodeBlockPrecompiler::decode($result);
+
+    expect($decoded)->toContain('echo "in markdown"')
+        ->and($decoded)->toContain('echo "in code"');
+});
+
+it('handles empty code component tags', function (): void {
+    $precompiler = new CodeBlockPrecompiler();
+
+    $template = '<x-slidewire::code language="php"></x-slidewire::code>';
+    $result = $precompiler($template);
+
+    expect($result)->toBe($template);
+});

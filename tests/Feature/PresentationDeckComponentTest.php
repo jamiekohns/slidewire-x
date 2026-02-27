@@ -173,3 +173,26 @@ it('passes theme typography data to Alpine component', function (): void {
         ->and($content)->toContain('text-slate-200')
         ->and($content)->toContain('text-lg');
 });
+
+// ========================================================================
+// Mermaid runtime integration tests
+// ========================================================================
+
+it('includes Mermaid loading logic in deck JavaScript', function (): void {
+    Route::slidewire('/slides/demo', 'demo');
+
+    $response = test()->get('/slides/demo');
+    $content = $response->getContent();
+
+    expect($content)->toContain('renderDiagrams')
+        ->and($content)->toContain('data-slidewire-diagram');
+});
+
+it('includes renderDiagrams method in deck JavaScript', function (): void {
+    Route::slidewire('/slides/demo', 'demo');
+
+    $response = test()->get('/slides/demo');
+    $content = $response->getContent();
+
+    expect($content)->toContain('renderDiagrams');
+});

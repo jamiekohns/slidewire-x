@@ -156,6 +156,9 @@
         .slidewire-content pre.slidewire-code { padding: 1.25rem 1.5rem; margin: 1rem 0; border-radius: 0.75rem; overflow-x: auto; font-size: 0.9em; line-height: 1.6; }
         .slidewire-content pre.slidewire-code { background: #24292e; color: #e1e4e8; }
         .slidewire-content pre code, .slidewire-content code { font-family: {{ $codeFontFamily }}; }
+        .slidewire-content .slidewire-diagram { background: transparent; opacity: 0; color: transparent; }
+        .slidewire-content .slidewire-diagram[data-processed] { opacity: 1; transition: opacity .6s ease-out .1s; }
+        .slidewire-content .slidewire-diagram svg { max-width: 100%; height: auto; }
     </style>
 
     @script
@@ -187,6 +190,8 @@
                     this.syncFromHash();
                     this.refreshFragments();
                     this.setupAutoSlide();
+                    this.renderDiagrams();
+                    this.observeDiagrams();
 
                     window.addEventListener('hashchange', () => this.syncFromHash());
                     document.addEventListener('fullscreenchange', () => {
@@ -235,6 +240,7 @@
                         this.refreshFragments();
                         this.playAutoAnimate(oldValue, value);
                         this.setupAutoSlide();
+                        this.renderDiagrams();
                     });
 
                     this.$watch('fragment', () => {
@@ -401,6 +407,17 @@
 
                     if (!fromSlide || !toSlide) {
                         this.leavingIndex = null;
+
+                        return;
+                    }
+
+                    // When auto-animate is active between slides, skip the regular transition
+                    // so the morph animation is the only visual effect.
+                    // Don't keep the old slide visible — hide it immediately to prevent
+                    // both slides overlapping and causing a flicker.
+                    if (this.shouldAutoAnimate(fromSlide, toSlide)) {
+                        this.leavingIndex = null;
+                        this.isTransitioning = false;
 
                         return;
                     }
@@ -580,18 +597,27 @@
                         return;
                     }
 
-                    this.$nextTick(() => {
-                        const toSlide = this.$refs[`slide${value}`];
+                    const toSlide = this.$refs[`slide${value}`];
 
-                        if (!toSlide) {
-                            this.autoAnimateSnapshot = null;
+                    if (!toSlide) {
+                        this.autoAnimateSnapshot = null;
 
-                            return;
-                        }
+                        return;
+                    }
 
-                        const targetNodes = toSlide.querySelectorAll('[data-auto-animate-id]');
+                    const targetNodes = toSlide.querySelectorAll('[data-auto-animate-id]');
 
+                    // Pre-hide every animated node so they don't flash at final position
+                    targetNodes.forEach((node) => {
+                        node.style.opacity = '0';
+                    });
+
+                    // Use requestAnimationFrame to start animations before the first
+                    // browser paint, preventing any flash of elements at final positions.
+                    requestAnimationFrame(() => {
                         targetNodes.forEach((node) => {
+                            node.style.opacity = '';
+
                             const id = node.getAttribute('data-auto-animate-id');
 
                             if (!id) {
@@ -639,6 +665,142 @@
 
                         this.autoAnimateSnapshot = null;
                     });
+                },
+                observeDiagrams() {
+                    // MutationObserver detects when Livewire morphs diagram nodes,
+                    // replacing the Mermaid-rendered SVG with the original source text.
+                    // This is the only reliable way to re-render after async DOM morphs.
+                    // Debounced to avoid retriggering when Mermaid itself modifies the DOM.
+                    let diagramTimer = null;
+
+                    const observer = new MutationObserver(() => {
+                        // Check if any diagram node lost its SVG (morph replaced it with text)
+                        const stale = this.$el.querySelectorAll('[data-slidewire-diagram]');
+                        let needsRender = false;
+
+                        for (const node of stale) {
+                            if (!node.querySelector('svg')) {
+                                needsRender = true;
+                                break;
+                            }
+                        }
+
+                        if (!needsRender) {
+                            return;
+                        }
+
+                        // Debounce: Livewire morphs fire many mutations in quick succession.
+                        // Wait for the morph to settle before re-rendering.
+                        if (diagramTimer) {
+                            clearTimeout(diagramTimer);
+                        }
+
+                        diagramTimer = setTimeout(() => {
+                            diagramTimer = null;
+                            this.renderDiagrams();
+                        }, 80);
+                    });
+
+                    observer.observe(this.$el, {
+                        childList: true,
+                        subtree: true,
+                    });
+                },
+                renderDiagrams() {
+                    const allDiagrams = this.$el.querySelectorAll('[data-slidewire-diagram]');
+
+                    if (allDiagrams.length === 0) {
+                        return;
+                    }
+
+                    // Detect diagrams that were morphed by Livewire: they have
+                    // data-processed (Mermaid's idempotency flag) but no longer
+                    // contain an SVG because the DOM morph restored original text.
+                    allDiagrams.forEach((node) => {
+                        if (node.hasAttribute('data-processed') && !node.querySelector('svg')) {
+                            node.removeAttribute('data-processed');
+                        }
+                    });
+
+                    const pending = Array.from(this.$el.querySelectorAll('[data-slidewire-diagram]:not([data-processed])'));
+
+                    if (pending.length === 0) {
+                        return;
+                    }
+
+                    // Store original source text so we can restore it if needed
+                    pending.forEach((node) => {
+                        if (!node.hasAttribute('data-slidewire-diagram-src')) {
+                            node.setAttribute('data-slidewire-diagram-src', node.textContent.trim());
+                        }
+                    });
+
+                    const run = async () => {
+                        const batch = Array.from(this.$el.querySelectorAll('[data-slidewire-diagram]:not([data-processed])'));
+
+                        if (batch.length === 0) {
+                            return;
+                        }
+
+                        // Ensure each node has the original source text for Mermaid to parse
+                        batch.forEach((node) => {
+                            const src = node.getAttribute('data-slidewire-diagram-src');
+
+                            if (src && !node.querySelector('svg')) {
+                                node.textContent = src;
+                            }
+                        });
+
+                        // Group nodes by their Mermaid theme (data-mermaid-theme attr, default 'dark')
+                        const groups = {};
+
+                        batch.forEach((node) => {
+                            const theme = node.getAttribute('data-mermaid-theme') || 'dark';
+
+                            if (!groups[theme]) {
+                                groups[theme] = [];
+                            }
+
+                            groups[theme].push(node);
+                        });
+
+                        for (const [theme, nodes] of Object.entries(groups)) {
+                            window.mermaid.initialize({ startOnLoad: false, theme: theme });
+
+                            try {
+                                await window.mermaid.run({ nodes: nodes });
+                            } catch (e) {
+                                // Silently handle Mermaid parse errors
+                            }
+                        }
+                    };
+
+                    if (typeof window.mermaid !== 'undefined') {
+                        run();
+
+                        return;
+                    }
+
+                    if (window._slidewireMermaidLoading) {
+                        window._slidewireMermaidCallbacks = window._slidewireMermaidCallbacks || [];
+                        window._slidewireMermaidCallbacks.push(run);
+
+                        return;
+                    }
+
+                    window._slidewireMermaidLoading = true;
+                    window._slidewireMermaidCallbacks = [run];
+
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
+                    script.onload = () => {
+                        window.mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+                        const callbacks = window._slidewireMermaidCallbacks || [];
+                        window._slidewireMermaidCallbacks = [];
+
+                        callbacks.forEach((cb) => cb());
+                    };
+                    document.head.appendChild(script);
                 },
                 refreshFragments() {
                     this.$nextTick(() => {
