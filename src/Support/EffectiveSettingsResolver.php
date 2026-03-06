@@ -61,7 +61,6 @@ class EffectiveSettingsResolver
             ?? $this->configValue($slidesConfig, $key);
         }
 
-        // Highlight theme resolution: slide > deck > config
         $effective['highlight_theme'] = $slideMeta['highlight_theme']
             ?? $deckMeta['highlight_theme']
             ?? $slidesConfig->highlight->theme->value;

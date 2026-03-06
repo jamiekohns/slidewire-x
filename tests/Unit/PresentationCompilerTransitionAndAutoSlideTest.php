@@ -8,7 +8,6 @@ it('extracts transition speed and auto slide metadata from blade slides', functi
     $compiled = app(PresentationCompiler::class)->compile('autoslide');
     $columns = $compiled['slides'];
 
-    // Flatten 2D grid for assertion
     $slides = collect($columns)->flatten(1)->values()->all();
 
     expect($slides)->toHaveCount(2)

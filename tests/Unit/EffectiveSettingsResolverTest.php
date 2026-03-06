@@ -17,11 +17,9 @@ it('resolves effective settings with slide > deck > config precedence', function
 
     $result = $resolver->resolve($slides, $deckMeta);
 
-    // Slide 0: slide-level overrides take priority
     expect($result[0]->effective['theme'])->toBe('white')
         ->and($result[0]->effective['transition'])->toBe('zoom');
 
-    // Slide 1: inherits deck-level
     expect($result[1]->effective['theme'])->toBe('black')
         ->and($result[1]->effective['transition'])->toBe('fade');
 });
@@ -43,7 +41,6 @@ it('falls back to slide config when deck and slide have no overrides', function 
 it('resolves highlight theme through slide > deck > config chain', function (): void {
     $resolver = app(EffectiveSettingsResolver::class);
 
-    // Slide has highlight_theme
     $slides = [
         new Slide(id: 'test-0', html: '', meta: ['highlight_theme' => 'monokai'], h: 0, v: 0),
         new Slide(id: 'test-1', html: '', meta: [], h: 1, v: 0),

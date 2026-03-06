@@ -20,30 +20,16 @@ class PresentationDeck extends Component
     #[Locked]
     public string $presentation = 'index';
 
-    /**
-     * 2D grid of slides: columns[horizontal][vertical].
-     *
-     * @var array<int, array<int, Slide>>
-     */
+    /** @var array<int, array<int, Slide>> */
     public array $columns = [];
 
-    /**
-     * Flattened slide list for linear indexing and rendering.
-     *
-     * @var array<int, Slide>
-     */
+    /** @var array<int, Slide> */
     public array $slides = [];
 
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     public array $deckMeta = [];
 
-    /**
-     * Grid structure: number of vertical slides per column.
-     *
-     * @var array<int, int>
-     */
+    /** @var array<int, int> */
     public array $gridShape = [];
 
     public int $activeIndex = 0;

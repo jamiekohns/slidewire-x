@@ -32,17 +32,13 @@ it('preserves Blade component syntax inside code fences', function (): void {
 </x-slidewire::markdown>
 BLADE);
 
-    // The code block should contain the original Blade syntax as highlighted code, not compiled HTML
-    // Phiki should highlight it (contains 'phiki' class) and the source should be preserved as text
     expect($html)->toContain('phiki')
         ->and($html)->toContain('language-blade')
-        // The original tag names should appear as escaped text in the highlighted output
         ->and($html)->toContain('x-slidewire::deck')
         ->and($html)->toContain('x-slidewire::slide');
 });
 
 it('inherits deck theme for highlight theme resolution', function (): void {
-    // The 'white' theme maps to 'catppuccin-latte' highlight theme in config
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::deck theme="white">
     <x-slidewire::slide>
@@ -55,12 +51,10 @@ echo 'hello';
 </x-slidewire::deck>
 BLADE);
 
-    // catppuccin-latte theme should be applied (Phiki adds theme name as class)
     expect($html)->toContain('catppuccin-latte');
 });
 
 it('inherits slide theme override for highlight theme resolution', function (): void {
-    // Deck uses 'black' (catppuccin-mocha) but slide overrides with 'white' (catppuccin-latte)
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::deck theme="black">
     <x-slidewire::slide theme="white">
@@ -101,7 +95,6 @@ echo 'hello';
 </x-slidewire::markdown>
 BLADE);
 
-    // Default highlight theme from config is catppuccin-mocha
     expect($html)->toContain('catppuccin-mocha');
 });
 
@@ -141,7 +134,6 @@ it('clears slide context after slide renders', function (): void {
 </x-slidewire::deck>
 BLADE);
 
-    // After rendering, the context should be cleared
     expect($context->presentationTheme())->toBeNull()
         ->and($context->highlightTheme())->toBeNull();
 });
@@ -158,7 +150,6 @@ it('preserves HTML tags inside code fences from Blade compilation', function ():
 </x-slidewire::markdown>
 BLADE);
 
-    // The HTML should be highlighted as code, not rendered as actual HTML elements
     expect($html)->toContain('phiki')
         ->and($html)->toContain('language-html');
 });

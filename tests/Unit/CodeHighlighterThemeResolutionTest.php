@@ -50,8 +50,6 @@ it('resolves highlight theme for all built-in themes', function (): void {
 it('gives explicit parameter highest priority over theme and config', function (): void {
     $highlighter = app(CodeHighlighter::class);
 
-    // Even with a valid presentation theme that has its own highlight_theme,
-    // the explicit parameter wins
     $resolved = $highlighter->resolveHighlightTheme('one-dark-pro', 'white');
 
     expect($resolved)->toBe(Theme::OneDarkPro);

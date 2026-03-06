@@ -34,7 +34,6 @@ it('applies global frontmatter to first slide only', function (): void {
 });
 
 it('supports per-slide frontmatter on subsequent slides', function (): void {
-    // Per-slide frontmatter needs to appear at the start of the chunk (after split by separator)
     $content = <<<'MD'
 ---
 title: Global Title

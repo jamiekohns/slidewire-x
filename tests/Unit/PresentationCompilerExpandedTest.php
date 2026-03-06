@@ -15,10 +15,8 @@ it('extracts fragment count from slides with fragments', function (): void {
     $compiled = app(PresentationCompiler::class)->compile('demo');
     $slides = collect($compiled['slides'])->flatten(1)->values()->all();
 
-    // First slide in demo has one fragment
     expect($slides[0]->fragments)->toBe(1);
 
-    // Other slides have no fragments
     expect($slides[2]->fragments)->toBe(0);
 });
 
@@ -37,7 +35,6 @@ it('flattens 2D slide grid for PDF export', function (): void {
 
     $flat = $compiler->flattenSlides($compiled['slides']);
 
-    // Vertical fixture has 5 total slides (1 + 3 + 1)
     expect($flat)->toHaveCount(5)
         ->and($flat[0]->html)->toContain('Horizontal Slide 1')
         ->and($flat[1]->html)->toContain('Stack Top')

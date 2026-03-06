@@ -15,7 +15,6 @@ it('navigates a presentation in the browser', function (): void {
 
     $page = visit('/slides/demo');
 
-    // Verify deck renders with initial slide and controls
     $page->waitForText('Demo Intro')
         ->assertSee('Demo Intro')
         ->assertNoJavaScriptErrors();

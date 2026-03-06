@@ -14,7 +14,7 @@ class PresentationPathResolver
         $normalized = $this->normalizePresentationName($presentation);
 
         foreach ($this->roots() as $root) {
-            $candidate = $root . DIRECTORY_SEPARATOR . $normalized . '.blade.php';
+            $candidate = "{$root}" . DIRECTORY_SEPARATOR . "{$normalized}.blade.php";
 
             if (File::exists($candidate)) {
                 return $candidate;
@@ -29,7 +29,7 @@ class PresentationPathResolver
         $normalized = $this->normalizePresentationName($presentation);
         $root = $this->firstRoot();
 
-        return $root . DIRECTORY_SEPARATOR . $normalized . '.blade.php';
+        return "{$root}" . DIRECTORY_SEPARATOR . "{$normalized}.blade.php";
     }
 
     public function presentationDirectory(string $presentation): ?string
@@ -52,10 +52,8 @@ class PresentationPathResolver
 
     protected function normalizePresentationName(string $presentation): string
     {
-        // Replace backslashes with forward slashes first
         $normalized = str_replace('\\', '/', $presentation);
 
-        // Remove path traversal sequences iteratively to handle nested evasion (e.g., '....' -> '..' -> '')
         do {
             $previous = $normalized;
             $normalized = str_replace('..', '', $normalized);

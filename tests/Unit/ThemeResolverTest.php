@@ -36,9 +36,7 @@ it('includes text color classes in background class map', function (): void {
     $resolver = app(ThemeResolver::class);
     $map = $resolver->backgroundClassMap();
 
-    // white theme: bg-white text-zinc-800
     expect($map['white'])->toContain('text-zinc-800');
-    // default theme includes text-slate-50
     expect($map['default'])->toContain('text-slate-50');
 });
 
@@ -70,7 +68,6 @@ it('includes font size in typography class map', function (): void {
     $resolver = app(ThemeResolver::class);
     $map = $resolver->typographyClassMap();
 
-    // All built-in themes use text-4xl for title and text-lg for text
     expect($map['default']['title'])->toContain('text-4xl')
         ->and($map['default']['text'])->toContain('text-lg');
 });

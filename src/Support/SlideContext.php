@@ -6,10 +6,7 @@ namespace WendellAdriel\SlideWire\Support;
 
 use Phiki\Theme\Theme;
 
-/**
- * Tracks the current deck/slide context during Blade compilation so that
- * nested components (e.g. Markdown) can inherit theme settings.
- */
+// Tracks deck and slide theme context during Blade rendering.
 class SlideContext
 {
     private ?string $deckTheme = null;
@@ -42,19 +39,13 @@ class SlideContext
         $this->slideTheme = null;
     }
 
-    /**
-     * Get the effective presentation theme for the current context.
-     *
-     * Slide theme overrides deck theme.
-     */
+    // Returns the active presentation theme.
     public function presentationTheme(): ?string
     {
         return $this->slideTheme ?? $this->deckTheme;
     }
 
-    /**
-     * Get the explicit highlight theme from the deck, if set.
-     */
+    // Returns the deck-level highlight theme, if set.
     public function highlightTheme(): ?Theme
     {
         return $this->deckHighlightTheme;

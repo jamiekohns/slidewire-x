@@ -38,7 +38,6 @@ it('returns fallback HTML when highlighting is disabled', function (): void {
 it('returns fallback HTML for unknown language gracefully', function (): void {
     $html = app(CodeHighlighter::class)->highlight('some code', 'unknown-lang-xyz')->toHtml();
 
-    // Should either fall back or highlight with best guess
     expect($html)->toBeString()
         ->and($html)->not->toBeEmpty();
 });
@@ -88,7 +87,6 @@ it('handles multiple code blocks in markdown', function (): void {
     $markdown = "```php\necho 'a';\n```\n\n```php\necho 'b';\n```";
     $result = $highlighter->replaceCodeBlocks($markdown);
 
-    // Both code blocks should be highlighted
     expect(substr_count($result, 'language-php'))->toBe(2);
 });
 
@@ -98,7 +96,6 @@ it('uses text language for unspecified code blocks', function (): void {
     $markdown = "```\nplain text\n```";
     $result = $highlighter->replaceCodeBlocks($markdown);
 
-    // The block should still be processed (language defaults to 'text')
     expect($result)->toBeString()
         ->and($result)->not->toContain('```');
 });

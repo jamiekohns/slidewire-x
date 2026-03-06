@@ -35,14 +35,12 @@ it('preserves Blade syntax literals inside code component slot', function (): vo
 </x-slidewire::code>
 BLADE);
 
-    // The original Blade syntax should appear as highlighted text, not compiled
     expect($html)->toContain('phiki')
         ->and($html)->toContain('x-slidewire::deck')
         ->and($html)->toContain('x-slidewire::slide');
 });
 
 it('inherits deck and slide theme chain when theme is omitted', function (): void {
-    // The 'white' theme maps to 'catppuccin-latte' highlight theme in config
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::deck theme="white">
     <x-slidewire::slide>
@@ -57,7 +55,6 @@ BLADE);
 });
 
 it('inherits slide theme override for highlight resolution', function (): void {
-    // Deck uses 'black' (catppuccin-mocha) but slide overrides with 'white' (catppuccin-latte)
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::deck theme="black">
     <x-slidewire::slide theme="white">
@@ -92,7 +89,6 @@ echo 'hello';
 </x-slidewire::code>
 BLADE);
 
-    // Default highlight theme from config is catppuccin-mocha
     expect($html)->toContain('catppuccin-mocha');
 });
 
@@ -145,7 +141,6 @@ some plain text
 </x-slidewire::code>
 BLADE);
 
-    // Should render without error, using text language
     expect($html)->not->toBeEmpty();
 });
 

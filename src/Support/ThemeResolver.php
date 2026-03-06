@@ -9,17 +9,9 @@ use WendellAdriel\SlideWire\DTOs\Slide;
 use WendellAdriel\SlideWire\DTOs\SlidesConfig;
 use WendellAdriel\SlideWire\DTOs\ThemeConfig;
 
-/**
- * Resolves theme background classes, typography maps, and Google Fonts URLs
- * from the slidewire config.
- */
 class ThemeResolver
 {
-    /**
-     * Build a map of theme name => background class string.
-     *
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     public function backgroundClassMap(): array
     {
         return collect(config('slidewire.themes', []))
@@ -27,11 +19,7 @@ class ThemeResolver
             ->all();
     }
 
-    /**
-     * Build a map of theme name => typography class arrays (title + text).
-     *
-     * @return array<string, array{title: string, text: string}>
-     */
+    /** @return array<string, array{title: string, text: string}> */
     public function typographyClassMap(): array
     {
         return collect(config('slidewire.themes', []))
@@ -42,12 +30,6 @@ class ThemeResolver
             ->all();
     }
 
-    /**
-     * Build the CSS font-family value for code blocks from configured Google fonts.
-     *
-     * Uses the first font in the 'fonts' config that has a name containing "Mono"
-     * or falls back to the system monospace stack.
-     */
     public function codeFontFamily(): string
     {
         $slides = config('slidewire.slides', new SlidesConfig());
@@ -61,9 +43,6 @@ class ThemeResolver
         return $this->resolveFontStack($font);
     }
 
-    /**
-     * Build a Google Fonts URL from configured font families, or null if no Google fonts.
-     */
     public function googleFontsUrl(): ?string
     {
         $fontConfig = config('slidewire.fonts', []);
@@ -74,7 +53,9 @@ class ThemeResolver
                 $weights = $font->weights !== [] ? $font->weights : [400];
                 $weightStr = implode(';', array_map(intval(...), $weights));
 
-                return urlencode($family) . ':wght@' . $weightStr;
+                $encodedFamily = urlencode($family);
+
+                return "{$encodedFamily}:wght@{$weightStr}";
             })
             ->values()
             ->all();
@@ -83,9 +64,9 @@ class ThemeResolver
             return null;
         }
 
-        return 'https://fonts.googleapis.com/css2?'
-            . implode('&', array_map(fn (string $f): string => 'family=' . $f, $googleFontFamilies))
-            . '&display=swap';
+        $familyQuery = implode('&', array_map(fn (string $f): string => "family={$f}", $googleFontFamilies));
+
+        return "https://fonts.googleapis.com/css2?{$familyQuery}&display=swap";
     }
 
     public function resolveFontStack(?string $font = null): string
@@ -101,8 +82,6 @@ class ThemeResolver
     }
 
     /**
-     * Extract the per-slide theme list from effective slides.
-     *
      * @param  array<int, Slide>  $effectiveSlides
      * @return array<int, string|null>
      */
@@ -114,11 +93,7 @@ class ThemeResolver
         ));
     }
 
-    /**
-     * Determine if the grid contains any vertical stacks.
-     *
-     * @param  array<int, int>  $gridShape
-     */
+    /** @param  array<int, int>  $gridShape */
     public function hasVerticalSlides(array $gridShape): bool
     {
         return collect($gridShape)->contains(fn (int $count): bool => $count > 1);

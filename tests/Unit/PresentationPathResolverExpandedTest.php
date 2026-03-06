@@ -15,7 +15,6 @@ it('throws exception for presentation name that normalizes to empty', function (
 it('sanitizes double-dot path traversal attempts', function (): void {
     $resolver = app(PresentationPathResolver::class);
 
-    // These should not resolve to anything outside the roots
     expect($resolver->presentationPath('../../etc/passwd'))->toBeNull();
     expect($resolver->presentationPath('....//etc/passwd'))->toBeNull();
 });
@@ -37,7 +36,6 @@ it('resolves nested presentation paths', function (): void {
 it('normalizes backslashes to forward slashes', function (): void {
     $resolver = app(PresentationPathResolver::class);
 
-    // Backslash paths should resolve the same as forward slash
     $path = $resolver->absolutePresentationPath('team\\q1-kickoff');
 
     expect($path)->toContain('team/q1-kickoff.blade.php');

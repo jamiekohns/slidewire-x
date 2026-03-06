@@ -13,14 +13,6 @@ use WendellAdriel\SlideWire\DTOs\ThemeConfig;
 
 class CodeHighlighter
 {
-    /**
-     * Highlight code using the given (or resolved) highlight theme.
-     *
-     * Theme resolution order:
-     *   1. Explicit $highlightTheme parameter
-     *   2. Theme-to-highlight mapping for the given $presentationTheme
-     *   3. Config default (slidewire.slides.highlight.theme)
-     */
     public function highlight(string $code, string $language, Theme|string|null $highlightTheme = null, ?string $presentationTheme = null, ?string $font = null, ?string $size = null): HtmlString
     {
         $slides = config('slidewire.slides', new SlidesConfig());
@@ -40,9 +32,7 @@ class CodeHighlighter
         return $this->fallback($code, $language, $font, $size);
     }
 
-    /**
-     * Resolve highlight theme using precedence: explicit > theme config > config default.
-     */
+    // Resolve highlight theme with explicit > theme > config precedence.
     public function resolveHighlightTheme(Theme|string|null $highlightTheme = null, ?string $presentationTheme = null): Theme
     {
         $explicitTheme = $this->normalizeTheme($highlightTheme);
@@ -62,12 +52,7 @@ class CodeHighlighter
         return config('slidewire.slides', new SlidesConfig())->highlight->theme;
     }
 
-    /**
-     * Replace fenced code blocks (```lang\n...\n```) in markdown with highlighted HTML.
-     *
-     * This is the single shared path used by both the markdown parser and the Markdown Blade component,
-     * ensuring consistent highlighting behavior.
-     */
+    // Replace fenced markdown code blocks with highlighted HTML.
     public function replaceCodeBlocks(string $markdown, Theme|string|null $highlightTheme = null, ?string $presentationTheme = null, ?string $font = null, ?string $size = null): string
     {
         return (string) preg_replace_callback('/```([\w-]*)\n(.*?)```/s', function (array $matches) use ($highlightTheme, $presentationTheme, $font, $size): string {
@@ -102,9 +87,11 @@ class CodeHighlighter
     {
         $style = $this->styleAttribute($font);
         $class = $this->classAttribute($size);
+        $escapedLanguage = e($language);
+        $escapedCode = e($code);
 
         return new HtmlString(
-            '<pre class="slidewire-code' . $class . '"' . $style . '><code class="language-' . e($language) . '">' . e($code) . '</code></pre>'
+            "<pre class=\"slidewire-code{$class}\"{$style}><code class=\"language-{$escapedLanguage}\">{$escapedCode}</code></pre>"
         );
     }
 
@@ -146,7 +133,9 @@ class CodeHighlighter
             return '';
         }
 
-        return ' style="' . implode('; ', $styles) . '"';
+        $styleValue = implode('; ', $styles);
+
+        return " style=\"{$styleValue}\"";
     }
 
     protected function classAttribute(?string $size = null): string
@@ -166,7 +155,7 @@ class CodeHighlighter
         }
 
         $updated = preg_replace_callback(
-            '/<' . $tag . '([^>]*)>/i',
+            "/<{$tag}([^>]*)>/i",
             static function (array $matches) use ($tag, $styleValue): string {
                 $attributes = $matches[1];
 
@@ -178,12 +167,12 @@ class CodeHighlighter
                     }
 
                     $mergedStyles .= $styleValue;
-                    $attributes = preg_replace('/\sstyle="[^"]*"/i', ' style="' . $mergedStyles . '"', $attributes, 1);
+                    $attributes = preg_replace('/\sstyle="[^"]*"/i', " style=\"{$mergedStyles}\"", $attributes, 1);
 
-                    return '<' . $tag . $attributes . '>';
+                    return "<{$tag}{$attributes}>";
                 }
 
-                return '<' . $tag . $attributes . ' style="' . $styleValue . '">';
+                return "<{$tag}{$attributes} style=\"{$styleValue}\">";
             },
             $html,
             1,
@@ -201,18 +190,18 @@ class CodeHighlighter
         }
 
         $updated = preg_replace_callback(
-            '/<' . $tag . '([^>]*)>/i',
+            "/<{$tag}([^>]*)>/i",
             static function (array $matches) use ($tag, $classValue): string {
                 $attributes = $matches[1];
 
                 if (preg_match('/\sclass="([^"]*)"/i', $attributes, $classMatch) === 1) {
-                    $mergedClasses = trim($classMatch[1] . ' ' . $classValue);
-                    $attributes = preg_replace('/\sclass="[^"]*"/i', ' class="' . $mergedClasses . '"', $attributes, 1);
+                    $mergedClasses = trim("{$classMatch[1]} {$classValue}");
+                    $attributes = preg_replace('/\sclass="[^"]*"/i', " class=\"{$mergedClasses}\"", $attributes, 1);
 
-                    return '<' . $tag . $attributes . '>';
+                    return "<{$tag}{$attributes}>";
                 }
 
-                return '<' . $tag . $attributes . ' class="' . $classValue . '">';
+                return "<{$tag}{$attributes} class=\"{$classValue}\">";
             },
             $html,
             1,

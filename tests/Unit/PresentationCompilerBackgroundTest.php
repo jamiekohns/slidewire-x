@@ -8,7 +8,6 @@ it('extracts metadata and utility classes from blade slides', function (): void 
     $compiled = app(PresentationCompiler::class)->compile('background');
     $columns = $compiled['slides'];
 
-    // Flatten 2D grid for assertion
     $slides = collect($columns)->flatten(1)->values()->all();
 
     expect($slides)->toHaveCount(2)

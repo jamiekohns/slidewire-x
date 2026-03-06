@@ -15,12 +15,6 @@ class PresentationCompiler
     public function __construct(protected PresentationPathResolver $resolver) {}
 
     /**
-     * Compile a presentation and return a structured payload with deck metadata and slides.
-     *
-     * The slides array represents a 2D grid. Each top-level entry is a horizontal column.
-     * If a column contains a stack, it has multiple vertical slides. Otherwise, it's a
-     * single-slide column.
-     *
      * @return array{deck_meta: array<string, string>, slides: array<int, array<int, Slide>>}
      *
      * @throws RuntimeException when the presentation file cannot be read or rendered
@@ -37,8 +31,6 @@ class PresentationCompiler
     }
 
     /**
-     * Flatten a 2D slide grid into a linear list suitable for PDF export.
-     *
      * @param  array<int, array<int, Slide>>  $columns
      * @return array<int, Slide>
      */
@@ -80,20 +72,15 @@ class PresentationCompiler
 
         $deckMeta = $this->extractDeckMeta($html);
 
-        // Extract the inner HTML of the slidewire-deck section
         $deckInner = $this->extractDeckInner($html);
 
         if ($deckInner === null) {
-            // Fallback: try parsing article tags directly from the full HTML
             return ['deck_meta' => $deckMeta, 'slides' => $this->parseFlatSlides($html, $path)];
         }
 
         return ['deck_meta' => $deckMeta, 'slides' => $this->parseStructuredSlides($deckInner, $path)];
     }
 
-    /**
-     * Extract inner HTML of the <section class="slidewire-deck"> wrapper.
-     */
     protected function extractDeckInner(string $html): ?string
     {
         if (preg_match('/<section\b[^>]*class="[^"]*slidewire-deck[^"]*"[^>]*>(.*)<\/section>/is', $html, $match) !== 1) {
@@ -104,9 +91,6 @@ class PresentationCompiler
     }
 
     /**
-     * Parse structured slides with vertical-slide support. Top-level children of the deck
-     * are either <article> (single slide) or <section class="slidewire-vertical-slide"> (vertical group).
-     *
      * @return array<int, array<int, Slide>>
      */
     protected function parseStructuredSlides(string $deckInner, string $path): array
@@ -114,18 +98,14 @@ class PresentationCompiler
         $columns = [];
         $colIndex = 0;
 
-        // Match top-level sections (vertical-slide groups) and articles
-        // We need to process them in document order
         $offset = 0;
         $len = strlen($deckInner);
 
         while ($offset < $len) {
-            // Find the next tag of interest -- support both new and legacy class names
             $nextVertical = $this->findTag($deckInner, 'section', $offset, 'slidewire-vertical-slide');
             $nextStack = $this->findTag($deckInner, 'section', $offset, 'slidewire-stack');
             $nextArticle = $this->findTag($deckInner, 'article', $offset);
 
-            // Choose the earliest vertical group match (vertical-slide or legacy stack)
             if ($nextVertical !== null && $nextStack !== null) {
                 $nextStack = $nextVertical['start'] <= $nextStack['start'] ? $nextVertical : $nextStack;
             } elseif ($nextVertical !== null) {
@@ -136,12 +116,10 @@ class PresentationCompiler
                 break;
             }
 
-            // Determine which comes first
             $stackPos = $nextStack !== null ? $nextStack['start'] : PHP_INT_MAX;
             $articlePos = $nextArticle !== null ? $nextArticle['start'] : PHP_INT_MAX;
 
             if ($stackPos < $articlePos) {
-                // Process stack: extract all articles within it
                 $stackArticles = [];
                 preg_match_all('/<article\b([^>]*)>(.*?)<\/article>/is', $nextStack['inner'], $articles, PREG_SET_ORDER);
 
@@ -156,7 +134,6 @@ class PresentationCompiler
                 $offset = $nextStack['end'];
                 ++$colIndex;
             } else {
-                // Process single article
                 $columns[] = [$this->buildSlide($nextArticle['match'], $path, $colIndex, 0)];
                 $offset = $nextArticle['end'];
                 ++$colIndex;
@@ -167,8 +144,6 @@ class PresentationCompiler
     }
 
     /**
-     * Fallback: parse flat slides (no stack awareness).
-     *
      * @return array<int, array<int, Slide>>
      */
     protected function parseFlatSlides(string $html, string $path): array
@@ -203,15 +178,13 @@ class PresentationCompiler
     }
 
     /**
-     * Find the next occurrence of a tag, optionally requiring a specific class.
-     *
      * @return array{start: int, end: int, inner: string, match: array}|null
      */
     protected function findTag(string $html, string $tag, int $offset, ?string $requiredClass = null): ?array
     {
         $pattern = $requiredClass !== null
-            ? '/<' . $tag . '\b([^>]*class="[^"]*' . preg_quote($requiredClass, '/') . '[^"]*"[^>]*)>(.*?)<\/' . $tag . '>/is'
-            : '/<' . $tag . '\b([^>]*)>(.*?)<\/' . $tag . '>/is';
+            ? "/<{$tag}\\b([^>]*class=\"[^\"]*" . preg_quote($requiredClass, '/') . "[^\"]*\"[^>]*)>(.*?)<\\/{$tag}>/is"
+            : "/<{$tag}\\b([^>]*)>(.*?)<\\/{$tag}>/is";
 
         if (preg_match($pattern, $html, $match, PREG_OFFSET_CAPTURE, $offset) !== 1) {
             return null;
@@ -226,8 +199,6 @@ class PresentationCompiler
     }
 
     /**
-     * Extract deck-level metadata from the <section class="slidewire-deck"> wrapper.
-     *
      * @return array<string, string>
      */
     protected function extractDeckMeta(string $html): array
@@ -303,9 +274,9 @@ class PresentationCompiler
             : pathinfo($path, PATHINFO_FILENAME);
 
         if ($vIndex > 0) {
-            return $name . '-' . $hIndex . '-' . $vIndex;
+            return "{$name}-{$hIndex}-{$vIndex}";
         }
 
-        return $name . '-' . $hIndex;
+        return "{$name}-{$hIndex}";
     }
 }

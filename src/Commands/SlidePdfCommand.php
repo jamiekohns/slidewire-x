@@ -35,19 +35,16 @@ class SlidePdfCommand extends Command
             return self::FAILURE;
         }
 
-        // Flatten 2D grid to linear slide list for PDF export
         $slides = $compiler->flattenSlides($columns);
 
-        // Resolve effective settings (theme, typography, etc.) for each slide
         $effectiveSlides = $settingsResolver->resolve($slides, $compiled['deck_meta']);
 
-        $output = $this->option('output') ?: storage_path('app/' . $presentation . '.pdf');
+        $output = $this->option('output') ?: storage_path("app/{$presentation}.pdf");
         File::ensureDirectoryExists(dirname($output));
 
         $format = (string) $this->option('format');
         $orientation = (string) $this->option('orientation');
 
-        // Render the Blade template to an HTML string with inlined CSS
         $html = view('slidewire::pdf.deck', [
             'effectiveSlides' => $effectiveSlides,
             'deckMeta' => $compiled['deck_meta'],
@@ -120,7 +117,7 @@ class SlidePdfCommand extends Command
                 continue;
             }
 
-            $cssPath = public_path('build/' . $entry['file']);
+            $cssPath = public_path("build/{$entry['file']}");
 
             if (File::exists($cssPath)) {
                 $css .= File::get($cssPath);

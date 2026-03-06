@@ -226,7 +226,6 @@
                             return;
                         }
 
-                        // Determine dominant axis
                         if (Math.abs(dx) > Math.abs(dy)) {
                             if (dx < 0) {
                                 this.navigateRight();
@@ -422,10 +421,7 @@
                         return;
                     }
 
-                    // When auto-animate is active between slides, skip the regular transition
-                    // so the morph animation is the only visual effect.
-                    // Don't keep the old slide visible — hide it immediately to prevent
-                    // both slides overlapping and causing a flicker.
+                    // Let auto-animate handle the transition to avoid overlap flicker.
                     if (this.shouldAutoAnimate(fromSlide, toSlide)) {
                         this.leavingIndex = null;
                         this.isTransitioning = false;
@@ -438,7 +434,6 @@
                     const duration = this.transitionDuration(toSlide, newIndex);
                     const easing = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
 
-                    // Determine if this is a vertical transition
                     const fromCoords = this.slideCoords[oldIndex] || { h: 0, v: 0 };
                     const toCoords = this.slideCoords[newIndex] || { h: 0, v: 0 };
                     const isVertical = fromCoords.h === toCoords.h && fromCoords.v !== toCoords.v;
@@ -478,7 +473,6 @@
                             { opacity: 1, transform: 'scale(1)' },
                         ]);
                     } else {
-                        // Slide transition: use Y axis for vertical, X axis for horizontal
                         if (isVertical) {
                             const vDir = toCoords.v > fromCoords.v ? 1 : -1;
                             run(fromSlide, [
@@ -618,13 +612,11 @@
 
                     const targetNodes = toSlide.querySelectorAll('[data-auto-animate-id]');
 
-                    // Pre-hide every animated node so they don't flash at final position
                     targetNodes.forEach((node) => {
                         node.style.opacity = '0';
                     });
 
-                    // Use requestAnimationFrame to start animations before the first
-                    // browser paint, preventing any flash of elements at final positions.
+                    // Start before paint so targets do not flash in place.
                     requestAnimationFrame(() => {
                         targetNodes.forEach((node) => {
                             node.style.opacity = '';
@@ -678,14 +670,10 @@
                     });
                 },
                 observeDiagrams() {
-                    // MutationObserver detects when Livewire morphs diagram nodes,
-                    // replacing the Mermaid-rendered SVG with the original source text.
-                    // This is the only reliable way to re-render after async DOM morphs.
-                    // Debounced to avoid retriggering when Mermaid itself modifies the DOM.
+                    // Re-render Mermaid after Livewire morphs replace rendered SVGs.
                     let diagramTimer = null;
 
                     const observer = new MutationObserver(() => {
-                        // Check if any diagram node lost its SVG (morph replaced it with text)
                         const stale = this.$el.querySelectorAll('[data-slidewire-diagram]');
                         let needsRender = false;
 
@@ -700,8 +688,6 @@
                             return;
                         }
 
-                        // Debounce: Livewire morphs fire many mutations in quick succession.
-                        // Wait for the morph to settle before re-rendering.
                         if (diagramTimer) {
                             clearTimeout(diagramTimer);
                         }
@@ -724,9 +710,6 @@
                         return;
                     }
 
-                    // Detect diagrams that were morphed by Livewire: they have
-                    // data-processed (Mermaid's idempotency flag) but no longer
-                    // contain an SVG because the DOM morph restored original text.
                     allDiagrams.forEach((node) => {
                         if (node.hasAttribute('data-processed') && !node.querySelector('svg')) {
                             node.removeAttribute('data-processed');
@@ -739,7 +722,6 @@
                         return;
                     }
 
-                    // Store original source text so we can restore it if needed
                     pending.forEach((node) => {
                         if (!node.hasAttribute('data-slidewire-diagram-src')) {
                             node.setAttribute('data-slidewire-diagram-src', node.textContent.trim());
@@ -753,7 +735,6 @@
                             return;
                         }
 
-                        // Ensure each node has the original source text for Mermaid to parse
                         batch.forEach((node) => {
                             const src = node.getAttribute('data-slidewire-diagram-src');
 
@@ -762,7 +743,6 @@
                             }
                         });
 
-                        // Group nodes by their Mermaid theme (data-mermaid-theme attr, default 'dark')
                         const groups = {};
 
                         batch.forEach((node) => {
@@ -781,7 +761,6 @@
                             try {
                                 await window.mermaid.run({ nodes: nodes });
                             } catch (e) {
-                                // Silently handle Mermaid parse errors
                             }
                         }
                     };

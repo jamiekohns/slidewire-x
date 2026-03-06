@@ -19,8 +19,6 @@ it('exports pdf for a presentation when browsershot is available', function (): 
         '--output' => $output,
     ]);
 
-    // Exit code 1 is acceptable in test env (Chromium may produce warnings)
-    // The important thing is it doesn't crash and the file is created
     if ($exitCode !== 0) {
         test()->markTestSkipped('Browsershot could not generate PDF in this environment.');
     }

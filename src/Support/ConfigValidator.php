@@ -14,25 +14,15 @@ use WendellAdriel\SlideWire\Enums\FontSource;
 use WendellAdriel\SlideWire\Enums\SlideTransition;
 use WendellAdriel\SlideWire\Enums\SlideTransitionSpeed;
 
-/**
- * Validates and normalizes the slidewire configuration to catch misconfigured
- * themes, fonts, and slide settings before runtime consumption.
- */
+// Validates SlideWire config before runtime use.
 class ConfigValidator
 {
-    /**
-     * @var list<string>
-     */
-    private const array THEME_REQUIRED_KEYS = ['background', 'highlight_theme', 'title', 'text'];
-
     /**
      * @var list<string>
      */
     private const array TYPOGRAPHY_REQUIRED_KEYS = ['font', 'color', 'size'];
 
     /**
-     * Validate the themes configuration.
-     *
      * @param  array<string, ThemeConfig>  $themes
      *
      * @throws InvalidArgumentException when a theme entry is malformed
@@ -42,8 +32,7 @@ class ConfigValidator
         foreach ($themes as $name => $theme) {
             if (! ($theme instanceof ThemeConfig)) {
                 throw new InvalidArgumentException(
-                    "SlideWire theme [{$name}] must be a ThemeConfig with keys: "
-                    . implode(', ', self::THEME_REQUIRED_KEYS) . '.'
+                    "SlideWire theme [{$name}] must be a ThemeConfig"
                 );
             }
 
@@ -65,8 +54,6 @@ class ConfigValidator
     }
 
     /**
-     * Validate the fonts configuration.
-     *
      * @param  array<string, FontConfig>  $fonts
      *
      * @throws InvalidArgumentException when a font entry is malformed
@@ -84,11 +71,7 @@ class ConfigValidator
         }
     }
 
-    /**
-     * Validate the slide configuration.
-     *
-     * @throws InvalidArgumentException when a slide config value is invalid
-     */
+    /** @throws InvalidArgumentException when a slide config value is invalid */
     public function validateSlides(SlidesConfig $slides): void
     {
         if (! ($slides->transition instanceof SlideTransition)) {
@@ -116,11 +99,7 @@ class ConfigValidator
         }
     }
 
-    /**
-     * Run all validations on the current config.
-     *
-     * @throws InvalidArgumentException on invalid configuration
-     */
+    /** @throws InvalidArgumentException on invalid configuration */
     public function validate(): void
     {
         $this->validateThemes(config('slidewire.themes', []));
@@ -143,7 +122,7 @@ class ConfigValidator
     {
         if ((string) $config === '') {
             throw new InvalidArgumentException(
-                'SlideWire font [' . $family . '] is missing required key [source].'
+                "SlideWire font [{$family}] is missing required key [source]."
             );
         }
 
@@ -151,7 +130,7 @@ class ConfigValidator
 
         if (! in_array($config->source->value, $validSources, true)) {
             throw new InvalidArgumentException(
-                'SlideWire font [' . $family . '] has invalid source [' . $config->source->value . ']. Valid sources: ' . implode(', ', $validSources) . '.'
+                "SlideWire font [{$family}] has invalid source [{$config->source->value}]. Valid sources: " . implode(', ', $validSources) . '.'
             );
         }
 

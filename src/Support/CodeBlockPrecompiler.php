@@ -4,29 +4,13 @@ declare(strict_types=1);
 
 namespace WendellAdriel\SlideWire\Support;
 
-/**
- * Blade precompiler that protects fenced code blocks inside
- * <x-slidewire::markdown> and slot content inside <x-slidewire::code>
- * from being processed by the Blade compiler.
- *
- * Without this, code blocks containing Blade component syntax
- * (e.g. <x-slidewire::deck>) would be compiled as actual components
- * instead of being treated as literal code text.
- *
- * The precompiler base64-encodes each fenced code block (or entire
- * code component slot) into a placeholder comment. The Markdown and
- * Code components restore them before highlighting.
- */
+// Protects markdown/code content from Blade compilation until highlight time.
 class CodeBlockPrecompiler
 {
     public const string PLACEHOLDER_PREFIX = '<!--SLIDEWIRE_CODE:';
 
     public const string PLACEHOLDER_SUFFIX = '-->';
 
-    /**
-     * Process a Blade template, protecting code blocks inside markdown
-     * components and entire slot content inside code components.
-     */
     public function __invoke(string $template): string
     {
         // Protect fenced code blocks inside <x-slidewire::markdown>

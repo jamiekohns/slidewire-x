@@ -45,7 +45,6 @@ Some text after.
     $encoded = $precompiler($template);
     $decoded = CodeBlockPrecompiler::decode($encoded);
 
-    // After stripping the component tags, the inner content should match
     expect($decoded)->toContain('```php')
         ->and($decoded)->toContain('echo "hello";')
         ->and($decoded)->toContain('## Title')
@@ -68,10 +67,8 @@ echo "inside";
 
     $result = $precompiler($template);
 
-    // Code outside markdown tags should NOT be encoded
     expect($result)->toContain("```php\necho \"outside\";\n```");
 
-    // Code inside markdown tags SHOULD be encoded
     expect($result)->not->toContain('echo "inside"');
 });
 
@@ -93,7 +90,6 @@ ls -la
     expect($result)->not->toContain('echo "first"')
         ->and($result)->not->toContain('ls -la');
 
-    // Both should be decodable
     $decoded = CodeBlockPrecompiler::decode($result);
 
     expect($decoded)->toContain('echo "first"')
@@ -140,11 +136,9 @@ it('protects Blade component syntax inside code blocks from compilation', functi
 
     $result = $precompiler($template);
 
-    // The Blade component tags should be encoded, not visible for Blade to compile
     expect($result)->not->toContain('<x-slidewire::deck')
         ->and($result)->not->toContain('<x-slidewire::slide');
 
-    // After decoding, the original Blade syntax should be restored
     $decoded = CodeBlockPrecompiler::decode($result);
 
     expect($decoded)->toContain('<x-slidewire::deck theme="black">')
@@ -232,11 +226,9 @@ it('protects Blade component syntax inside code component from compilation', fun
 
     $result = $precompiler($template);
 
-    // The Blade component tags should be encoded, not visible for Blade to compile
     expect($result)->not->toContain('<x-slidewire::deck')
         ->and($result)->not->toContain('<x-slidewire::slide');
 
-    // After decoding, the original Blade syntax should be restored
     $decoded = CodeBlockPrecompiler::decode($result);
 
     expect($decoded)->toContain('<x-slidewire::deck theme="black">')
