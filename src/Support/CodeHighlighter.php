@@ -20,7 +20,7 @@ class CodeHighlighter
      */
     public function highlight(string $code, string $language, ?string $highlightTheme = null, ?string $presentationTheme = null, ?string $font = null, ?string $size = null): HtmlString
     {
-        if (! config(ConfigKeys::SLIDES_HIGHLIGHT_ENABLED, true)) {
+        if (! config('slidewire.slides.highlight.enabled', true)) {
             return $this->fallback($code, $language, $font, $size);
         }
 
@@ -45,7 +45,7 @@ class CodeHighlighter
         }
 
         if ($presentationTheme !== null && $presentationTheme !== '') {
-            $themeConfig = config(ConfigKeys::THEMES, [])[$presentationTheme] ?? null;
+            $themeConfig = config('slidewire.themes', [])[$presentationTheme] ?? null;
 
             if ($themeConfig instanceof ThemeConfig && $themeConfig->highlightTheme !== '') {
                 return $themeConfig->highlightTheme;
@@ -60,7 +60,7 @@ class CodeHighlighter
             }
         }
 
-        return (string) config(ConfigKeys::SLIDES_HIGHLIGHT_THEME, 'github-dark');
+        return (string) config('slidewire.slides.highlight.theme', 'github-dark');
     }
 
     /**
@@ -123,8 +123,8 @@ class CodeHighlighter
 
     protected function styleAttribute(?string $font = null, ?string $size = null): string
     {
-        $font = trim((string) ($font ?? config(ConfigKeys::SLIDES_HIGHLIGHT_FONT, '')));
-        $size = trim((string) ($size ?? config(ConfigKeys::SLIDES_HIGHLIGHT_FONT_SIZE, 'md')));
+        $font = trim((string) ($font ?? config('slidewire.slides.highlight.font', '')));
+        $size = trim((string) ($size ?? config('slidewire.slides.highlight.font_size', 'md')));
 
         $styles = [];
 

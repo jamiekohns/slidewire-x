@@ -31,11 +31,6 @@ arch('support classes do not depend on commands')
     ->expect('WendellAdriel\SlideWire\Support')
     ->not->toUse('WendellAdriel\SlideWire\Commands');
 
-arch('ConfigKeys is a final class with no dependencies')
-    ->expect(WendellAdriel\SlideWire\Support\ConfigKeys::class)
-    ->toBeFinal()
-    ->not->toUse('Illuminate');
-
 arch('all source files use strict types')
     ->expect('WendellAdriel\SlideWire')
     ->toUseStrictTypes();

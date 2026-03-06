@@ -17,7 +17,7 @@ class ThemeResolver
      */
     public function backgroundClassMap(): array
     {
-        return collect(config(ConfigKeys::THEMES, []))
+        return collect(config('slidewire.themes', []))
             ->map(function (mixed $theme): string {
                 if ($theme instanceof ThemeConfig) {
                     return (string) $theme;
@@ -39,7 +39,7 @@ class ThemeResolver
      */
     public function typographyClassMap(): array
     {
-        return collect(config(ConfigKeys::THEMES, []))
+        return collect(config('slidewire.themes', []))
             ->map(function (mixed $theme): array {
                 if ($theme instanceof ThemeConfig) {
                     return [
@@ -76,8 +76,8 @@ class ThemeResolver
      */
     public function codeFontFamily(): string
     {
-        $font = (string) config(ConfigKeys::SLIDES_HIGHLIGHT_FONT, '');
-        $fonts = config(ConfigKeys::FONTS, []);
+        $font = (string) config('slidewire.slides.highlight.font', '');
+        $fonts = config('slidewire.fonts', []);
 
         if ($font === '' || ! array_key_exists($font, $fonts)) {
             return $this->resolveFontStack();
@@ -91,7 +91,7 @@ class ThemeResolver
      */
     public function googleFontsUrl(): ?string
     {
-        $fontConfig = config(ConfigKeys::FONTS, []);
+        $fontConfig = config('slidewire.fonts', []);
 
         $googleFontFamilies = collect($fontConfig)
             ->filter(fn (mixed $config): bool => $config instanceof FontConfig || (is_array($config) && (($config['source'] ?? 'system') === FontSource::Google->value)))

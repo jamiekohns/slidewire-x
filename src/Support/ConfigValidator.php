@@ -13,6 +13,16 @@ use InvalidArgumentException;
 class ConfigValidator
 {
     /**
+     * @var list<string>
+     */
+    private const array THEME_REQUIRED_KEYS = ['background', 'highlight_theme', 'title', 'text'];
+
+    /**
+     * @var list<string>
+     */
+    private const array TYPOGRAPHY_REQUIRED_KEYS = ['font', 'color', 'size'];
+
+    /**
      * Validate the themes configuration.
      *
      * @param  array<string, mixed>  $themes
@@ -32,11 +42,11 @@ class ConfigValidator
             if (! is_array($theme)) {
                 throw new InvalidArgumentException(
                     "SlideWire theme [{$name}] must be an array or ThemeConfig with keys: "
-                    . implode(', ', ConfigKeys::THEME_REQUIRED_KEYS) . '.'
+                    . implode(', ', self::THEME_REQUIRED_KEYS) . '.'
                 );
             }
 
-            foreach (ConfigKeys::THEME_REQUIRED_KEYS as $key) {
+            foreach (self::THEME_REQUIRED_KEYS as $key) {
                 if (! array_key_exists($key, $theme)) {
                     throw new InvalidArgumentException(
                         "SlideWire theme [{$name}] is missing required key [{$key}]."
@@ -54,11 +64,11 @@ class ConfigValidator
                 if (! is_array($theme[$typo])) {
                     throw new InvalidArgumentException(
                         "SlideWire theme [{$name}] key [{$typo}] must be an array or ThemeFont with keys: "
-                        . implode(', ', ConfigKeys::TYPOGRAPHY_REQUIRED_KEYS) . '.'
+                        . implode(', ', self::TYPOGRAPHY_REQUIRED_KEYS) . '.'
                     );
                 }
 
-                foreach (ConfigKeys::TYPOGRAPHY_REQUIRED_KEYS as $key) {
+                foreach (self::TYPOGRAPHY_REQUIRED_KEYS as $key) {
                     if (! array_key_exists($key, $theme[$typo])) {
                         throw new InvalidArgumentException(
                             "SlideWire theme [{$name}] typography [{$typo}] is missing required key [{$key}]."
@@ -149,14 +159,14 @@ class ConfigValidator
      */
     public function validate(): void
     {
-        $this->validateThemes(config(ConfigKeys::THEMES, []));
-        $this->validateFonts(config(ConfigKeys::FONTS, []));
-        $this->validateSlides(config(ConfigKeys::SLIDES, []));
+        $this->validateThemes(config('slidewire.themes', []));
+        $this->validateFonts(config('slidewire.fonts', []));
+        $this->validateSlides(config('slidewire.slides', []));
     }
 
     protected function validateThemeTypography(string $themeName, ThemeFont $font, string $key): void
     {
-        foreach (ConfigKeys::TYPOGRAPHY_REQUIRED_KEYS as $requiredKey) {
+        foreach (self::TYPOGRAPHY_REQUIRED_KEYS as $requiredKey) {
             if ($font->{$requiredKey} === '') {
                 throw new InvalidArgumentException(
                     "SlideWire theme [{$themeName}] typography [{$key}] is missing required key [{$requiredKey}]."
