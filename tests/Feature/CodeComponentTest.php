@@ -161,3 +161,18 @@ BLADE);
     expect($html)->toContain('phiki')
         ->and($html)->toContain('language-html');
 });
+
+it('removes the implicit leading newline from multiline code slots', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::code language="php">
+use Phiki\Theme\Theme;
+
+$deck = new PresentationCompiler();
+</x-slidewire::code>
+BLADE);
+
+    preg_match('/<code[^>]*>(.*?)<\/code>/s', $html, $matches);
+
+    expect(html_entity_decode(strip_tags($matches[1] ?? '')))
+        ->toStartWith('use Phiki\\Theme\\Theme;');
+});

@@ -30,6 +30,7 @@ class Code extends Component
     public function toHtml(string $code): string
     {
         $code = CodeBlockPrecompiler::decode($code);
+        $code = (string) preg_replace('/^\r?\n/', '', $code, 1);
         $code = rtrim($code);
 
         return $this->highlighter->highlight(
