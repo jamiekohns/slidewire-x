@@ -1,4 +1,4 @@
-# Testing and Demo
+# Guidelines
 
 ## Package Quality Gates
 
@@ -34,21 +34,24 @@ The test suite covers all documented package features:
 | Command rename (`slidewire:pdf`) | Feature | `SlidePdfCommandTest.php` |
 | Scaffold command (`make:slidewire`) | Feature | `MakeSlideCommandTest.php` |
 | Presentation rendering | Feature | `PresentationDeckComponentTest.php`, `PresentationDeckExpandedTest.php` |
-| Controls/progress/fullscreen toggles | Feature | `ControlsToggleTest.php` |
-| SlideWire helper + route compatibility | Feature | `SlideWireHelperTest.php` |
-| Markdown + highlighting | Feature/Unit | `MarkdownComponentTest.php`, `CodeHighlighterTest.php`, `CodeHighlighterExpandedTest.php` |
-| Route macro | Feature | `RouteMacroTest.php` |
-| Compiler: transitions/auto-slide | Unit | `PresentationCompilerTransitionAndAutoSlideTest.php` |
+| Controls, progress, and fullscreen toggles | Feature | `ControlsToggleTest.php` |
+| SlideWire helper and route compatibility | Feature | `SlideWireHelperTest.php` |
+| Route macro registration | Feature | `RouteMacroTest.php` |
+| Markdown slide rendering | Feature/Unit | `MarkdownComponentTest.php`, `SlideMarkdownParserTest.php`, `SlideMarkdownParserExpandedTest.php` |
+| Code component rendering | Feature | `CodeComponentTest.php` |
+| Diagram component rendering | Feature | `DiagramComponentTest.php` |
+| Code highlighting and theme resolution | Feature/Unit | `CodeHighlightIntegrationTest.php`, `CodeHighlighterTest.php`, `CodeHighlighterExpandedTest.php`, `CodeHighlighterThemeResolutionTest.php` |
+| Code block preprocessing | Unit | `CodeBlockPrecompilerTest.php` |
+| Slide context resolution | Unit | `SlideContextTest.php` |
+| Compiler: transitions and auto-slide | Unit | `PresentationCompilerTransitionAndAutoSlideTest.php` |
 | Compiler: backgrounds | Unit | `PresentationCompilerBackgroundTest.php` |
 | Compiler: vertical slides | Unit | `PresentationCompilerVerticalSlideTest.php` |
 | Compiler: precedence | Unit | `PresentationCompilerPrecedenceTest.php` |
-| Compiler: error handling/edge cases | Unit | `PresentationCompilerExpandedTest.php` |
-| Highlight theme resolution | Unit | `CodeHighlighterThemeResolutionTest.php` |
-| Theme schema structure | Unit | `ThemeSchemaTest.php` |
+| Compiler: error handling and edge cases | Unit | `PresentationCompilerExpandedTest.php` |
 | Path resolution | Unit | `PresentationPathResolverTest.php`, `PresentationPathResolverExpandedTest.php` |
-| Markdown parsing | Unit | `SlideMarkdownParserTest.php`, `SlideMarkdownParserExpandedTest.php` |
 | Effective settings resolution | Unit | `EffectiveSettingsResolverTest.php` |
-| Theme/typography resolution | Unit | `ThemeResolverTest.php` |
+| Theme and typography resolution | Unit | `ThemeResolverTest.php` |
+| Theme schema structure | Unit | `ThemeSchemaTest.php` |
 | Config validation | Unit | `ConfigValidatorTest.php` |
 | Architecture constraints | Unit | `ArchitectureTest.php` |
 | Browser navigation | Browser | `PresentationNavigationBrowserTest.php` |

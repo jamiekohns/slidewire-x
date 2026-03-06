@@ -9,7 +9,6 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    environment: Testing
     strategy:
       matrix:
         php-version: ['8.4', '8.5']
@@ -33,7 +32,6 @@ jobs:
 
   browser:
     runs-on: ubuntu-latest
-    environment: Testing
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
