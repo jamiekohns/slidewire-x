@@ -16,7 +16,6 @@ use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
 use WendellAdriel\SlideWire\Support\PresentationPathResolver;
 use WendellAdriel\SlideWire\Support\SlideContext;
-use WendellAdriel\SlideWire\Support\SlideMarkdownParser;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 class SlideWireServiceProvider extends ServiceProvider
@@ -27,7 +26,6 @@ class SlideWireServiceProvider extends ServiceProvider
 
         $this->app->singleton(PresentationPathResolver::class);
         $this->app->singleton(CodeHighlighter::class);
-        $this->app->singleton(SlideMarkdownParser::class);
         $this->app->singleton(PresentationCompiler::class);
         $this->app->singleton(EffectiveSettingsResolver::class);
         $this->app->singleton(ThemeResolver::class);

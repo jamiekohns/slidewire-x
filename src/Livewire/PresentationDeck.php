@@ -12,6 +12,7 @@ use WendellAdriel\SlideWire\DTOs\Slide;
 use WendellAdriel\SlideWire\DTOs\SlidesConfig;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
+use WendellAdriel\SlideWire\Support\SlideViewDataFactory;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 #[Layout('slidewire::layouts.blank')]
@@ -126,24 +127,28 @@ class PresentationDeck extends Component
     {
         $settingsResolver = app(EffectiveSettingsResolver::class);
         $themeResolver = app(ThemeResolver::class);
+        $viewDataFactory = app(SlideViewDataFactory::class);
+        $slidesConfig = config('slidewire.slides', new SlidesConfig());
 
         $effectiveSlides = $settingsResolver->resolve($this->slides, $this->deckMeta);
         $configuredThemes = $themeResolver->backgroundClassMap();
         $themeTypography = $themeResolver->typographyClassMap();
-        $googleFontsUrl = $themeResolver->googleFontsUrl();
-        $codeFontFamily = $themeResolver->codeFontFamily();
-        $slideThemes = $themeResolver->slideThemes($effectiveSlides);
-        $hasVerticalSlides = $themeResolver->hasVerticalSlides($this->gridShape);
+        $defaultTheme = (string) ($this->deckMeta['theme'] ?? $slidesConfig->theme);
 
         return view('slidewire::livewire.presentation-deck', [
-            'effectiveSlides' => $effectiveSlides,
-            'slidesConfig' => config('slidewire.slides', new SlidesConfig()),
+            'slidesConfig' => $slidesConfig,
             'configuredThemes' => $configuredThemes,
+            'defaultTheme' => $defaultTheme,
+            'deckPayload' => $viewDataFactory->buildDeckPayload($effectiveSlides),
+            'slideFrames' => $viewDataFactory->buildSlideFrames($effectiveSlides, $themeTypography, defaultTheme: $defaultTheme),
             'themeTypography' => $themeTypography,
-            'googleFontsUrl' => $googleFontsUrl,
-            'codeFontFamily' => $codeFontFamily,
-            'slideThemes' => $slideThemes,
-            'hasVerticalSlides' => $hasVerticalSlides,
+            'googleFontsUrl' => $themeResolver->googleFontsUrl(),
+            'codeFontFamily' => $themeResolver->codeFontFamily(),
+            'slideThemes' => $themeResolver->slideThemes($effectiveSlides),
+            'hasVerticalSlides' => $themeResolver->hasVerticalSlides($this->gridShape),
+            'showControls' => $viewDataFactory->resolveDeckFlag($this->deckMeta, 'show_controls', $slidesConfig->showControls),
+            'showProgress' => $viewDataFactory->resolveDeckFlag($this->deckMeta, 'show_progress', $slidesConfig->showProgress),
+            'showFullscreenButton' => $viewDataFactory->resolveDeckFlag($this->deckMeta, 'show_fullscreen_button', $slidesConfig->showFullscreenButton),
         ]);
     }
 

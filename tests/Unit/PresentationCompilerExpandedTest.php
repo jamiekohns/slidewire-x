@@ -82,3 +82,13 @@ it('compiles autoslide fixture correctly', function (): void {
         ->and($slides[0]->meta['auto_slide'])->toBe('300')
         ->and($slides[0]->meta['transition_speed'])->toBe('fast');
 });
+
+it('extracts deck metadata when deck classes use single quotes', function (): void {
+    $compiler = app(PresentationCompiler::class);
+    $reflection = new ReflectionClass($compiler);
+    $method = $reflection->getMethod('extractDeckMeta');
+
+    $meta = $method->invoke($compiler, "<section class='slidewire-deck' data-theme='white'><article>Hi</article></section>");
+
+    expect($meta)->toBe(['theme' => 'white']);
+});

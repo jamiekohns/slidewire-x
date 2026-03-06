@@ -11,6 +11,7 @@ use Throwable;
 use WendellAdriel\SlideWire\DTOs\SlidesConfig;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
+use WendellAdriel\SlideWire\Support\SlideViewDataFactory;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 class SlidePdfCommand extends Command
@@ -23,7 +24,7 @@ class SlidePdfCommand extends Command
 
     protected $description = 'Export a SlideWire presentation to PDF';
 
-    public function handle(PresentationCompiler $compiler, EffectiveSettingsResolver $settingsResolver, ThemeResolver $themeResolver): int
+    public function handle(PresentationCompiler $compiler, EffectiveSettingsResolver $settingsResolver, ThemeResolver $themeResolver, SlideViewDataFactory $viewDataFactory): int
     {
         $presentation = trim((string) $this->argument('presentation'), '/');
         $compiled = $compiler->compile($presentation);
@@ -46,12 +47,15 @@ class SlidePdfCommand extends Command
         $orientation = (string) $this->option('orientation');
 
         $html = view('slidewire::pdf.deck', [
-            'effectiveSlides' => $effectiveSlides,
             'deckMeta' => $compiled['deck_meta'],
             'presentation' => $presentation,
             'slidesConfig' => config('slidewire.slides', new SlidesConfig()),
-            'themeTypography' => $themeResolver->typographyClassMap(),
-            'configuredThemes' => $themeResolver->backgroundClassMap(),
+            'slideFrames' => $viewDataFactory->buildSlideFrames(
+                $effectiveSlides,
+                $themeResolver->typographyClassMap(),
+                $themeResolver->backgroundClassMap(),
+                (string) ($compiled['deck_meta']['theme'] ?? config('slidewire.slides', new SlidesConfig())->theme),
+            ),
             'googleFontsUrl' => $themeResolver->googleFontsUrl(),
             'codeFontFamily' => $themeResolver->codeFontFamily(),
             'inlineCss' => $this->resolveViteCss(),

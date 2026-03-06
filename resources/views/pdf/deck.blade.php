@@ -62,36 +62,15 @@
     </style>
 </head>
 <body>
-@foreach ($effectiveSlides as $slide)
+@foreach ($slideFrames as $frame)
     @php
-        $effective = $slide->effective;
-        $meta = $slide->meta;
-
-        $themeName = $effective['theme'] ?? 'default';
-        $themeBackground = $configuredThemes[$themeName] ?? '';
-        $slideTypography = $themeTypography[$themeName] ?? ['title' => '', 'text' => ''];
-
-        $backgroundImage = $meta['background_image'] ?? null;
-        $rawBackground = $meta['background'] ?? null;
-        $isBackgroundAsset = is_string($rawBackground) && preg_match('/^(https?:|\/|\.\/|\.\.\/)/', $rawBackground) === 1;
-        if ($isBackgroundAsset && $backgroundImage === null) {
-            $backgroundImage = $rawBackground;
-        }
-
-        $slideStyles = [];
-        if (is_string($backgroundImage) && $backgroundImage !== '') {
-            $slideStyles[] = 'background-image: url('.$backgroundImage.')';
-            $slideStyles[] = 'background-size: '.($meta['background_size'] ?? 'cover');
-            $slideStyles[] = 'background-position: '.($meta['background_position'] ?? 'center');
-            $slideStyles[] = 'background-repeat: '.($meta['background_repeat'] ?? 'no-repeat');
-        }
-        if (isset($meta['background_opacity']) && $meta['background_opacity'] !== '') {
-            $slideStyles[] = '--slidewire-background-opacity: '.$meta['background_opacity'];
-        }
-        $slideStyle = implode(';', $slideStyles);
+        $slide = $frame['slide'];
+        $backgroundThemeClass = $frame['background_theme_class'];
+        $frameStyle = $frame['style'];
+        $frameTextTypography = $frame['text_typography'];
     @endphp
-    <section class="slidewire-pdf-slide {{ $themeBackground }} {{ $slide->class }}" style="{{ $slideStyle }}">
-        <div class="slidewire-pdf-content {{ $slideTypography['text'] }}">
+    <section class="slidewire-pdf-slide {{ $backgroundThemeClass }} {{ $slide->class }}" style="{{ $frameStyle }}">
+        <div class="slidewire-pdf-content {{ $frameTextTypography }}">
             {!! $slide->html !!}
         </div>
     </section>

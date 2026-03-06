@@ -83,11 +83,11 @@ class PresentationCompiler
 
     protected function extractDeckInner(string $html): ?string
     {
-        if (preg_match('/<section\b[^>]*class="[^"]*slidewire-deck[^"]*"[^>]*>(.*)<\/section>/is', $html, $match) !== 1) {
+        if (preg_match($this->deckSectionPattern(captureInner: true), $html, $match) !== 1) {
             return null;
         }
 
-        return $match[1];
+        return $match[2];
     }
 
     /**
@@ -183,7 +183,7 @@ class PresentationCompiler
     protected function findTag(string $html, string $tag, int $offset, ?string $requiredClass = null): ?array
     {
         $pattern = $requiredClass !== null
-            ? "/<{$tag}\\b([^>]*class=\"[^\"]*" . preg_quote($requiredClass, '/') . "[^\"]*\"[^>]*)>(.*?)<\\/{$tag}>/is"
+            ? "/<{$tag}\\b([^>]*class=(?:\"[^\"]*|\'[^\']*)" . preg_quote($requiredClass, '/') . "(?:[^\"]*\"|[^\']*\')[^>]*)>(.*?)<\\/{$tag}>/is"
             : "/<{$tag}\\b([^>]*)>(.*?)<\\/{$tag}>/is";
 
         if (preg_match($pattern, $html, $match, PREG_OFFSET_CAPTURE, $offset) !== 1) {
@@ -203,7 +203,7 @@ class PresentationCompiler
      */
     protected function extractDeckMeta(string $html): array
     {
-        if (preg_match('/<section\b([^>]*class="[^"]*slidewire-deck[^"]*"[^>]*)>/i', $html, $match) !== 1) {
+        if (preg_match($this->deckSectionPattern(), $html, $match) !== 1) {
             return [];
         }
 
@@ -264,6 +264,15 @@ class PresentationCompiler
         }
 
         return max(array_map(intval(...), $indices)) + 1;
+    }
+
+    protected function deckSectionPattern(bool $captureInner = false): string
+    {
+        if ($captureInner) {
+            return '/<section\b([^>]*class=(?:"[^"]*slidewire-deck[^"]*"|\'[^\']*slidewire-deck[^\']*\')[^>]*)>(.*)<\/section>/is';
+        }
+
+        return '/<section\b([^>]*class=(?:"[^"]*slidewire-deck[^"]*"|\'[^\']*slidewire-deck[^\']*\')[^>]*)>/is';
     }
 
     protected function slideId(string $path, int $hIndex, int $vIndex): string

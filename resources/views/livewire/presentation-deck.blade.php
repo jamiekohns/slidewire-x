@@ -4,15 +4,15 @@
         $wire,
         @entangle('activeIndex').live,
         @entangle('activeFragment').live,
-        {{ count($effectiveSlides) }},
+        {{ count($slideFrames) }},
         @js($slideThemes),
         @js($configuredThemes),
-        @js((string) ($deckMeta['theme'] ?? $slidesConfig->theme)),
-        @js(collect($effectiveSlides)->map(fn ($s) => (int) ($s->effective['transition_duration'] ?? 350))->values()->all()),
-        @js(collect($effectiveSlides)->map(fn ($s) => (int) ($s->effective['auto_slide'] ?? 0))->values()->all()),
+        @js($defaultTheme),
+        @js($deckPayload['transition_durations']),
+        @js($deckPayload['auto_slides']),
         @js((bool) ($deckMeta['auto_slide_pause_on_interaction'] ?? $slidesConfig->autoSlidePauseOnInteraction)),
         @js($gridShape),
-        @js(collect($effectiveSlides)->map(fn ($s) => ['h' => $s->h, 'v' => $s->v])->values()->all()),
+        @js($deckPayload['coords']),
         @js($themeTypography)
     )"
     x-bind:class="currentThemeClass()"
@@ -30,48 +30,31 @@
     @endif
 
     <div class="slidewire-stage" x-on:click="next()">
-        @if(($deckMeta['show_progress'] ?? $slidesConfig->showProgress) !== 'false' && ($deckMeta['show_progress'] ?? $slidesConfig->showProgress) !== false)
+        @if($showProgress)
             <div class="slidewire-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"
                 :aria-valuenow="Math.round(((index + 1) / count) * 100)">
                 <div class="slidewire-progress-bar" :style="`width: ${((index + 1) / count) * 100}%`"></div>
             </div>
         @endif
 
-        @foreach ($effectiveSlides as $slideIndex => $slide)
+        @foreach ($slideFrames as $slideIndex => $frame)
             @php
+                $slide = $frame['slide'];
                 $meta = $slide->meta;
                 $effective = $slide->effective;
-
-                $rawBackground = $meta['background'] ?? null;
-                $isBackgroundAsset = is_string($rawBackground) && preg_match('/^(https?:|\/|\.\/|\.\.\/)/', $rawBackground) === 1;
-
-                $backgroundImage = $meta['background_image'] ?? ($isBackgroundAsset ? $rawBackground : null);
-                $backgroundVideo = $meta['background_video'] ?? null;
-
-                $frameStyles = [];
-
-                if (is_string($backgroundImage) && $backgroundImage !== '') {
-                    $frameStyles[] = 'background-image: url('.$backgroundImage.')';
-                    $frameStyles[] = 'background-size: '.($meta['background_size'] ?? 'cover');
-                    $frameStyles[] = 'background-position: '.($meta['background_position'] ?? 'center');
-                    $frameStyles[] = 'background-repeat: '.($meta['background_repeat'] ?? 'no-repeat');
-                }
-
-                if (isset($meta['background_opacity']) && $meta['background_opacity'] !== '') {
-                    $frameStyles[] = '--slidewire-background-opacity: '.$meta['background_opacity'];
-                }
-
-                $frameStyle = implode(';', $frameStyles);
-
-                $videoLoops = ($meta['background_video_loop'] ?? 'true') !== 'false';
-                $videoMuted = ($meta['background_video_muted'] ?? 'true') !== 'false';
+                $frameBackgroundImage = $frame['background_image'];
+                $frameBackgroundVideo = $frame['background_video'];
+                $frameStyle = $frame['style'];
+                $frameTextTypography = $frame['text_typography'];
+                $frameVideoMuted = $frame['video_muted'];
+                $frameVideoLoops = $frame['video_loops'];
             @endphp
 
             <section
                 x-bind:class="frameClass({{ $slideIndex }})"
                 x-ref="slide{{ $slideIndex }}"
                 wire:key="slide-{{ $slide->id }}"
-                class="slidewire-frame {{ $slide->class }} {{ ($effective['theme'] ?? '') !== '' ? 'slidewire-theme-' . ($effective['theme'] ?? '') : '' }}"
+                class="slidewire-frame {{ $slide->class }} {{ $frame['slide_theme_class'] }}"
                 data-transition="{{ $effective['transition'] ?? $slidesConfig->transition->value }}"
                 data-transition-speed="{{ $effective['transition_speed'] ?? $slidesConfig->transitionSpeed->value }}"
                 data-auto-animate="{{ $meta['auto_animate'] ?? $deckMeta['auto_animate'] ?? 'false' }}"
@@ -84,32 +67,27 @@
                 @if(isset($meta['background_transition']))
                     data-background-transition="{{ $meta['background_transition'] }}"
                 @endif
-                @if($backgroundImage)
-                    data-background-image="{{ $backgroundImage }}"
+                @if($frameBackgroundImage)
+                    data-background-image="{{ $frameBackgroundImage }}"
                 @endif
-                @if($backgroundVideo)
-                    data-background-video="{{ $backgroundVideo }}"
+                @if($frameBackgroundVideo)
+                    data-background-video="{{ $frameBackgroundVideo }}"
                 @endif
                 style="{{ $frameStyle }}"
             >
-                @if($backgroundVideo)
-                    <video class="slidewire-background-media" autoplay playsinline @if($videoMuted) muted @endif @if($videoLoops) loop @endif>
-                        <source src="{{ $backgroundVideo }}" />
+                @if($frameBackgroundVideo)
+                    <video class="slidewire-background-media" autoplay playsinline @if($frameVideoMuted) muted @endif @if($frameVideoLoops) loop @endif>
+                        <source src="{{ $frameBackgroundVideo }}" />
                     </video>
                 @endif
 
-                @php
-                    $slideThemeName = $effective['theme'] ?? $deckMeta['theme'] ?? $slidesConfig->theme;
-                    $slideTypography = $themeTypography[$slideThemeName] ?? ['title' => '', 'text' => ''];
-                @endphp
-
-                <div class="slidewire-content {{ $slideTypography['text'] }}">
+                <div class="slidewire-content {{ $frameTextTypography }}">
                     {!! $slide->html !!}
                 </div>
             </section>
         @endforeach
 
-        @if(($deckMeta['show_controls'] ?? $slidesConfig->showControls) !== 'false' && ($deckMeta['show_controls'] ?? $slidesConfig->showControls) !== false)
+        @if($showControls)
             <nav class="slidewire-controls" aria-label="Slide controls">
                 <button type="button" x-on:click.stop="navigateLeft()" aria-label="Previous slide" class="slidewire-control-arrow slidewire-control-left" :disabled="!canGoLeft()">
                     <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
@@ -125,7 +103,7 @@
                 <button type="button" x-on:click.stop="navigateRight()" aria-label="Next slide" class="slidewire-control-arrow slidewire-control-right" :disabled="!canGoRight()">
                     <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
                 </button>
-                @if(($deckMeta['show_fullscreen_button'] ?? $slidesConfig->showFullscreenButton) !== 'false' && ($deckMeta['show_fullscreen_button'] ?? $slidesConfig->showFullscreenButton) !== false)
+                @if($showFullscreenButton)
                     <button
                         type="button"
                         x-on:click.stop="toggleFullscreen()"

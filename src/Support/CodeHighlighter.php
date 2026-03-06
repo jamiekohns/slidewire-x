@@ -13,6 +13,8 @@ use WendellAdriel\SlideWire\DTOs\ThemeConfig;
 
 class CodeHighlighter
 {
+    public function __construct(protected ThemeResolver $themeResolver) {}
+
     public function highlight(string $code, string $language, Theme|string|null $highlightTheme = null, ?string $presentationTheme = null, ?string $font = null, ?string $size = null): HtmlString
     {
         $slides = config('slidewire.slides', new SlidesConfig());
@@ -122,20 +124,13 @@ class CodeHighlighter
         $highlight = config('slidewire.slides', new SlidesConfig())->highlight;
         $font = trim((string) ($font ?? $highlight->font));
 
-        $styles = [];
-
         if ($font !== '') {
-            $fallback = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
-            $styles[] = 'font-family: ' . e("'{$font}', {$fallback}");
+            $fontStack = $this->themeResolver->resolveFontStack($font);
+
+            return ' style="font-family: ' . e($fontStack) . '"';
         }
 
-        if ($styles === []) {
-            return '';
-        }
-
-        $styleValue = implode('; ', $styles);
-
-        return " style=\"{$styleValue}\"";
+        return '';
     }
 
     protected function classAttribute(?string $size = null): string
@@ -150,58 +145,39 @@ class CodeHighlighter
     {
         $styleValue = trim((string) preg_replace('/^ style="(.*)"$/', '$1', $style));
 
-        if ($styleValue === '') {
-            return $html;
-        }
+        return $this->mergeAttribute($html, $tag, 'style', $styleValue, static function (string $existing, string $value): string {
+            $existing = rtrim(trim($existing), ';');
 
-        $updated = preg_replace_callback(
-            "/<{$tag}([^>]*)>/i",
-            static function (array $matches) use ($tag, $styleValue): string {
-                $attributes = $matches[1];
-
-                if (preg_match('/\sstyle="([^"]*)"/i', $attributes, $styleMatch) === 1) {
-                    $mergedStyles = rtrim(trim($styleMatch[1]), ';');
-
-                    if ($mergedStyles !== '') {
-                        $mergedStyles .= '; ';
-                    }
-
-                    $mergedStyles .= $styleValue;
-                    $attributes = preg_replace('/\sstyle="[^"]*"/i', " style=\"{$mergedStyles}\"", $attributes, 1);
-
-                    return "<{$tag}{$attributes}>";
-                }
-
-                return "<{$tag}{$attributes} style=\"{$styleValue}\">";
-            },
-            $html,
-            1,
-        );
-
-        return is_string($updated) ? $updated : $html;
+            return $existing === '' ? $value : "{$existing}; {$value}";
+        });
     }
 
     protected function mergeClassAttribute(string $html, string $tag, string $class): string
     {
         $classValue = trim($class);
 
-        if ($classValue === '') {
+        return $this->mergeAttribute($html, $tag, 'class', $classValue, static fn (string $existing, string $value): string => trim("{$existing} {$value}"));
+    }
+
+    protected function mergeAttribute(string $html, string $tag, string $attribute, string $value, callable $merge): string
+    {
+        if ($value === '') {
             return $html;
         }
 
         $updated = preg_replace_callback(
             "/<{$tag}([^>]*)>/i",
-            static function (array $matches) use ($tag, $classValue): string {
+            static function (array $matches) use ($tag, $attribute, $value, $merge): string {
                 $attributes = $matches[1];
 
-                if (preg_match('/\sclass="([^"]*)"/i', $attributes, $classMatch) === 1) {
-                    $mergedClasses = trim("{$classMatch[1]} {$classValue}");
-                    $attributes = preg_replace('/\sclass="[^"]*"/i', " class=\"{$mergedClasses}\"", $attributes, 1);
+                if (preg_match('/\s' . $attribute . '="([^"]*)"/i', $attributes, $attributeMatch) === 1) {
+                    $mergedValue = $merge($attributeMatch[1], $value);
+                    $attributes = preg_replace('/\s' . $attribute . '="[^"]*"/i', ' ' . $attribute . '="' . $mergedValue . '"', $attributes, 1);
 
                     return "<{$tag}{$attributes}>";
                 }
 
-                return "<{$tag}{$attributes} class=\"{$classValue}\">";
+                return "<{$tag}{$attributes} {$attribute}=\"{$value}\">";
             },
             $html,
             1,

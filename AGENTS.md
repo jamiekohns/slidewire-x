@@ -37,7 +37,7 @@ The test suite covers all documented package features:
 | Controls, progress, and fullscreen toggles | Feature | `ControlsToggleTest.php` |
 | SlideWire helper and route compatibility | Feature | `SlideWireHelperTest.php` |
 | Route macro registration | Feature | `RouteMacroTest.php` |
-| Markdown slide rendering | Feature/Unit | `MarkdownComponentTest.php`, `SlideMarkdownParserTest.php`, `SlideMarkdownParserExpandedTest.php` |
+| Markdown slide rendering | Feature | `MarkdownComponentTest.php` |
 | Code component rendering | Feature | `CodeComponentTest.php` |
 | Diagram component rendering | Feature | `DiagramComponentTest.php` |
 | Code highlighting and theme resolution | Feature/Unit | `CodeHighlightIntegrationTest.php`, `CodeHighlighterTest.php`, `CodeHighlighterExpandedTest.php`, `CodeHighlighterThemeResolutionTest.php` |
