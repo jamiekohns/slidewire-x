@@ -1,3 +1,11 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component {
+    //
+}; ?>
+
 <x-slidewire::slide
     transition="fade"
     transition-speed="slow"

@@ -1,3 +1,11 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component {
+    //
+}; ?>
+
 <x-slidewire::deck theme="default">
     <x-slidewire::slide class="bg-gradient-to-br from-blue-900 to-slate-950 text-slate-50">
         <h1>Gradient Slide</h1>

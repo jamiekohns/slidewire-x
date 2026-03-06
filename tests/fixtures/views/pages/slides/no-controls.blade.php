@@ -1,3 +1,11 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component {
+    //
+}; ?>
+
 <x-slidewire::deck show-controls="false" show-progress="false" show-fullscreen-button="false">
     <x-slidewire::slide class="bg-slate-900 text-white">
         <h1>No Controls</h1>

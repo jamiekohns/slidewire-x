@@ -16,6 +16,10 @@ it('generates a presentation scaffold', function (): void {
         '--title' => 'Q1 Kickoff',
     ]);
 
+    $contents = File::get($target);
+
     expect(File::exists($target))->toBeTrue()
-        ->and(File::get($target))->toContain('Q1 Kickoff');
+        ->and($contents)->toContain('Q1 Kickoff')
+        ->and($contents)->toContain('use Livewire\\Component;')
+        ->and($contents)->toContain('new class extends Component');
 });

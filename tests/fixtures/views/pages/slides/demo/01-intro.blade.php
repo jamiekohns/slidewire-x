@@ -1,3 +1,11 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component {
+    //
+}; ?>
+
 <x-slidewire::slide>
     <h1>Demo Intro</h1>
     <x-slidewire::fragment>

@@ -1,3 +1,11 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component {
+    //
+}; ?>
+
 <x-slidewire::deck>
     <x-slidewire::slide auto-slide="300" transition="fade" transition-speed="fast" class="bg-slate-950 text-white">
         <h1>Auto Slide Start</h1>

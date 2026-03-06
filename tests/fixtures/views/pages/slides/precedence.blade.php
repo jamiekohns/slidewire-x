@@ -1,3 +1,11 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component {
+    //
+}; ?>
+
 <x-slidewire::deck theme="black" transition="fade" auto-slide="5000">
     <x-slidewire::slide class="bg-slate-900 text-white">
         <h1>Inherits Deck Defaults</h1>

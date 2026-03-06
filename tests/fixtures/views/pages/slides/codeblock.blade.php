@@ -1,3 +1,11 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component {
+    //
+}; ?>
+
 <x-slidewire::deck theme="black">
     <x-slidewire::slide class="bg-slate-900 text-white">
         <x-slidewire::markdown>
