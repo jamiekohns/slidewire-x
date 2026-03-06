@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 use Phiki\Theme\Theme;
+use WendellAdriel\SlideWire\DTOs\FontConfig;
+use WendellAdriel\SlideWire\DTOs\HighlightConfig;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
+use WendellAdriel\SlideWire\DTOs\ThemeConfig;
+use WendellAdriel\SlideWire\DTOs\ThemeFont;
+use WendellAdriel\SlideWire\Enums\FontSource;
+use WendellAdriel\SlideWire\Enums\SlideTransition;
+use WendellAdriel\SlideWire\Enums\SlideTransitionSpeed;
 use WendellAdriel\SlideWire\Support\ConfigValidator;
-use WendellAdriel\SlideWire\Support\FontConfig;
-use WendellAdriel\SlideWire\Support\FontSource;
-use WendellAdriel\SlideWire\Support\HighlightConfig;
-use WendellAdriel\SlideWire\Support\SlidesConfig;
-use WendellAdriel\SlideWire\Support\SlideTransition;
-use WendellAdriel\SlideWire\Support\SlideTransitionSpeed;
-use WendellAdriel\SlideWire\Support\ThemeConfig;
-use WendellAdriel\SlideWire\Support\ThemeFont;
 
 it('validates the default config without errors', function (): void {
     $validator = new ConfigValidator();
@@ -77,7 +77,7 @@ it('accepts valid slide settings', function (): void {
     $validator->validateSlides(new SlidesConfig(
         transition: SlideTransition::Fade,
         transitionSpeed: SlideTransitionSpeed::Fast,
-        highlight: new HighlightConfig(fontSize: 'lg'),
+        highlight: new HighlightConfig(fontSize: 'text-lg'),
     ));
 })->throwsNoExceptions();
 

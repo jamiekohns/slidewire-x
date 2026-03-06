@@ -2,20 +2,17 @@
 
 declare(strict_types=1);
 
-arch('support types are in the Support namespace')
+arch('support classes stay in the Support namespace')
     ->expect('WendellAdriel\SlideWire\Support')
     ->toBeClasses()
-    ->ignoring([
-        WendellAdriel\SlideWire\Support\FontSource::class,
-        WendellAdriel\SlideWire\Support\SlideTransition::class,
-        WendellAdriel\SlideWire\Support\SlideTransitionSpeed::class,
-    ]);
+    ->and('WendellAdriel\SlideWire\DTOs')
+    ->toBeClasses();
 
-arch('support enums are in the Support namespace')
+arch('enums live in the Enums namespace')
     ->expect([
-        WendellAdriel\SlideWire\Support\FontSource::class,
-        WendellAdriel\SlideWire\Support\SlideTransition::class,
-        WendellAdriel\SlideWire\Support\SlideTransitionSpeed::class,
+        WendellAdriel\SlideWire\Enums\FontSource::class,
+        WendellAdriel\SlideWire\Enums\SlideTransition::class,
+        WendellAdriel\SlideWire\Enums\SlideTransitionSpeed::class,
     ])
     ->toBeEnums();
 

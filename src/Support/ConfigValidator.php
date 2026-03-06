@@ -6,6 +6,13 @@ namespace WendellAdriel\SlideWire\Support;
 
 use InvalidArgumentException;
 use Phiki\Theme\Theme;
+use WendellAdriel\SlideWire\DTOs\FontConfig;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
+use WendellAdriel\SlideWire\DTOs\ThemeConfig;
+use WendellAdriel\SlideWire\DTOs\ThemeFont;
+use WendellAdriel\SlideWire\Enums\FontSource;
+use WendellAdriel\SlideWire\Enums\SlideTransition;
+use WendellAdriel\SlideWire\Enums\SlideTransitionSpeed;
 
 /**
  * Validates and normalizes the slidewire configuration to catch misconfigured

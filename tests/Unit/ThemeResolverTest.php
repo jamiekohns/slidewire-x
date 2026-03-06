@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use Phiki\Theme\Theme;
-use WendellAdriel\SlideWire\Support\FontConfig;
-use WendellAdriel\SlideWire\Support\FontSource;
-use WendellAdriel\SlideWire\Support\Slide;
-use WendellAdriel\SlideWire\Support\ThemeConfig;
-use WendellAdriel\SlideWire\Support\ThemeFont;
+use WendellAdriel\SlideWire\DTOs\FontConfig;
+use WendellAdriel\SlideWire\DTOs\Slide;
+use WendellAdriel\SlideWire\DTOs\ThemeConfig;
+use WendellAdriel\SlideWire\DTOs\ThemeFont;
+use WendellAdriel\SlideWire\Enums\FontSource;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 it('builds background class map from nested theme config', function (): void {

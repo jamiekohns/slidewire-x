@@ -8,10 +8,10 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use WendellAdriel\SlideWire\DTOs\Slide;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
-use WendellAdriel\SlideWire\Support\Slide;
-use WendellAdriel\SlideWire\Support\SlidesConfig;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 #[Layout('slidewire::layouts.blank')]

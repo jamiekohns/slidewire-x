@@ -7,8 +7,8 @@ namespace WendellAdriel\SlideWire\View\Components;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
 use WendellAdriel\SlideWire\Support\SlideContext;
-use WendellAdriel\SlideWire\Support\SlidesConfig;
 
 class Slide extends Component
 {

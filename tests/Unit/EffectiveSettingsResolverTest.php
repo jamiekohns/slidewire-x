@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use WendellAdriel\SlideWire\DTOs\Slide;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
-use WendellAdriel\SlideWire\Support\Slide;
 
 it('resolves effective settings with slide > deck > config precedence', function (): void {
     $resolver = app(EffectiveSettingsResolver::class);

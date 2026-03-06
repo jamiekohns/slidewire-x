@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace WendellAdriel\SlideWire\Support;
 
+use WendellAdriel\SlideWire\DTOs\FontConfig;
+use WendellAdriel\SlideWire\DTOs\Slide;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
+use WendellAdriel\SlideWire\DTOs\ThemeConfig;
+
 /**
  * Resolves theme background classes, typography maps, and Google Fonts URLs
  * from the slidewire config.

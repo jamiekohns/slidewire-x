@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use RuntimeException;
 use Throwable;
+use WendellAdriel\SlideWire\DTOs\Slide;
 
 class PresentationCompiler
 {

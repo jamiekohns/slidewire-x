@@ -105,7 +105,7 @@ BLADE);
     expect($html)->toContain('catppuccin-mocha');
 });
 
-it('uses configured highlight font size for markdown code blocks', function (): void {
+it('uses configured highlight font size class for markdown code blocks', function (): void {
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::markdown>
 ```php
@@ -114,20 +114,20 @@ echo 'hello';
 </x-slidewire::markdown>
 BLADE);
 
-    expect($html)->toContain('font-size: 1rem');
+    expect($html)->toContain('text-base');
 });
 
-it('respects explicit size override on markdown component', function (): void {
+it('respects explicit size override class on markdown component', function (): void {
     $html = Blade::render(<<<'BLADE'
-<x-slidewire::markdown size="xl">
+<x-slidewire::markdown size="text-xl">
 ```php
 echo 'hello';
 ```
 </x-slidewire::markdown>
 BLADE);
 
-    expect($html)->toContain('font-size: 1.25rem')
-        ->and($html)->not->toContain('font-size: 1rem');
+    expect($html)->toContain('text-xl')
+        ->and($html)->not->toContain('text-base');
 });
 
 it('clears slide context after slide renders', function (): void {

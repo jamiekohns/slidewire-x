@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace WendellAdriel\SlideWire\Support;
+namespace WendellAdriel\SlideWire\DTOs;
+
+use WendellAdriel\SlideWire\Enums\SlideTransition;
+use WendellAdriel\SlideWire\Enums\SlideTransitionSpeed;
 
 final readonly class SlidesConfig
 {
@@ -18,6 +21,6 @@ final readonly class SlidesConfig
         public SlideTransitionSpeed $transitionSpeed = SlideTransitionSpeed::Default,
         public int $autoSlide = 0,
         public bool $autoSlidePauseOnInteraction = true,
-        public HighlightConfig $highlight = new HighlightConfig(),
+        public HighlightConfig $highlight = new HighlightConfig(fontSize: 'text-base'),
     ) {}
 }

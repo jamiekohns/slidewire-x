@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WendellAdriel\SlideWire\Support;
+namespace WendellAdriel\SlideWire\Enums;
 
 enum FontSource: string
 {

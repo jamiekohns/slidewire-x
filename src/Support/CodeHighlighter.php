@@ -8,6 +8,8 @@ use Illuminate\Support\HtmlString;
 use Phiki\Phiki;
 use Phiki\Theme\Theme;
 use Throwable;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
+use WendellAdriel\SlideWire\DTOs\ThemeConfig;
 
 class CodeHighlighter
 {
@@ -98,16 +100,26 @@ class CodeHighlighter
 
     protected function fallback(string $code, string $language, ?string $font = null, ?string $size = null): HtmlString
     {
-        $style = $this->styleAttribute($font, $size);
+        $style = $this->styleAttribute($font);
+        $class = $this->classAttribute($size);
 
         return new HtmlString(
-            '<pre class="slidewire-code"' . $style . '><code class="language-' . e($language) . '"' . $style . '>' . e($code) . '</code></pre>'
+            '<pre class="slidewire-code' . $class . '"' . $style . '><code class="language-' . e($language) . '">' . e($code) . '</code></pre>'
         );
     }
 
     protected function applyCodeStyles(string $html, ?string $font = null, ?string $size = null): string
     {
-        $style = $this->styleAttribute($font, $size);
+        $style = $this->styleAttribute($font);
+        $class = $this->classAttribute($size);
+
+        if ($style === '' && $class === '') {
+            return $html;
+        }
+
+        if ($class !== '') {
+            $html = $this->mergeClassAttribute($html, 'pre', $class);
+        }
 
         if ($style === '') {
             return $html;
@@ -118,21 +130,16 @@ class CodeHighlighter
         return $this->mergeStyleAttribute($html, 'code', $style);
     }
 
-    protected function styleAttribute(?string $font = null, ?string $size = null): string
+    protected function styleAttribute(?string $font = null): string
     {
         $highlight = config('slidewire.slides', new SlidesConfig())->highlight;
         $font = trim((string) ($font ?? $highlight->font));
-        $size = trim((string) ($size ?? $highlight->fontSize));
 
         $styles = [];
 
         if ($font !== '') {
             $fallback = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
             $styles[] = 'font-family: ' . e("'{$font}', {$fallback}");
-        }
-
-        if ($size !== '') {
-            $styles[] = 'font-size: ' . e($this->normalizeFontSize($size));
         }
 
         if ($styles === []) {
@@ -142,17 +149,12 @@ class CodeHighlighter
         return ' style="' . implode('; ', $styles) . '"';
     }
 
-    protected function normalizeFontSize(string $size): string
+    protected function classAttribute(?string $size = null): string
     {
-        return match (trim($size)) {
-            'xs' => '0.75rem',
-            'sm' => '0.875rem',
-            'md' => '1rem',
-            'lg' => '1.125rem',
-            'xl' => '1.25rem',
-            '2xl' => '1.5rem',
-            default => trim($size),
-        };
+        $highlight = config('slidewire.slides', new SlidesConfig())->highlight;
+        $size = trim((string) ($size ?? $highlight->fontSize));
+
+        return $size === '' ? '' : ' ' . e($size);
     }
 
     protected function mergeStyleAttribute(string $html, string $tag, string $style): string
@@ -182,6 +184,35 @@ class CodeHighlighter
                 }
 
                 return '<' . $tag . $attributes . ' style="' . $styleValue . '">';
+            },
+            $html,
+            1,
+        );
+
+        return is_string($updated) ? $updated : $html;
+    }
+
+    protected function mergeClassAttribute(string $html, string $tag, string $class): string
+    {
+        $classValue = trim($class);
+
+        if ($classValue === '') {
+            return $html;
+        }
+
+        $updated = preg_replace_callback(
+            '/<' . $tag . '([^>]*)>/i',
+            static function (array $matches) use ($tag, $classValue): string {
+                $attributes = $matches[1];
+
+                if (preg_match('/\sclass="([^"]*)"/i', $attributes, $classMatch) === 1) {
+                    $mergedClasses = trim($classMatch[1] . ' ' . $classValue);
+                    $attributes = preg_replace('/\sclass="[^"]*"/i', ' class="' . $mergedClasses . '"', $attributes, 1);
+
+                    return '<' . $tag . $attributes . '>';
+                }
+
+                return '<' . $tag . $attributes . ' class="' . $classValue . '">';
             },
             $html,
             1,

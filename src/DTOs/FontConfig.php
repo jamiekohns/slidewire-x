@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace WendellAdriel\SlideWire\Support;
+namespace WendellAdriel\SlideWire\DTOs;
 
 use Stringable;
+use WendellAdriel\SlideWire\Enums\FontSource;
 
 final readonly class FontConfig implements Stringable
 {

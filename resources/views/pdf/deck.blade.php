@@ -3,17 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>{{ $presentation }} - SlideWire</title>
-    @php
-        $configuredCodeFontSize = match (trim($slidesConfig->highlight->fontSize)) {
-            'xs' => '0.75rem',
-            'sm' => '0.875rem',
-            'md' => '1rem',
-            'lg' => '1.125rem',
-            'xl' => '1.25rem',
-            '2xl' => '1.5rem',
-            default => trim($slidesConfig->highlight->fontSize),
-        };
-    @endphp
     @if($googleFontsUrl)
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,7 +54,6 @@
             margin: 1rem 0;
             border-radius: 0.75rem;
             overflow-x: auto;
-            font-size: {{ $configuredCodeFontSize }};
             line-height: 1.6;
         }
         .slidewire-pdf-content pre.slidewire-code { background: #24292e; color: #e1e4e8; }

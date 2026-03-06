@@ -8,9 +8,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Spatie\Browsershot\Browsershot;
 use Throwable;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
-use WendellAdriel\SlideWire\Support\SlidesConfig;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 class SlidePdfCommand extends Command

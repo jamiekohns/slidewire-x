@@ -186,8 +186,8 @@ Override the automatic resolution explicitly:
 Custom fonts can be configured in the `fonts` config key. Google Fonts families are loaded automatically via `<link>` tag injection:
 
 ```php
-use WendellAdriel\SlideWire\Support\FontConfig;
-use WendellAdriel\SlideWire\Support\FontSource;
+use WendellAdriel\SlideWire\DTOs\FontConfig;
+use WendellAdriel\SlideWire\Enums\FontSource;
 
 'fonts' => [
     'Inter' => new FontConfig(FontSource::Google, [400, 600, 700]),

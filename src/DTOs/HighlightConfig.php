@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WendellAdriel\SlideWire\Support;
+namespace WendellAdriel\SlideWire\DTOs;
 
 use Phiki\Theme\Theme;
 
@@ -12,6 +12,6 @@ final readonly class HighlightConfig
         public bool $enabled = true,
         public Theme $theme = Theme::CatppuccinMocha,
         public string $font = 'JetBrainsMono',
-        public string $fontSize = 'md',
+        public string $fontSize = 'text-base',
     ) {}
 }

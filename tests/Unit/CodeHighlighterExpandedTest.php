@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use WendellAdriel\SlideWire\DTOs\HighlightConfig;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
-use WendellAdriel\SlideWire\Support\HighlightConfig;
-use WendellAdriel\SlideWire\Support\SlidesConfig;
 
 it('returns fallback HTML when highlighting is disabled', function (): void {
     $slides = config('slidewire.slides');
@@ -112,17 +112,17 @@ it('passes highlight theme and presentation theme to code blocks', function (): 
     expect($result)->toContain('phiki');
 });
 
-it('applies configured font size to highlighted output', function (): void {
+it('applies configured font size class to highlighted output', function (): void {
     $html = app(CodeHighlighter::class)->highlight('echo "test";', 'php')->toHtml();
 
-    expect($html)->toContain('font-size: 1rem');
+    expect($html)->toContain('text-base');
 });
 
-it('applies explicit size override to highlighted output', function (): void {
-    $html = app(CodeHighlighter::class)->highlight('echo "test";', 'php', null, null, null, 'xl')->toHtml();
+it('applies explicit size override class to highlighted output', function (): void {
+    $html = app(CodeHighlighter::class)->highlight('echo "test";', 'php', null, null, null, 'text-xl')->toHtml();
 
-    expect($html)->toContain('font-size: 1.25rem')
-        ->and($html)->not->toContain('font-size: 1rem');
+    expect($html)->toContain('text-xl')
+        ->and($html)->not->toContain('text-base');
 });
 
 it('preserves non-code content during replaceCodeBlocks', function (): void {

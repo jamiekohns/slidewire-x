@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use WendellAdriel\SlideWire\Support\ThemeConfig;
+use WendellAdriel\SlideWire\DTOs\ThemeConfig;
 
 it('renders a presentation deck through the slidewire route macro', function (): void {
     Route::slidewire('/slides/demo', 'demo');
@@ -176,13 +176,13 @@ it('passes theme typography data to Alpine component', function (): void {
         ->and($content)->toContain('text-lg');
 });
 
-it('uses configured highlight font size in deck styles', function (): void {
+it('uses configured highlight font size class in deck output', function (): void {
     Route::slidewire('/slides/demo', 'demo');
 
     $response = test()->get('/slides/demo');
     $content = $response->getContent();
 
-    expect($content)->toContain('font-size: 1rem;');
+    expect($content)->toContain('text-base');
 });
 
 // ========================================================================

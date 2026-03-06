@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace WendellAdriel\SlideWire\Support;
 
+use WendellAdriel\SlideWire\DTOs\Slide;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
+
 /**
  * Resolves effective runtime settings for each slide using the three-level precedence chain:
  *

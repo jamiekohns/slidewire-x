@@ -106,14 +106,14 @@ BLADE);
     expect($html)->toContain('JetBrainsMono');
 });
 
-it('uses configured highlight font size by default', function (): void {
+it('uses configured highlight font size class by default', function (): void {
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::code language="php">
 echo 'hello';
 </x-slidewire::code>
 BLADE);
 
-    expect($html)->toContain('font-size: 1rem');
+    expect($html)->toContain('text-base');
 });
 
 it('respects explicit font override on code component', function (): void {
@@ -127,15 +127,15 @@ BLADE);
         ->and($html)->not->toContain('JetBrainsMono');
 });
 
-it('respects explicit size override on code component', function (): void {
+it('respects explicit size override class on code component', function (): void {
     $html = Blade::render(<<<'BLADE'
-    <x-slidewire::code language="php" size="lg">
+    <x-slidewire::code language="php" size="text-lg">
 echo 'hello';
 </x-slidewire::code>
 BLADE);
 
-    expect($html)->toContain('font-size: 1.125rem')
-        ->and($html)->not->toContain('font-size: 1rem');
+    expect($html)->toContain('text-lg')
+        ->and($html)->not->toContain('text-base');
 });
 
 it('defaults to text language when language attribute is omitted', function (): void {
