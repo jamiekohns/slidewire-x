@@ -76,8 +76,8 @@
 <body>
 @foreach ($effectiveSlides as $slide)
     @php
-        $effective = $slide['effective'];
-        $meta = $slide['meta'];
+        $effective = $slide->effective;
+        $meta = $slide->meta;
 
         $themeName = $effective['theme'] ?? 'default';
         $themeBackground = $configuredThemes[$themeName] ?? '';
@@ -102,9 +102,9 @@
         }
         $slideStyle = implode(';', $slideStyles);
     @endphp
-    <section class="slidewire-pdf-slide {{ $themeBackground }} {{ $slide['class'] }}" style="{{ $slideStyle }}">
+    <section class="slidewire-pdf-slide {{ $themeBackground }} {{ $slide->class }}" style="{{ $slideStyle }}">
         <div class="slidewire-pdf-content {{ $slideTypography['text'] }}">
-            {!! $slide['html'] !!}
+            {!! $slide->html !!}
         </div>
     </section>
 @endforeach

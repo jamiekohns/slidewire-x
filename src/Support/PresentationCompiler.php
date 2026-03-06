@@ -20,7 +20,7 @@ class PresentationCompiler
      * If a column contains a stack, it has multiple vertical slides. Otherwise, it's a
      * single-slide column.
      *
-     * @return array{deck_meta: array<string, string>, slides: array<int, array<int, array{id: string, html: string, meta: array<string, string>, fragments: int, class: string}>>}
+     * @return array{deck_meta: array<string, string>, slides: array<int, array<int, Slide>>}
      *
      * @throws RuntimeException when the presentation file cannot be read or rendered
      */
@@ -38,8 +38,8 @@ class PresentationCompiler
     /**
      * Flatten a 2D slide grid into a linear list suitable for PDF export.
      *
-     * @param  array<int, array<int, array{id: string, html: string, meta: array<string, string>, fragments: int, class: string}>>  $columns
-     * @return array<int, array{id: string, html: string, meta: array<string, string>, fragments: int, class: string}>
+     * @param  array<int, array<int, Slide>>  $columns
+     * @return array<int, Slide>
      */
     public function flattenSlides(array $columns): array
     {
@@ -55,7 +55,7 @@ class PresentationCompiler
     }
 
     /**
-     * @return array{deck_meta: array<string, string>, slides: array<int, array<int, array{id: string, html: string, meta: array<string, string>, fragments: int, class: string}>>}
+     * @return array{deck_meta: array<string, string>, slides: array<int, array<int, Slide>>}
      *
      * @throws RuntimeException when the file cannot be read or rendered
      */
@@ -106,7 +106,7 @@ class PresentationCompiler
      * Parse structured slides with vertical-slide support. Top-level children of the deck
      * are either <article> (single slide) or <section class="slidewire-vertical-slide"> (vertical group).
      *
-     * @return array<int, array<int, array{id: string, html: string, meta: array<string, string>, fragments: int, class: string}>>
+     * @return array<int, array<int, Slide>>
      */
     protected function parseStructuredSlides(string $deckInner, string $path): array
     {
@@ -168,7 +168,7 @@ class PresentationCompiler
     /**
      * Fallback: parse flat slides (no stack awareness).
      *
-     * @return array<int, array<int, array{id: string, html: string, meta: array<string, string>, fragments: int, class: string}>>
+     * @return array<int, array<int, Slide>>
      */
     protected function parseFlatSlides(string $html, string $path): array
     {
@@ -185,21 +185,20 @@ class PresentationCompiler
         ));
     }
 
-    /**
-     * @return array{id: string, html: string, meta: array<string, string>, fragments: int, class: string}
-     */
-    protected function buildSlide(array $match, string $path, int $hIndex, int $vIndex): array
+    protected function buildSlide(array $match, string $path, int $hIndex, int $vIndex): Slide
     {
         $attributes = $this->extractAttributes($match[1] ?? '');
         $innerHtml = trim($match[2] ?? '');
 
-        return [
-            'id' => $this->slideId($path, $hIndex, $vIndex),
-            'html' => $innerHtml,
-            'meta' => $this->extractMetaFromAttributes($attributes),
-            'fragments' => $this->fragmentCount($innerHtml),
-            'class' => $attributes['class'] ?? '',
-        ];
+        return new Slide(
+            id: $this->slideId($path, $hIndex, $vIndex),
+            html: $innerHtml,
+            meta: $this->extractMetaFromAttributes($attributes),
+            fragments: $this->fragmentCount($innerHtml),
+            class: $attributes['class'] ?? '',
+            h: $hIndex,
+            v: $vIndex,
+        );
     }
 
     /**

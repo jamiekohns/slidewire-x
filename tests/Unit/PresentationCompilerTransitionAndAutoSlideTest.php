@@ -12,7 +12,7 @@ it('extracts transition speed and auto slide metadata from blade slides', functi
     $slides = collect($columns)->flatten(1)->values()->all();
 
     expect($slides)->toHaveCount(2)
-        ->and($slides[0]['meta'])->toMatchArray([
+        ->and($slides[0]->meta)->toMatchArray([
             'transition' => 'fade',
             'transition_speed' => 'fast',
             'auto_slide' => '300',

@@ -9,9 +9,6 @@ namespace WendellAdriel\SlideWire\Support;
  *
  *   slide_meta > deck_meta > config slides
  *
- * @phpstan-type SlideMeta array<string, string>
- * @phpstan-type SlideData array{id: string, html: string, meta: SlideMeta, fragments: int, class: string, h: int, v: int}
- * @phpstan-type EffectiveSlideData array{id: string, html: string, meta: SlideMeta, fragments: int, class: string, h: int, v: int, effective: array<string, string|null>}
  * @phpstan-type DeckMeta array<string, string>
  * @phpstan-type SlidesConfig array{theme?: mixed, show_controls?: mixed, show_progress?: mixed, show_fullscreen_button?: mixed, keyboard?: mixed, touch?: mixed, transition?: mixed, transition_duration?: mixed, transition_speed?: mixed, auto_slide?: mixed, auto_slide_pause_on_interaction?: mixed, highlight?: array{theme?: mixed}}
  */
@@ -32,16 +29,16 @@ class EffectiveSettingsResolver
     /**
      * Resolve effective settings for a list of slides given deck-level metadata.
      *
-     * @param  array<int, SlideData>  $slides
+     * @param  array<int, Slide>  $slides
      * @param  DeckMeta  $deckMeta
-     * @return array<int, EffectiveSlideData>
+     * @return array<int, Slide>
      */
     public function resolve(array $slides, array $deckMeta): array
     {
         $slidesConfig = config('slidewire.slides', []);
 
         return array_values(array_map(
-            fn (array $slide): array => $this->resolveSlide($slide, $deckMeta, $slidesConfig),
+            fn (Slide $slide): Slide => $this->resolveSlide($slide, $deckMeta, $slidesConfig),
             $slides,
         ));
     }
@@ -49,14 +46,12 @@ class EffectiveSettingsResolver
     /**
      * Resolve effective settings for a single slide.
      *
-     * @param  SlideData  $slide
      * @param  DeckMeta  $deckMeta
      * @param  SlidesConfig  $slidesConfig
-     * @return EffectiveSlideData
      */
-    protected function resolveSlide(array $slide, array $deckMeta, array $slidesConfig): array
+    protected function resolveSlide(Slide $slide, array $deckMeta, array $slidesConfig): Slide
     {
-        $slideMeta = $slide['meta'];
+        $slideMeta = $slide->meta;
         $effective = [];
 
         foreach (self::RUNTIME_KEYS as $key) {
@@ -70,8 +65,6 @@ class EffectiveSettingsResolver
             ?? $deckMeta['highlight_theme']
             ?? (string) ($slidesConfig['highlight']['theme'] ?? 'github-dark');
 
-        $slide['effective'] = $effective;
-
-        return $slide;
+        return $slide->withEffective($effective);
     }
 }

@@ -21,18 +21,18 @@ it('preserves slide-level overrides distinct from deck metadata', function (): v
     expect($slides)->toHaveCount(3);
 
     // Slide 0 inherits from deck (no slide-level overrides for theme/transition)
-    expect($slides[0]['meta'])->not->toHaveKey('theme');
-    expect($slides[0]['meta'])->not->toHaveKey('auto_slide');
+    expect($slides[0]->meta)->not->toHaveKey('theme');
+    expect($slides[0]->meta)->not->toHaveKey('auto_slide');
 
     // Slide 1 has explicit overrides
-    expect($slides[1]['meta'])->toMatchArray([
+    expect($slides[1]->meta)->toMatchArray([
         'theme' => 'white',
         'transition' => 'zoom',
         'auto_slide' => '2000',
     ]);
 
     // Slide 2 also inherits (no overrides)
-    expect($slides[2]['meta'])->not->toHaveKey('theme');
+    expect($slides[2]->meta)->not->toHaveKey('theme');
 });
 
 it('returns the correct 2D grid shape for flat decks', function (): void {

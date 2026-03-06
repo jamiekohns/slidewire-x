@@ -19,9 +19,6 @@ namespace WendellAdriel\SlideWire\Support;
  */
 class CodeBlockPrecompiler
 {
-    /**
-     * The placeholder prefix used to identify encoded code blocks.
-     */
     public const string PLACEHOLDER_PREFIX = '<!--SLIDEWIRE_CODE:';
 
     public const string PLACEHOLDER_SUFFIX = '-->';
@@ -47,9 +44,6 @@ class CodeBlockPrecompiler
         );
     }
 
-    /**
-     * Restore encoded code blocks back to their original fenced format.
-     */
     public static function decode(string $content): string
     {
         return (string) preg_replace_callback(
@@ -59,9 +53,6 @@ class CodeBlockPrecompiler
         );
     }
 
-    /**
-     * Find and encode all fenced code blocks within a markdown slot.
-     */
     protected function encodeCodeBlocks(string $content): string
     {
         return (string) preg_replace_callback(
@@ -71,9 +62,6 @@ class CodeBlockPrecompiler
         );
     }
 
-    /**
-     * Encode the entire slot content of a code component.
-     */
     protected function encodeSlotContent(string $content): string
     {
         if (trim($content) === '') {

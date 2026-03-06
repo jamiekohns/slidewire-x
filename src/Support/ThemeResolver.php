@@ -137,13 +137,13 @@ class ThemeResolver
     /**
      * Extract the per-slide theme list from effective slides.
      *
-     * @param  array<int, array{effective: array<string, string|null>}>  $effectiveSlides
+     * @param  array<int, Slide>  $effectiveSlides
      * @return array<int, string|null>
      */
     public function slideThemes(array $effectiveSlides): array
     {
         return array_values(array_map(
-            fn (array $slide): ?string => $slide['effective']['theme'] ?? null,
+            fn (Slide $slide): ?string => $slide->effective['theme'] ?? null,
             $effectiveSlides,
         ));
     }

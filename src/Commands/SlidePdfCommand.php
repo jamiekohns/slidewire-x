@@ -37,20 +37,8 @@ class SlidePdfCommand extends Command
         // Flatten 2D grid to linear slide list for PDF export
         $slides = $compiler->flattenSlides($columns);
 
-        // Add h/v coordinates for effective settings resolution
-        $indexedSlides = array_values(array_map(
-            function (array $slide, int $index): array {
-                $slide['h'] = $index;
-                $slide['v'] = 0;
-
-                return $slide;
-            },
-            $slides,
-            array_keys($slides),
-        ));
-
         // Resolve effective settings (theme, typography, etc.) for each slide
-        $effectiveSlides = $settingsResolver->resolve($indexedSlides, $compiled['deck_meta']);
+        $effectiveSlides = $settingsResolver->resolve($slides, $compiled['deck_meta']);
 
         $output = $this->option('output') ?: storage_path('app/' . $presentation . '.pdf');
         File::ensureDirectoryExists(dirname($output));

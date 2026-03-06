@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace WendellAdriel\SlideWire\Livewire;
 
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
+use WendellAdriel\SlideWire\Support\Slide;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 #[Layout('slidewire::layouts.blank')]
@@ -20,14 +22,14 @@ class PresentationDeck extends Component
     /**
      * 2D grid of slides: columns[horizontal][vertical].
      *
-     * @var array<int, array<int, array{id: string, html: string, meta: array<string, string>, fragments: int, class: string}>>
+     * @var array<int, array<int, Slide>>
      */
     public array $columns = [];
 
     /**
      * Flattened slide list for linear indexing and rendering.
      *
-     * @var array<int, array{id: string, html: string, meta: array<string, string>, fragments: int, class: string, h: int, v: int}>
+     * @var array<int, Slide>
      */
     public array $slides = [];
 
@@ -50,26 +52,12 @@ class PresentationDeck extends Component
     public function mount(string $presentation = 'index', ?int $startSlide = null): void
     {
         $this->presentation = trim($presentation, '/');
-        $compiled = app(PresentationCompiler::class)->compile($this->presentation);
+        $compiler = app(PresentationCompiler::class);
+        $compiled = $compiler->compile($this->presentation);
         $this->deckMeta = $compiled['deck_meta'];
         $this->columns = $compiled['slides'];
-
-        // Flatten 2D grid to linear list with h/v coordinates
-        $flat = [];
-        $gridShape = [];
-
-        foreach ($this->columns as $h => $column) {
-            $gridShape[] = count($column);
-
-            foreach ($column as $v => $entry) {
-                $entry['h'] = $h;
-                $entry['v'] = $v;
-                $flat[] = $entry;
-            }
-        }
-
-        $this->slides = $flat;
-        $this->gridShape = $gridShape;
+        $this->slides = $compiler->flattenSlides($this->columns);
+        $this->gridShape = array_map(count(...), $this->columns);
 
         abort_if($this->slides === [], 404, "SlideWire presentation [{$this->presentation}] was not found.");
 
@@ -80,7 +68,7 @@ class PresentationDeck extends Component
 
     public function nextSlide(): void
     {
-        $fragmentCount = $this->currentSlide()['fragments'] ?? 0;
+        $fragmentCount = $this->currentSlide()->fragments;
 
         if ($fragmentCount > 0 && $this->activeFragment < $fragmentCount - 1) {
             ++$this->activeFragment;
@@ -110,14 +98,11 @@ class PresentationDeck extends Component
         $this->activeFragment = -1;
     }
 
-    /**
-     * Navigate down within a vertical stack.
-     */
     public function navigateDown(): void
     {
         $current = $this->currentSlide();
-        $h = $current['h'];
-        $v = $current['v'];
+        $h = $current->h;
+        $v = $current->v;
         $maxV = ($this->gridShape[$h] ?? 1) - 1;
 
         if ($v >= $maxV) {
@@ -132,14 +117,11 @@ class PresentationDeck extends Component
         }
     }
 
-    /**
-     * Navigate up within a vertical stack.
-     */
     public function navigateUp(): void
     {
         $current = $this->currentSlide();
-        $h = $current['h'];
-        $v = $current['v'];
+        $h = $current->h;
+        $v = $current->v;
 
         if ($v <= 0) {
             return;
@@ -153,7 +135,7 @@ class PresentationDeck extends Component
         }
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    public function render(): View
     {
         $settingsResolver = app(EffectiveSettingsResolver::class);
         $themeResolver = app(ThemeResolver::class);
@@ -177,10 +159,7 @@ class PresentationDeck extends Component
         ]);
     }
 
-    /**
-     * @return array{id: string, html: string, meta: array<string, string>, fragments: int, class: string, h: int, v: int}
-     */
-    protected function currentSlide(): array
+    protected function currentSlide(): Slide
     {
         return $this->slides[$this->activeIndex];
     }
@@ -192,6 +171,6 @@ class PresentationDeck extends Component
 
     protected function findFlatIndex(int $h, int $v): ?int
     {
-        return array_find_key($this->slides, fn (array $slide): bool => $slide['h'] === $h && $slide['v'] === $v);
+        return array_find_key($this->slides, fn (Slide $slide): bool => $slide->h === $h && $slide->v === $v);
     }
 }

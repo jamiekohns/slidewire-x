@@ -20,11 +20,11 @@
         @js($slideThemes),
         @js($configuredThemes),
         @js((string) ($deckMeta['theme'] ?? config('slidewire.slides.theme', 'default'))),
-        @js(collect($effectiveSlides)->map(fn ($s) => (int) ($s['effective']['transition_duration'] ?? 350))->values()->all()),
-        @js(collect($effectiveSlides)->map(fn ($s) => (int) ($s['effective']['auto_slide'] ?? 0))->values()->all()),
+        @js(collect($effectiveSlides)->map(fn ($s) => (int) ($s->effective['transition_duration'] ?? 350))->values()->all()),
+        @js(collect($effectiveSlides)->map(fn ($s) => (int) ($s->effective['auto_slide'] ?? 0))->values()->all()),
         @js((bool) ($deckMeta['auto_slide_pause_on_interaction'] ?? config('slidewire.slides.auto_slide_pause_on_interaction', true))),
         @js($gridShape),
-        @js(collect($effectiveSlides)->map(fn ($s) => ['h' => $s['h'], 'v' => $s['v']])->values()->all()),
+        @js(collect($effectiveSlides)->map(fn ($s) => ['h' => $s->h, 'v' => $s->v])->values()->all()),
         @js($themeTypography)
     )"
     x-bind:class="currentThemeClass()"
@@ -51,8 +51,8 @@
 
         @foreach ($effectiveSlides as $slideIndex => $slide)
             @php
-                $meta = $slide['meta'];
-                $effective = $slide['effective'];
+                $meta = $slide->meta;
+                $effective = $slide->effective;
 
                 $rawBackground = $meta['background'] ?? null;
                 $isBackgroundAsset = is_string($rawBackground) && preg_match('/^(https?:|\/|\.\/|\.\.\/)/', $rawBackground) === 1;
@@ -82,8 +82,8 @@
             <section
                 x-bind:class="frameClass({{ $slideIndex }})"
                 x-ref="slide{{ $slideIndex }}"
-                wire:key="slide-{{ $slide['id'] }}"
-                class="slidewire-frame {{ $slide['class'] }} {{ ($effective['theme'] ?? '') !== '' ? 'slidewire-theme-' . ($effective['theme'] ?? '') : '' }}"
+                wire:key="slide-{{ $slide->id }}"
+                class="slidewire-frame {{ $slide->class }} {{ ($effective['theme'] ?? '') !== '' ? 'slidewire-theme-' . ($effective['theme'] ?? '') : '' }}"
                 data-transition="{{ $effective['transition'] ?? config('slidewire.slides.transition') }}"
                 data-transition-speed="{{ $effective['transition_speed'] ?? config('slidewire.slides.transition_speed', 'default') }}"
                 data-auto-animate="{{ $meta['auto_animate'] ?? $deckMeta['auto_animate'] ?? 'false' }}"
@@ -91,8 +91,8 @@
                 data-auto-animate-easing="{{ $meta['auto_animate_easing'] ?? $deckMeta['auto_animate_easing'] ?? 'ease' }}"
                 data-auto-slide="{{ $effective['auto_slide'] ?? '' }}"
                 data-theme="{{ $effective['theme'] ?? '' }}"
-                data-h="{{ $slide['h'] }}"
-                data-v="{{ $slide['v'] }}"
+                data-h="{{ $slide->h }}"
+                data-v="{{ $slide->v }}"
                 @if(isset($meta['background_transition']))
                     data-background-transition="{{ $meta['background_transition'] }}"
                 @endif
@@ -116,7 +116,7 @@
                 @endphp
 
                 <div class="slidewire-content {{ $slideTypography['text'] }}">
-                    {!! $slide['html'] !!}
+                    {!! $slide->html !!}
                 </div>
             </section>
         @endforeach

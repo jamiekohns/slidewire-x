@@ -7,8 +7,8 @@ namespace WendellAdriel\SlideWire\Support;
 use InvalidArgumentException;
 
 /**
- * Validates and normalizes the slidewire configuration to catch
- * misconfigured themes, fonts, and slide settings before runtime consumption.
+ * Validates and normalizes the slidewire configuration to catch misconfigured
+ * themes, fonts, and slide settings before runtime consumption.
  */
 class ConfigValidator
 {

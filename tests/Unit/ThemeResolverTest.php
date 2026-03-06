@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use WendellAdriel\SlideWire\Support\Slide;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 it('builds background class map from nested theme config', function (): void {
@@ -146,9 +147,9 @@ it('extracts slide themes from effective slides', function (): void {
     $resolver = app(ThemeResolver::class);
 
     $slides = [
-        ['effective' => ['theme' => 'black']],
-        ['effective' => ['theme' => null]],
-        ['effective' => ['theme' => 'white']],
+        new Slide(id: 'slide-0', html: '', effective: ['theme' => 'black']),
+        new Slide(id: 'slide-1', html: '', effective: ['theme' => null]),
+        new Slide(id: 'slide-2', html: '', effective: ['theme' => 'white']),
     ];
 
     expect($resolver->slideThemes($slides))->toBe(['black', null, 'white']);
