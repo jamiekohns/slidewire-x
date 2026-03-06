@@ -4,13 +4,13 @@ SlideWire is a Laravel package for creating beautiful presentations powered by L
 
 ## Documentation Index
 
-- [Installation](./installation.md)
-- [Quickstart](./quickstart.md)
-- [Routing](./routing.md)
-- [Authoring Slides](./authoring.md)
-- [Presentation Features](./presentation-features.md)
-- [Configuration](./configuration.md)
-- [Commands](./commands.md)
+- [Installation](./docs/installation.md)
+- [Quickstart](./docs/quickstart.md)
+- [Routing](./docs/routing.md)
+- [Authoring Slides](./docs/authoring.md)
+- [Presentation Features](./docs/presentation-features.md)
+- [Configuration](./docs/configuration.md)
+- [Commands](./docs/commands.md)
 
 ## What SlideWire Supports
 
