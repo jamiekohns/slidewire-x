@@ -1,8 +1,21 @@
-# SlideWire Documentation
+<div align="center">
+    <img src="https://github.com/WendellAdriel/slidewire/raw/main/art/logo.png" alt="SlideWire logo" height="220"/>
+    <p>
+        <h1>SlideWire</h1>
+        Create beautiful presentations powered by Livewire
+    </p>
+</div>
 
-SlideWire is a Laravel package for creating beautiful presentations powered by Livewire.
+<p align="center">
+    <a href="https://packagist.org/packages/wendelladriel/slidewire"><img src="https://img.shields.io/packagist/v/wendelladriel/slidewire.svg?style=flat-square" alt="Packagist"></a>
+    <a href="https://packagist.org/packages/wendelladriel/slidewire"><img src="https://img.shields.io/packagist/php-v/wendelladriel/slidewire.svg?style=flat-square" alt="PHP from Packagist"></a>
+    <a href="https://packagist.org/packages/wendelladriel/slidewire"><img src="https://img.shields.io/badge/Laravel-12.x,13.x-brightgreen.svg?style=flat-square" alt="Laravel Version"></a>
+    <a href="https://github.com/WendellAdriel/slidewire/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/WendellAdriel/slidewire/tests.yml?branch=main&label=Tests"></a>
+</p>
 
-## Documentation Index
+SlideWire is a Laravel package for building presentation decks with Livewire, with reveal-style navigation, transitions, theming, fragments, auto-slide support, and PDF export.
+
+## Documentation
 
 - [Installation](./docs/installation.md)
 - [Quickstart](./docs/quickstart.md)
@@ -12,20 +25,26 @@ SlideWire is a Laravel package for creating beautiful presentations powered by L
 - [Configuration](./docs/configuration.md)
 - [Commands](./docs/commands.md)
 
-## What SlideWire Supports
+## Installation
+
+```bash
+composer require wendelladriel/slidewire
+```
+
+## Features
 
 - Full-page deck rendering with Livewire
-- Keyboard / click / swipe navigation + hash deep-linking
-- 2D navigation: horizontal slides + vertical groups
-- Directional arrow controls with up/down support for vertical slides
-- Fullscreen mode
-- Transition presets and transition speed control (vertical-aware)
-- Fragment reveals inside a slide
-- Auto-animate between matching elements on consecutive slides
-- Auto-slide timers (global default, deck-level, and per-slide override)
-- Settings precedence: config -> deck -> slide
-- Syntax highlighting with Phiki (theme-coupled via nested `themes` config)
-- Reveal-style backgrounds (color, image, video)
-- Structured theme presets with typography (title/text font, color, size)
-- System-first font loading with Google Fonts fallback
-- PDF export (`slidewire:pdf`)
+- Keyboard, click, swipe, and hash-based navigation
+- Horizontal slides with nested vertical slide groups
+- Directional controls, progress, and fullscreen support
+- Transition presets, fragments, and auto-animate
+- Auto-slide timers with config, deck, and slide precedence
+- Syntax highlighting with Phiki and theme-aware configuration
+- Reveal-style backgrounds with color, image, and video support
+- Structured theme presets with typography controls
+- PDF export with `slidewire:pdf`
+
+## Credits
+
+- [Wendell Adriel](https://github.com/WendellAdriel)
+- [All Contributors](../../contributors)
