@@ -17,6 +17,7 @@ class Markdown extends Component
     public function __construct(
         protected CodeHighlighter $highlighter,
         protected SlideContext $context,
+        public ?string $size = null,
     ) {}
 
     public function render(): View|Closure|string
@@ -32,6 +33,8 @@ class Markdown extends Component
             $markdown,
             $this->context->highlightTheme(),
             $this->context->presentationTheme(),
+            null,
+            $this->size,
         );
 
         return Str::markdown($withHighlightedCode);

@@ -81,6 +81,7 @@ it('accepts valid slide settings', function (): void {
     $validator->validateSlides([
         'transition' => 'fade',
         'transition_speed' => 'fast',
+        'highlight' => ['font_size' => 'lg'],
     ]);
 })->throwsNoExceptions();
 
@@ -88,3 +89,10 @@ it('validates font weights must be an array', function (): void {
     $validator = new ConfigValidator();
     $validator->validateFonts(['Inter' => ['source' => 'google', 'weights' => '400']]);
 })->throws(InvalidArgumentException::class, 'weights must be an array');
+
+it('rejects empty highlight font size', function (): void {
+    $validator = new ConfigValidator();
+    $validator->validateSlides([
+        'highlight' => ['font_size' => '  '],
+    ]);
+})->throws(InvalidArgumentException::class, 'font_size must be a non-empty string');

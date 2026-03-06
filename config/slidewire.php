@@ -51,6 +51,7 @@ return [
             'enabled' => true,
             'theme' => 'catppuccin-mocha',
             'font' => 'JetBrainsMono',
+            'font_size' => 'md',
         ],
     ],
 

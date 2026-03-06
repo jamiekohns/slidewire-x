@@ -105,6 +105,31 @@ BLADE);
     expect($html)->toContain('catppuccin-mocha');
 });
 
+it('uses configured highlight font size for markdown code blocks', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::markdown>
+```php
+echo 'hello';
+```
+</x-slidewire::markdown>
+BLADE);
+
+    expect($html)->toContain('font-size: 1rem');
+});
+
+it('respects explicit size override on markdown component', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::markdown size="xl">
+```php
+echo 'hello';
+```
+</x-slidewire::markdown>
+BLADE);
+
+    expect($html)->toContain('font-size: 1.25rem')
+        ->and($html)->not->toContain('font-size: 1rem');
+});
+
 it('clears slide context after slide renders', function (): void {
     $context = app(SlideContext::class);
 

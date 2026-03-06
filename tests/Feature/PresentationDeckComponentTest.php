@@ -176,6 +176,15 @@ it('passes theme typography data to Alpine component', function (): void {
         ->and($content)->toContain('text-lg');
 });
 
+it('uses configured highlight font size in deck styles', function (): void {
+    Route::slidewire('/slides/demo', 'demo');
+
+    $response = test()->get('/slides/demo');
+    $content = $response->getContent();
+
+    expect($content)->toContain('font-size: 1rem;');
+});
+
 // ========================================================================
 // Mermaid runtime integration tests
 // ========================================================================

@@ -132,6 +132,14 @@ class ConfigValidator
                 "SlideWire slide transition_speed [{$slides['transition_speed']}] is invalid. Valid speeds: " . implode(', ', $validSpeeds) . '.'
             );
         }
+
+        $highlightFontSize = $slides['highlight']['font_size'] ?? null;
+
+        if ($highlightFontSize !== null && (! is_string($highlightFontSize) || trim($highlightFontSize) === '')) {
+            throw new InvalidArgumentException(
+                'SlideWire slides highlight font_size must be a non-empty string.'
+            );
+        }
     }
 
     /**

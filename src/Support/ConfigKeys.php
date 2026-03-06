@@ -43,6 +43,8 @@ final class ConfigKeys
 
     public const string SLIDES_HIGHLIGHT_FONT = 'slidewire.slides.highlight.font';
 
+    public const string SLIDES_HIGHLIGHT_FONT_SIZE = 'slidewire.slides.highlight.font_size';
+
     public const string THEMES = 'slidewire.themes';
 
     public const string FONTS = 'slidewire.fonts';

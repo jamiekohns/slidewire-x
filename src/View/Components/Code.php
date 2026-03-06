@@ -19,6 +19,7 @@ class Code extends Component
         public string $language = 'text',
         public ?string $theme = null,
         public ?string $font = null,
+        public ?string $size = null,
     ) {}
 
     public function render(): View|Closure|string
@@ -37,6 +38,7 @@ class Code extends Component
             $this->theme ?? $this->context->highlightTheme(),
             $this->context->presentationTheme(),
             $this->font,
+            $this->size,
         )->toHtml();
     }
 }

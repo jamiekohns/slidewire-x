@@ -186,20 +186,33 @@ Override the automatic resolution explicitly:
 Custom fonts can be configured in the `fonts` config key. Google Fonts families are loaded automatically via `<link>` tag injection:
 
 ```php
+use WendellAdriel\SlideWire\Support\FontConfig;
+use WendellAdriel\SlideWire\Support\FontSource;
+
 'fonts' => [
-    'Inter' => ['source' => 'google', 'weights' => [400, 600, 700]],
+    'Inter' => new FontConfig(FontSource::Google, [400, 600, 700]),
 ],
 ```
 
 System fonts require no loading configuration.
 
-Code blocks use the configured `slides.highlight.font` by default. Override per component when needed:
+Code blocks use the configured `slides.highlight.font` and `slides.highlight.font_size` by default. Override per component when needed:
 
 ```blade
-<x-slidewire::code language="php" font="FiraCode">
+<x-slidewire::code language="php" font="FiraCode" size="lg">
 echo 'custom font';
 </x-slidewire::code>
 ```
+
+Markdown code fences can also override the size for that component:
+
+~~~blade
+<x-slidewire::markdown size="xl">
+```php
+echo 'larger example';
+```
+</x-slidewire::markdown>
+~~~
 
 ## Settings Precedence
 

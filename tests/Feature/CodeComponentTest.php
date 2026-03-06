@@ -106,6 +106,16 @@ BLADE);
     expect($html)->toContain('JetBrainsMono');
 });
 
+it('uses configured highlight font size by default', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::code language="php">
+echo 'hello';
+</x-slidewire::code>
+BLADE);
+
+    expect($html)->toContain('font-size: 1rem');
+});
+
 it('respects explicit font override on code component', function (): void {
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::code language="php" font="FiraCode">
@@ -115,6 +125,17 @@ BLADE);
 
     expect($html)->toContain('FiraCode')
         ->and($html)->not->toContain('JetBrainsMono');
+});
+
+it('respects explicit size override on code component', function (): void {
+    $html = Blade::render(<<<'BLADE'
+    <x-slidewire::code language="php" size="lg">
+echo 'hello';
+</x-slidewire::code>
+BLADE);
+
+    expect($html)->toContain('font-size: 1.125rem')
+        ->and($html)->not->toContain('font-size: 1rem');
 });
 
 it('defaults to text language when language attribute is omitted', function (): void {

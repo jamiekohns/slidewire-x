@@ -35,6 +35,7 @@ Highlighting:
 - `highlight.enabled`
 - `highlight.theme`
 - `highlight.font`
+- `highlight.font_size`
 
 ## Settings Precedence
 
@@ -88,8 +89,8 @@ SlideWire ships with presets:
 Each theme is configured as a `ThemeConfig` DTO:
 
 ```php
-'use WendellAdriel\\SlideWire\\Support\\ThemeConfig;
-'use WendellAdriel\\SlideWire\\Support\\ThemeFont;
+use WendellAdriel\\SlideWire\\Support\\ThemeConfig;
+use WendellAdriel\\SlideWire\\Support\\ThemeFont;
 
 'themes' => [
     'corporate' => new ThemeConfig(
@@ -137,14 +138,15 @@ Resolution order:
 Map font family names to their loading strategy. System fonts require no loading; Google Fonts families are loaded automatically via `<link>` tag.
 
 ```php
-'use WendellAdriel\\SlideWire\\Support\\FontConfig;
-'use WendellAdriel\\SlideWire\\Support\\FontSource;
+use WendellAdriel\\SlideWire\\Support\\FontConfig;
+use WendellAdriel\\SlideWire\\Support\\FontSource;
 
 'slides' => [
     'highlight' => [
         'enabled' => true,
         'theme' => 'catppuccin-mocha',
         'font' => 'JetBrainsMono',
+        'font_size' => 'md',
     ],
 ],
 
@@ -155,7 +157,7 @@ Map font family names to their loading strategy. System fonts require no loading
 ],
 ```
 
-When a Google Fonts family is configured, SlideWire automatically injects preconnect and stylesheet `<link>` tags into the deck view. Code blocks use `slides.highlight.font` by default, and `<x-slidewire::code>` can override it with a `font` attribute.
+When a Google Fonts family is configured, SlideWire automatically injects preconnect and stylesheet `<link>` tags into the deck view. Code blocks use `slides.highlight.font` and `slides.highlight.font_size` by default, and both `<x-slidewire::code>` and `<x-slidewire::markdown>` can override the size with a `size` attribute. The `size` value accepts raw CSS sizes or the aliases `xs`, `sm`, `md`, `lg`, `xl`, and `2xl`.
 
 Defaults to an empty array (no custom fonts loaded).
 
