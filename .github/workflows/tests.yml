@@ -24,8 +24,19 @@ jobs:
           tools: composer:v2
           coverage: xdebug
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install Playwright package
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium
 
       - name: Run Tests
         run: composer test
@@ -51,7 +62,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Install Playwright package
-        run: npm install
+        run: npm ci
 
       - name: Install Playwright browser
         run: npx playwright install chromium
