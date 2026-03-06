@@ -10,7 +10,6 @@ namespace WendellAdriel\SlideWire\Support;
  *   slide_meta > deck_meta > config slides
  *
  * @phpstan-type DeckMeta array<string, string>
- * @phpstan-type SlidesConfig array{theme?: mixed, show_controls?: mixed, show_progress?: mixed, show_fullscreen_button?: mixed, keyboard?: mixed, touch?: mixed, transition?: mixed, transition_duration?: mixed, transition_speed?: mixed, auto_slide?: mixed, auto_slide_pause_on_interaction?: mixed, highlight?: array{theme?: mixed}}
  */
 class EffectiveSettingsResolver
 {
@@ -35,7 +34,7 @@ class EffectiveSettingsResolver
      */
     public function resolve(array $slides, array $deckMeta): array
     {
-        $slidesConfig = config('slidewire.slides', []);
+        $slidesConfig = config('slidewire.slides', new SlidesConfig());
 
         return array_values(array_map(
             fn (Slide $slide): Slide => $this->resolveSlide($slide, $deckMeta, $slidesConfig),
@@ -47,9 +46,8 @@ class EffectiveSettingsResolver
      * Resolve effective settings for a single slide.
      *
      * @param  DeckMeta  $deckMeta
-     * @param  SlidesConfig  $slidesConfig
      */
-    protected function resolveSlide(Slide $slide, array $deckMeta, array $slidesConfig): Slide
+    protected function resolveSlide(Slide $slide, array $deckMeta, SlidesConfig $slidesConfig): Slide
     {
         $slideMeta = $slide->meta;
         $effective = [];
@@ -57,14 +55,32 @@ class EffectiveSettingsResolver
         foreach (self::RUNTIME_KEYS as $key) {
             $effective[$key] = $slideMeta[$key]
             ?? $deckMeta[$key]
-            ?? (isset($slidesConfig[$key]) ? (string) $slidesConfig[$key] : null);
+            ?? $this->configValue($slidesConfig, $key);
         }
 
         // Highlight theme resolution: slide > deck > config
         $effective['highlight_theme'] = $slideMeta['highlight_theme']
             ?? $deckMeta['highlight_theme']
-            ?? (string) ($slidesConfig['highlight']['theme'] ?? 'github-dark');
+            ?? $slidesConfig->highlight->theme->value;
 
         return $slide->withEffective($effective);
+    }
+
+    protected function configValue(SlidesConfig $slidesConfig, string $key): ?string
+    {
+        return match ($key) {
+            'theme' => $slidesConfig->theme,
+            'transition' => $slidesConfig->transition->value,
+            'transition_speed' => $slidesConfig->transitionSpeed->value,
+            'transition_duration' => (string) $slidesConfig->transitionDuration,
+            'auto_slide' => (string) $slidesConfig->autoSlide,
+            'auto_slide_pause_on_interaction' => (string) $slidesConfig->autoSlidePauseOnInteraction,
+            'show_controls' => (string) $slidesConfig->showControls,
+            'show_progress' => (string) $slidesConfig->showProgress,
+            'show_fullscreen_button' => (string) $slidesConfig->showFullscreenButton,
+            'keyboard' => (string) $slidesConfig->keyboard,
+            'touch' => (string) $slidesConfig->touch,
+            default => null,
+        };
     }
 }

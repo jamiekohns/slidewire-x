@@ -5,10 +5,18 @@ declare(strict_types=1);
 arch('support types are in the Support namespace')
     ->expect('WendellAdriel\SlideWire\Support')
     ->toBeClasses()
-    ->ignoring(WendellAdriel\SlideWire\Support\FontSource::class);
+    ->ignoring([
+        WendellAdriel\SlideWire\Support\FontSource::class,
+        WendellAdriel\SlideWire\Support\SlideTransition::class,
+        WendellAdriel\SlideWire\Support\SlideTransitionSpeed::class,
+    ]);
 
 arch('support enums are in the Support namespace')
-    ->expect(WendellAdriel\SlideWire\Support\FontSource::class)
+    ->expect([
+        WendellAdriel\SlideWire\Support\FontSource::class,
+        WendellAdriel\SlideWire\Support\SlideTransition::class,
+        WendellAdriel\SlideWire\Support\SlideTransitionSpeed::class,
+    ])
     ->toBeEnums();
 
 arch('view components extend Illuminate Component')

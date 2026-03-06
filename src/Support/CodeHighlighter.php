@@ -6,6 +6,7 @@ namespace WendellAdriel\SlideWire\Support;
 
 use Illuminate\Support\HtmlString;
 use Phiki\Phiki;
+use Phiki\Theme\Theme;
 use Throwable;
 
 class CodeHighlighter
@@ -18,9 +19,11 @@ class CodeHighlighter
      *   2. Theme-to-highlight mapping for the given $presentationTheme
      *   3. Config default (slidewire.slides.highlight.theme)
      */
-    public function highlight(string $code, string $language, ?string $highlightTheme = null, ?string $presentationTheme = null, ?string $font = null, ?string $size = null): HtmlString
+    public function highlight(string $code, string $language, Theme|string|null $highlightTheme = null, ?string $presentationTheme = null, ?string $font = null, ?string $size = null): HtmlString
     {
-        if (! config('slidewire.slides.highlight.enabled', true)) {
+        $slides = config('slidewire.slides', new SlidesConfig());
+
+        if (! $slides->highlight->enabled) {
             return $this->fallback($code, $language, $font, $size);
         }
 
@@ -38,29 +41,23 @@ class CodeHighlighter
     /**
      * Resolve highlight theme using precedence: explicit > theme config > config default.
      */
-    public function resolveHighlightTheme(?string $highlightTheme = null, ?string $presentationTheme = null): string
+    public function resolveHighlightTheme(Theme|string|null $highlightTheme = null, ?string $presentationTheme = null): Theme
     {
-        if ($highlightTheme !== null && $highlightTheme !== '') {
-            return $highlightTheme;
+        $explicitTheme = $this->normalizeTheme($highlightTheme);
+
+        if ($explicitTheme instanceof Theme) {
+            return $explicitTheme;
         }
 
         if ($presentationTheme !== null && $presentationTheme !== '') {
             $themeConfig = config('slidewire.themes', [])[$presentationTheme] ?? null;
 
-            if ($themeConfig instanceof ThemeConfig && $themeConfig->highlightTheme !== '') {
+            if ($themeConfig instanceof ThemeConfig) {
                 return $themeConfig->highlightTheme;
-            }
-
-            if (is_array($themeConfig)) {
-                $themeHighlight = $themeConfig['highlight_theme'] ?? null;
-
-                if (is_string($themeHighlight) && $themeHighlight !== '') {
-                    return $themeHighlight;
-                }
             }
         }
 
-        return (string) config('slidewire.slides.highlight.theme', 'github-dark');
+        return config('slidewire.slides', new SlidesConfig())->highlight->theme;
     }
 
     /**
@@ -69,7 +66,7 @@ class CodeHighlighter
      * This is the single shared path used by both the markdown parser and the Markdown Blade component,
      * ensuring consistent highlighting behavior.
      */
-    public function replaceCodeBlocks(string $markdown, ?string $highlightTheme = null, ?string $presentationTheme = null, ?string $font = null, ?string $size = null): string
+    public function replaceCodeBlocks(string $markdown, Theme|string|null $highlightTheme = null, ?string $presentationTheme = null, ?string $font = null, ?string $size = null): string
     {
         return (string) preg_replace_callback('/```([\w-]*)\n(.*?)```/s', function (array $matches) use ($highlightTheme, $presentationTheme, $font, $size): string {
             $language = $matches[1] !== '' ? $matches[1] : 'text';
@@ -79,7 +76,7 @@ class CodeHighlighter
         }, $markdown);
     }
 
-    protected function attemptPhikiHighlight(string $code, string $language, string $theme, ?string $font = null, ?string $size = null): ?string
+    protected function attemptPhikiHighlight(string $code, string $language, Theme $theme, ?string $font = null, ?string $size = null): ?string
     {
         if (! class_exists(Phiki::class)) {
             return null;
@@ -123,8 +120,9 @@ class CodeHighlighter
 
     protected function styleAttribute(?string $font = null, ?string $size = null): string
     {
-        $font = trim((string) ($font ?? config('slidewire.slides.highlight.font', '')));
-        $size = trim((string) ($size ?? config('slidewire.slides.highlight.font_size', 'md')));
+        $highlight = config('slidewire.slides', new SlidesConfig())->highlight;
+        $font = trim((string) ($font ?? $highlight->font));
+        $size = trim((string) ($size ?? $highlight->fontSize));
 
         $styles = [];
 
@@ -190,5 +188,18 @@ class CodeHighlighter
         );
 
         return is_string($updated) ? $updated : $html;
+    }
+
+    protected function normalizeTheme(Theme|string|null $theme): ?Theme
+    {
+        if ($theme instanceof Theme) {
+            return $theme;
+        }
+
+        if (! is_string($theme) || trim($theme) === '') {
+            return null;
+        }
+
+        return Theme::tryFrom(trim($theme));
     }
 }

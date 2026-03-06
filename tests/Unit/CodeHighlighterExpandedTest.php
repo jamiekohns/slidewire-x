@@ -3,9 +3,30 @@
 declare(strict_types=1);
 
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
+use WendellAdriel\SlideWire\Support\HighlightConfig;
+use WendellAdriel\SlideWire\Support\SlidesConfig;
 
 it('returns fallback HTML when highlighting is disabled', function (): void {
-    config()->set('slidewire.slides.highlight.enabled', false);
+    $slides = config('slidewire.slides');
+    config()->set('slidewire.slides', new SlidesConfig(
+        theme: $slides->theme,
+        showControls: $slides->showControls,
+        showProgress: $slides->showProgress,
+        showFullscreenButton: $slides->showFullscreenButton,
+        keyboard: $slides->keyboard,
+        touch: $slides->touch,
+        transition: $slides->transition,
+        transitionDuration: $slides->transitionDuration,
+        transitionSpeed: $slides->transitionSpeed,
+        autoSlide: $slides->autoSlide,
+        autoSlidePauseOnInteraction: $slides->autoSlidePauseOnInteraction,
+        highlight: new HighlightConfig(
+            enabled: false,
+            theme: $slides->highlight->theme,
+            font: $slides->highlight->font,
+            fontSize: $slides->highlight->fontSize,
+        ),
+    ));
 
     $html = app(CodeHighlighter::class)->highlight('echo "test";', 'php')->toHtml();
 
@@ -23,7 +44,26 @@ it('returns fallback HTML for unknown language gracefully', function (): void {
 });
 
 it('escapes code in fallback mode', function (): void {
-    config()->set('slidewire.slides.highlight.enabled', false);
+    $slides = config('slidewire.slides');
+    config()->set('slidewire.slides', new SlidesConfig(
+        theme: $slides->theme,
+        showControls: $slides->showControls,
+        showProgress: $slides->showProgress,
+        showFullscreenButton: $slides->showFullscreenButton,
+        keyboard: $slides->keyboard,
+        touch: $slides->touch,
+        transition: $slides->transition,
+        transitionDuration: $slides->transitionDuration,
+        transitionSpeed: $slides->transitionSpeed,
+        autoSlide: $slides->autoSlide,
+        autoSlidePauseOnInteraction: $slides->autoSlidePauseOnInteraction,
+        highlight: new HighlightConfig(
+            enabled: false,
+            theme: $slides->highlight->theme,
+            font: $slides->highlight->font,
+            fontSize: $slides->highlight->fontSize,
+        ),
+    ));
 
     $html = app(CodeHighlighter::class)->highlight('<script>alert("xss")</script>', 'html')->toHtml();
 

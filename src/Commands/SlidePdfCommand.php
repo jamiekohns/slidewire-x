@@ -10,6 +10,7 @@ use Spatie\Browsershot\Browsershot;
 use Throwable;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
+use WendellAdriel\SlideWire\Support\SlidesConfig;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 class SlidePdfCommand extends Command
@@ -51,6 +52,7 @@ class SlidePdfCommand extends Command
             'effectiveSlides' => $effectiveSlides,
             'deckMeta' => $compiled['deck_meta'],
             'presentation' => $presentation,
+            'slidesConfig' => config('slidewire.slides', new SlidesConfig()),
             'themeTypography' => $themeResolver->typographyClassMap(),
             'configuredThemes' => $themeResolver->backgroundClassMap(),
             'googleFontsUrl' => $themeResolver->googleFontsUrl(),

@@ -2,97 +2,93 @@
 
 declare(strict_types=1);
 
+use Phiki\Theme\Theme;
 use WendellAdriel\SlideWire\Support\ConfigValidator;
+use WendellAdriel\SlideWire\Support\FontConfig;
+use WendellAdriel\SlideWire\Support\FontSource;
+use WendellAdriel\SlideWire\Support\HighlightConfig;
+use WendellAdriel\SlideWire\Support\SlidesConfig;
+use WendellAdriel\SlideWire\Support\SlideTransition;
+use WendellAdriel\SlideWire\Support\SlideTransitionSpeed;
+use WendellAdriel\SlideWire\Support\ThemeConfig;
+use WendellAdriel\SlideWire\Support\ThemeFont;
 
 it('validates the default config without errors', function (): void {
     $validator = new ConfigValidator();
     $validator->validate();
 })->throwsNoExceptions();
 
-it('rejects non-array theme entries', function (): void {
+it('rejects non-dto theme entries', function (): void {
     $validator = new ConfigValidator();
     $validator->validateThemes(['broken' => 'just-a-string']);
-})->throws(InvalidArgumentException::class, 'must be an array');
+})->throws(InvalidArgumentException::class, 'must be a ThemeConfig');
 
-it('rejects themes missing required keys', function (): void {
-    $validator = new ConfigValidator();
-    $validator->validateThemes(['broken' => ['background' => 'bg-red']]);
-})->throws(InvalidArgumentException::class, 'missing required key');
-
-it('rejects themes with non-array typography', function (): void {
+it('rejects themes with empty background', function (): void {
     $validator = new ConfigValidator();
     $validator->validateThemes([
-        'broken' => [
-            'background' => 'bg-red',
-            'highlight_theme' => 'github-dark',
-            'title' => 'not-an-array',
-            'text' => ['font' => '', 'color' => '', 'size' => ''],
-        ],
+        'broken' => new ThemeConfig(
+            background: '',
+            highlightTheme: Theme::GithubDark,
+            title: new ThemeFont('Inter', 'text-white', 'text-4xl'),
+            text: new ThemeFont('Inter', 'text-slate-300', 'text-lg'),
+        ),
     ]);
-})->throws(InvalidArgumentException::class, 'must be an array');
+})->throws(InvalidArgumentException::class, 'missing required key [background]');
 
-it('rejects themes with missing typography keys', function (): void {
+it('rejects themes with empty title typography values', function (): void {
     $validator = new ConfigValidator();
     $validator->validateThemes([
-        'broken' => [
-            'background' => 'bg-red',
-            'highlight_theme' => 'github-dark',
-            'title' => ['font' => '', 'color' => ''],
-            'text' => ['font' => '', 'color' => '', 'size' => ''],
-        ],
+        'broken' => new ThemeConfig(
+            background: 'bg-red',
+            highlightTheme: Theme::GithubDark,
+            title: new ThemeFont('', 'text-white', 'text-4xl'),
+            text: new ThemeFont('Inter', 'text-slate-300', 'text-lg'),
+        ),
+    ]);
+})->throws(InvalidArgumentException::class, 'missing required key [font]');
+
+it('rejects themes with empty typography size', function (): void {
+    $validator = new ConfigValidator();
+    $validator->validateThemes([
+        'broken' => new ThemeConfig(
+            background: 'bg-red',
+            highlightTheme: Theme::GithubDark,
+            title: new ThemeFont('Inter', 'text-white', ''),
+            text: new ThemeFont('Inter', 'text-slate-300', 'text-lg'),
+        ),
     ]);
 })->throws(InvalidArgumentException::class, 'missing required key [size]');
 
-it('rejects fonts with invalid source', function (): void {
-    $validator = new ConfigValidator();
-    $validator->validateFonts(['BadFont' => ['source' => 'cdn']]);
-})->throws(InvalidArgumentException::class, 'invalid source');
-
-it('rejects fonts missing source key', function (): void {
-    $validator = new ConfigValidator();
-    $validator->validateFonts(['BadFont' => ['weights' => [400]]]);
-})->throws(InvalidArgumentException::class, 'missing required key [source]');
-
-it('rejects non-array font entries', function (): void {
+it('rejects non-dto font entries', function (): void {
     $validator = new ConfigValidator();
     $validator->validateFonts(['BadFont' => 'google']);
-})->throws(InvalidArgumentException::class, 'must be an array');
-
-it('rejects invalid transition value', function (): void {
-    $validator = new ConfigValidator();
-    $validator->validateSlides(['transition' => 'flip']);
-})->throws(InvalidArgumentException::class, 'invalid');
-
-it('rejects invalid transition speed', function (): void {
-    $validator = new ConfigValidator();
-    $validator->validateSlides(['transition_speed' => 'instant']);
-})->throws(InvalidArgumentException::class, 'invalid');
+})->throws(InvalidArgumentException::class, 'must be a FontConfig');
 
 it('accepts valid font configurations', function (): void {
     $validator = new ConfigValidator();
     $validator->validateFonts([
-        'Inter' => ['source' => 'google', 'weights' => [400, 700]],
-        'Georgia' => ['source' => 'system'],
+        'Inter' => new FontConfig(FontSource::Google, [400, 700]),
+        'Georgia' => new FontConfig(FontSource::System),
     ]);
 })->throwsNoExceptions();
 
 it('accepts valid slide settings', function (): void {
     $validator = new ConfigValidator();
-    $validator->validateSlides([
-        'transition' => 'fade',
-        'transition_speed' => 'fast',
-        'highlight' => ['font_size' => 'lg'],
-    ]);
+    $validator->validateSlides(new SlidesConfig(
+        transition: SlideTransition::Fade,
+        transitionSpeed: SlideTransitionSpeed::Fast,
+        highlight: new HighlightConfig(fontSize: 'lg'),
+    ));
 })->throwsNoExceptions();
 
-it('validates font weights must be an array', function (): void {
+it('validates font weights must be integers', function (): void {
     $validator = new ConfigValidator();
-    $validator->validateFonts(['Inter' => ['source' => 'google', 'weights' => '400']]);
-})->throws(InvalidArgumentException::class, 'weights must be an array');
+    $validator->validateFonts(['Inter' => new FontConfig(FontSource::Google, ['400'])]);
+})->throws(InvalidArgumentException::class, 'weights must be an array of integers');
 
 it('rejects empty highlight font size', function (): void {
     $validator = new ConfigValidator();
-    $validator->validateSlides([
-        'highlight' => ['font_size' => '  '],
-    ]);
+    $validator->validateSlides(new SlidesConfig(
+        highlight: new HighlightConfig(fontSize: '  '),
+    ));
 })->throws(InvalidArgumentException::class, 'font_size must be a non-empty string');

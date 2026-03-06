@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
+use Phiki\Theme\Theme;
 use WendellAdriel\SlideWire\Support\FontConfig;
 use WendellAdriel\SlideWire\Support\FontSource;
+use WendellAdriel\SlideWire\Support\HighlightConfig;
+use WendellAdriel\SlideWire\Support\SlidesConfig;
+use WendellAdriel\SlideWire\Support\SlideTransition;
+use WendellAdriel\SlideWire\Support\SlideTransitionSpeed;
 use WendellAdriel\SlideWire\Support\ThemeConfig;
 use WendellAdriel\SlideWire\Support\ThemeFont;
 
@@ -40,10 +45,19 @@ it('has non-empty background class for every built-in theme', function (): void 
 it('has valid highlight_theme for every built-in theme', function (): void {
     $themes = config('slidewire.themes', []);
 
-    foreach ($themes as $name => $theme) {
-        expect($theme->highlightTheme)->toBeString()
-            ->not->toBeEmpty("Theme '{$name}' must have a highlight_theme");
+    foreach ($themes as $theme) {
+        expect($theme->highlightTheme)->toBeInstanceOf(Theme::class);
     }
+});
+
+it('slides config is represented by DTOs and enums', function (): void {
+    $slides = config('slidewire.slides');
+
+    expect($slides)->toBeInstanceOf(SlidesConfig::class)
+        ->and($slides->transition)->toBeInstanceOf(SlideTransition::class)
+        ->and($slides->transitionSpeed)->toBeInstanceOf(SlideTransitionSpeed::class)
+        ->and($slides->highlight)->toBeInstanceOf(HighlightConfig::class)
+        ->and($slides->highlight->theme)->toBeInstanceOf(Theme::class);
 });
 
 it('does not have legacy theme_highlight_map config key', function (): void {

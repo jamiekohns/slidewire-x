@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <title>{{ $presentation }} - SlideWire</title>
     @php
-        $configuredCodeFontSize = match (trim((string) config('slidewire.slides.highlight.font_size', 'md'))) {
+        $configuredCodeFontSize = match (trim($slidesConfig->highlight->fontSize)) {
             'xs' => '0.75rem',
             'sm' => '0.875rem',
             'md' => '1rem',
             'lg' => '1.125rem',
             'xl' => '1.25rem',
             '2xl' => '1.5rem',
-            default => trim((string) config('slidewire.slides.highlight.font_size', 'md')),
+            default => trim($slidesConfig->highlight->fontSize),
         };
     @endphp
     @if($googleFontsUrl)

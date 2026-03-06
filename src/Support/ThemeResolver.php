@@ -18,17 +18,7 @@ class ThemeResolver
     public function backgroundClassMap(): array
     {
         return collect(config('slidewire.themes', []))
-            ->map(function (mixed $theme): string {
-                if ($theme instanceof ThemeConfig) {
-                    return (string) $theme;
-                }
-
-                if (is_array($theme)) {
-                    return (string) ($theme['background'] ?? '');
-                }
-
-                return (string) $theme;
-            })
+            ->map(fn (ThemeConfig $theme): string => (string) $theme)
             ->all();
     }
 
@@ -40,31 +30,10 @@ class ThemeResolver
     public function typographyClassMap(): array
     {
         return collect(config('slidewire.themes', []))
-            ->map(function (mixed $theme): array {
-                if ($theme instanceof ThemeConfig) {
-                    return [
-                        'title' => (string) $theme->title,
-                        'text' => (string) $theme->text,
-                    ];
-                }
-
-                if (! is_array($theme)) {
-                    return ['title' => '', 'text' => ''];
-                }
-
-                return [
-                    'title' => implode(' ', array_filter([
-                        $theme['title']['font'] ?? '',
-                        $theme['title']['color'] ?? '',
-                        $theme['title']['size'] ?? '',
-                    ])),
-                    'text' => implode(' ', array_filter([
-                        $theme['text']['font'] ?? '',
-                        $theme['text']['color'] ?? '',
-                        $theme['text']['size'] ?? '',
-                    ])),
-                ];
-            })
+            ->map(fn (ThemeConfig $theme): array => [
+                'title' => (string) $theme->title,
+                'text' => (string) $theme->text,
+            ])
             ->all();
     }
 
@@ -76,7 +45,8 @@ class ThemeResolver
      */
     public function codeFontFamily(): string
     {
-        $font = (string) config('slidewire.slides.highlight.font', '');
+        $slides = config('slidewire.slides', new SlidesConfig());
+        $font = $slides->highlight->font;
         $fonts = config('slidewire.fonts', []);
 
         if ($font === '' || ! array_key_exists($font, $fonts)) {
@@ -94,17 +64,8 @@ class ThemeResolver
         $fontConfig = config('slidewire.fonts', []);
 
         $googleFontFamilies = collect($fontConfig)
-            ->filter(fn (mixed $config): bool => $config instanceof FontConfig || (is_array($config) && (($config['source'] ?? 'system') === FontSource::Google->value)))
-            ->map(function (mixed $config, string $family): string {
-                $font = $config instanceof FontConfig
-                    ? $config
-                    : new FontConfig(
-                        source: (($config['source'] ?? FontSource::System->value) === FontSource::Google->value) ? FontSource::Google : FontSource::System,
-                        weights: is_array($config['weights'] ?? null)
-                            ? array_values(array_map(intval(...), $config['weights']))
-                            : [],
-                    );
-
+            ->filter(fn (FontConfig $config): bool => $config->isGoogle())
+            ->map(function (FontConfig $font, string $family): string {
                 $weights = $font->weights !== [] ? $font->weights : [400];
                 $weightStr = implode(';', array_map(intval(...), $weights));
 

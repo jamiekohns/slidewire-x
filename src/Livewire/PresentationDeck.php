@@ -11,6 +11,7 @@ use Livewire\Component;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
 use WendellAdriel\SlideWire\Support\Slide;
+use WendellAdriel\SlideWire\Support\SlidesConfig;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 #[Layout('slidewire::layouts.blank')]
@@ -150,6 +151,7 @@ class PresentationDeck extends Component
 
         return view('slidewire::livewire.presentation-deck', [
             'effectiveSlides' => $effectiveSlides,
+            'slidesConfig' => config('slidewire.slides', new SlidesConfig()),
             'configuredThemes' => $configuredThemes,
             'themeTypography' => $themeTypography,
             'googleFontsUrl' => $googleFontsUrl,

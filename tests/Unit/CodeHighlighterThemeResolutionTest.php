@@ -2,29 +2,29 @@
 
 declare(strict_types=1);
 
+use Phiki\Theme\Theme;
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
-use WendellAdriel\SlideWire\Support\ThemeConfig;
 
 it('resolves highlight theme from explicit parameter', function (): void {
     $highlighter = app(CodeHighlighter::class);
     $resolved = $highlighter->resolveHighlightTheme('monokai', 'black');
 
-    expect($resolved)->toBe('monokai');
+    expect($resolved)->toBe(Theme::Monokai);
 });
 
 it('resolves highlight theme from nested theme config highlight_theme', function (): void {
     $highlighter = app(CodeHighlighter::class);
 
-    expect($highlighter->resolveHighlightTheme(null, 'white'))->toBe('catppuccin-latte');
-    expect($highlighter->resolveHighlightTheme(null, 'black'))->toBe('catppuccin-mocha');
-    expect($highlighter->resolveHighlightTheme(null, 'solarized'))->toBe('catppuccin-latte');
+    expect($highlighter->resolveHighlightTheme(null, 'white'))->toBe(Theme::CatppuccinLatte);
+    expect($highlighter->resolveHighlightTheme(null, 'black'))->toBe(Theme::CatppuccinMocha);
+    expect($highlighter->resolveHighlightTheme(null, 'solarized'))->toBe(Theme::CatppuccinLatte);
 });
 
 it('falls back to config default when theme has no highlight_theme', function (): void {
     $highlighter = app(CodeHighlighter::class);
 
-    expect($highlighter->resolveHighlightTheme(null, 'custom-unmapped'))->toBe('catppuccin-mocha');
-    expect($highlighter->resolveHighlightTheme())->toBe('catppuccin-mocha');
+    expect($highlighter->resolveHighlightTheme(null, 'custom-unmapped'))->toBe(Theme::CatppuccinMocha);
+    expect($highlighter->resolveHighlightTheme())->toBe(Theme::CatppuccinMocha);
 });
 
 it('produces highlighted output with custom highlight theme', function (): void {
@@ -40,10 +40,10 @@ it('resolves highlight theme for all built-in themes', function (): void {
     $themes = config('slidewire.themes', []);
 
     foreach ($themes as $name => $config) {
-        $expected = $config instanceof ThemeConfig ? $config->highlightTheme : 'catppuccin-mocha';
+        $expected = $config->highlightTheme;
         $resolved = $highlighter->resolveHighlightTheme(null, $name);
 
-        expect($resolved)->toBe($expected, "Theme '{$name}' should resolve to '{$expected}'");
+        expect($resolved)->toBe($expected, "Theme '{$name}' should resolve to '{$expected->value}'");
     }
 });
 
@@ -54,5 +54,5 @@ it('gives explicit parameter highest priority over theme and config', function (
     // the explicit parameter wins
     $resolved = $highlighter->resolveHighlightTheme('one-dark-pro', 'white');
 
-    expect($resolved)->toBe('one-dark-pro');
+    expect($resolved)->toBe(Theme::OneDarkPro);
 });

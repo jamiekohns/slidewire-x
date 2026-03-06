@@ -24,18 +24,20 @@ Default:
 - `show_fullscreen_button`: show/hide fullscreen control
 - `keyboard`: keyboard navigation toggle
 - `touch`: touch/swipe navigation toggle
-- `transition`: default transition
+- `transition`: `SlideTransition` enum
 - `transition_duration`: base transition duration in ms
-- `transition_speed`: `fast`, `default`, `slow`
+- `transition_speed`: `SlideTransitionSpeed` enum
 - `auto_slide`: global auto-slide delay in ms (`0` disables)
 - `auto_slide_pause_on_interaction`: pause timer on manual interaction
 
 Highlighting:
 
 - `highlight.enabled`
-- `highlight.theme`
+- `highlight.theme` (`Phiki\\Theme\\Theme` enum)
 - `highlight.font`
 - `highlight.font_size`
+
+The `slides` config is a `SlidesConfig` DTO with a nested `HighlightConfig` DTO.
 
 ## Settings Precedence
 
@@ -89,13 +91,14 @@ SlideWire ships with presets:
 Each theme is configured as a `ThemeConfig` DTO:
 
 ```php
+use Phiki\\Theme\\Theme;
 use WendellAdriel\\SlideWire\\Support\\ThemeConfig;
 use WendellAdriel\\SlideWire\\Support\\ThemeFont;
 
 'themes' => [
     'corporate' => new ThemeConfig(
         background: 'bg-slate-900 text-slate-100',
-        highlightTheme: 'github-dark',
+        highlightTheme: Theme::GithubDark,
         title: new ThemeFont('font-sans', 'text-slate-100', 'text-4xl'),
         text: new ThemeFont('font-sans', 'text-slate-300', 'text-lg'),
     ),
@@ -107,7 +110,7 @@ use WendellAdriel\\SlideWire\\Support\\ThemeFont;
 | Key | Description |
 |-----|-------------|
 | `background` | Tailwind classes applied to the deck shell (background color, text color) |
-| `highlight_theme` | Syntax highlighting theme name for code blocks |
+| `highlight_theme` | `Phiki\\Theme\\Theme` value for code blocks |
 | `title.font` | Tailwind font-family class for headings |
 | `title.color` | Tailwind text color class for headings |
 | `title.size` | Tailwind text size class for headings |
@@ -138,17 +141,24 @@ Resolution order:
 Map font family names to their loading strategy. System fonts require no loading; Google Fonts families are loaded automatically via `<link>` tag.
 
 ```php
+use Phiki\\Theme\\Theme;
 use WendellAdriel\\SlideWire\\Support\\FontConfig;
 use WendellAdriel\\SlideWire\\Support\\FontSource;
+use WendellAdriel\\SlideWire\\Support\\HighlightConfig;
+use WendellAdriel\\SlideWire\\Support\\SlidesConfig;
+use WendellAdriel\\SlideWire\\Support\\SlideTransition;
+use WendellAdriel\\SlideWire\\Support\\SlideTransitionSpeed;
 
-'slides' => [
-    'highlight' => [
-        'enabled' => true,
-        'theme' => 'catppuccin-mocha',
-        'font' => 'JetBrainsMono',
-        'font_size' => 'md',
-    ],
-],
+'slides' => new SlidesConfig(
+    transition: SlideTransition::Slide,
+    transitionSpeed: SlideTransitionSpeed::Default,
+    highlight: new HighlightConfig(
+        enabled: true,
+        theme: Theme::CatppuccinMocha,
+        font: 'JetBrainsMono',
+        fontSize: 'md',
+    ),
+),
 
 'fonts' => [
     'Inter' => new FontConfig(FontSource::Google, [400, 600, 700]),

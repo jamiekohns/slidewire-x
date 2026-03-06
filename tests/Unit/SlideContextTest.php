@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Phiki\Theme\Theme;
 use WendellAdriel\SlideWire\Support\SlideContext;
 
 it('returns null presentation theme when no context is set', function (): void {
@@ -22,7 +23,7 @@ it('returns deck highlight theme', function (): void {
     $context = new SlideContext();
     $context->setDeck('black', 'monokai');
 
-    expect($context->highlightTheme())->toBe('monokai');
+    expect($context->highlightTheme())->toBe(Theme::Monokai);
 });
 
 it('returns slide theme overriding deck theme', function (): void {
@@ -57,5 +58,5 @@ it('clears slide context without affecting deck', function (): void {
     $context->clearSlide();
 
     expect($context->presentationTheme())->toBe('black')
-        ->and($context->highlightTheme())->toBe('monokai');
+        ->and($context->highlightTheme())->toBe(Theme::Monokai);
 });

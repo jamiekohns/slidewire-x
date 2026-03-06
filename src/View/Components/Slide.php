@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use WendellAdriel\SlideWire\Support\SlideContext;
+use WendellAdriel\SlideWire\Support\SlidesConfig;
 
 class Slide extends Component
 {
@@ -31,7 +32,7 @@ class Slide extends Component
         public ?string $autoSlide = null,
         public ?string $theme = null,
     ) {
-        $this->transition ??= (string) config('slidewire.slides.transition', 'slide');
+        $this->transition ??= config('slidewire.slides', new SlidesConfig())->transition->value;
         $this->context->setSlide($this->theme);
     }
 

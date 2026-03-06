@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
+use Phiki\Theme\Theme;
+use WendellAdriel\SlideWire\Support\FontConfig;
+use WendellAdriel\SlideWire\Support\FontSource;
 use WendellAdriel\SlideWire\Support\Slide;
+use WendellAdriel\SlideWire\Support\ThemeConfig;
+use WendellAdriel\SlideWire\Support\ThemeFont;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
 it('builds background class map from nested theme config', function (): void {
@@ -71,28 +76,20 @@ it('includes font size in typography class map', function (): void {
 });
 
 it('includes font class in typography when specified', function (): void {
-    config()->set('slidewire.themes.custom-font', [
-        'background' => 'bg-black text-white',
-        'highlight_theme' => 'github-dark',
-        'title' => ['font' => 'font-serif', 'color' => 'text-white', 'size' => 'text-5xl'],
-        'text' => ['font' => 'font-mono', 'color' => 'text-white', 'size' => 'text-base'],
-    ]);
+    $themes = config('slidewire.themes', []);
+    $themes['custom-font'] = new ThemeConfig(
+        background: 'bg-black text-white',
+        highlightTheme: Theme::GithubDark,
+        title: new ThemeFont('font-serif', 'text-white', 'text-5xl'),
+        text: new ThemeFont('font-mono', 'text-white', 'text-base'),
+    );
+    config()->set('slidewire.themes', $themes);
 
     $resolver = app(ThemeResolver::class);
     $map = $resolver->typographyClassMap();
 
     expect($map['custom-font']['title'])->toContain('font-serif')
         ->and($map['custom-font']['text'])->toContain('font-mono');
-});
-
-it('returns empty typography strings for non-array theme entries', function (): void {
-    config()->set('slidewire.themes', ['legacy' => 'bg-black text-white']);
-
-    $resolver = app(ThemeResolver::class);
-    $map = $resolver->typographyClassMap();
-
-    expect($map['legacy']['title'])->toBe('')
-        ->and($map['legacy']['text'])->toBe('');
 });
 
 it('returns google fonts url for default font configuration', function (): void {
@@ -113,8 +110,8 @@ it('returns null google fonts url when fonts config is empty', function (): void
 
 it('builds google fonts url when google fonts are configured', function (): void {
     config()->set('slidewire.fonts', [
-        'Inter' => ['source' => 'google', 'weights' => [400, 600, 700]],
-        'Georgia' => ['source' => 'system'],
+        'Inter' => new FontConfig(FontSource::Google, [400, 600, 700]),
+        'Georgia' => new FontConfig(FontSource::System),
     ]);
 
     $resolver = app(ThemeResolver::class);
