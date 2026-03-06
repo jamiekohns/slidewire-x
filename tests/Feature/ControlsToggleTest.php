@@ -26,7 +26,7 @@ it('hides fullscreen button when show_fullscreen_button is false at deck level',
 
     test()->get('/slides/no-controls')
         ->assertSuccessful()
-        ->assertDontSee('Toggle fullscreen');
+        ->assertDontSee('Enter fullscreen');
 });
 
 it('renders fragments markup in slides with fragments', function (): void {
@@ -44,5 +44,7 @@ it('renders fullscreen button when explicitly enabled', function (): void {
 
     test()->get('/slides/fullscreen')
         ->assertSuccessful()
-        ->assertSee('Toggle fullscreen');
+        ->assertSee('Enter fullscreen')
+        ->assertSee('<svg x-show="!isFullscreen" x-cloak', false)
+        ->assertSee('<svg x-show="isFullscreen" x-cloak', false);
 });

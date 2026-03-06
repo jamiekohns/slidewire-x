@@ -52,7 +52,7 @@ it('renders fullscreen button by default', function (): void {
 
     test()->get('/slides/demo')
         ->assertSuccessful()
-        ->assertSee('Toggle fullscreen');
+        ->assertSee('Enter fullscreen');
 });
 
 it('renders slides with data attributes for transitions', function (): void {

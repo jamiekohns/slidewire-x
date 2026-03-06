@@ -12,7 +12,7 @@ it('renders a presentation deck through the slidewire route macro', function ():
         ->assertSuccessful()
         ->assertSee('Demo Intro')
         ->assertSee('Final slide')
-        ->assertSee('Fullscreen');
+        ->assertSee('Enter fullscreen');
 });
 
 it('renders a vertical-slide presentation through the slidewire route macro', function (): void {

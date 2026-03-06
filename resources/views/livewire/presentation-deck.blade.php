@@ -126,7 +126,18 @@
                     <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
                 </button>
                 @if(($deckMeta['show_fullscreen_button'] ?? $slidesConfig->showFullscreenButton) !== 'false' && ($deckMeta['show_fullscreen_button'] ?? $slidesConfig->showFullscreenButton) !== false)
-                    <button type="button" x-on:click.stop="toggleFullscreen()" x-text="isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'" aria-label="Toggle fullscreen"></button>
+                    <button
+                        type="button"
+                        x-on:click.stop="toggleFullscreen()"
+                        x-bind:aria-label="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
+                    >
+                        <svg x-show="!isFullscreen" x-cloak viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M3 7a1 1 0 011-1h2a1 1 0 100-2H4a3 3 0 00-3 3v2a1 1 0 102 0V7zm13-3a1 1 0 100 2h2v2a1 1 0 102 0V7a3 3 0 00-3-3h-2zM3 13a1 1 0 011 1v2h2a1 1 0 110 2H4a3 3 0 01-3-3v-2a1 1 0 012 0v2zm15 0a1 1 0 012 0v2a3 3 0 01-3 3h-2a1 1 0 110-2h2v-2a1 1 0 011-1z" clip-rule="evenodd"/>
+                        </svg>
+                        <svg x-show="isFullscreen" x-cloak viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M7 3a1 1 0 10-2 0v2a2 2 0 01-2 2H1a1 1 0 100 2h2a4 4 0 004-4V3zm6 0a4 4 0 004 4h2a1 1 0 100-2h-2a2 2 0 01-2-2V1a1 1 0 10-2 0v2zM1 13a1 1 0 100 2h2a2 2 0 012 2v2a1 1 0 102 0v-2a4 4 0 00-4-4H1zm18 0h-2a4 4 0 00-4 4v2a1 1 0 102 0v-2a2 2 0 012-2h2a1 1 0 100-2z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
                 @endif
             </nav>
         @endif
