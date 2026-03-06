@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use WendellAdriel\SlideWire\Support\ThemeConfig;
 
 it('renders a presentation deck through the slidewire route macro', function (): void {
     Route::slidewire('/slides/demo', 'demo');
@@ -43,9 +44,10 @@ it('renders theme background classes from nested theme config', function (): voi
 
     // The default theme background class should appear in the rendered output
     $themes = config('slidewire.themes', []);
-    $nightBackground = $themes['night']['background'] ?? '';
+    $nightBackground = $themes['black'] ?? null;
 
-    expect($nightBackground)->not->toBeEmpty();
+    expect($nightBackground)->toBeInstanceOf(ThemeConfig::class)
+        ->and($nightBackground->background)->not->toBeEmpty();
 });
 
 // ========================================================================
@@ -79,8 +81,8 @@ it('applies slide-level theme class when slide overrides theme', function (): vo
     $response = test()->get('/slides/precedence');
     $content = $response->getContent();
 
-    // Precedence fixture has deck theme=night and slide 2 with theme=white
-    expect($content)->toContain('slidewire-theme-night')
+    // Precedence fixture has deck theme=black and slide 2 with theme=white
+    expect($content)->toContain('slidewire-theme-black')
         ->and($content)->toContain('slidewire-theme-white');
 });
 
@@ -108,7 +110,7 @@ it('applies correct typography classes when slide overrides theme', function ():
     // Slide 2 uses theme=white, so text typography should be Inter text-zinc-600 text-lg
     expect($content)->toContain('slidewire-content Inter text-zinc-600 text-lg');
 
-    // Other slides use night theme, so text typography should be Inter text-slate-300 text-lg
+    // Other slides use black theme, so text typography should be Inter text-slate-300 text-lg
     expect($content)->toContain('slidewire-content Inter text-slate-300 text-lg');
 });
 

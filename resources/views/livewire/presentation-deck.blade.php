@@ -7,10 +7,10 @@
         {{ count($effectiveSlides) }},
         @js($slideThemes),
         @js($configuredThemes),
-        @js((string) ($deckMeta['theme'] ?? config('slidewire.defaults.theme', 'default'))),
+        @js((string) ($deckMeta['theme'] ?? config('slidewire.slides.theme', 'default'))),
         @js(collect($effectiveSlides)->map(fn ($s) => (int) ($s['effective']['transition_duration'] ?? 350))->values()->all()),
         @js(collect($effectiveSlides)->map(fn ($s) => (int) ($s['effective']['auto_slide'] ?? 0))->values()->all()),
-        @js((bool) ($deckMeta['auto_slide_pause_on_interaction'] ?? config('slidewire.defaults.auto_slide_pause_on_interaction', true))),
+        @js((bool) ($deckMeta['auto_slide_pause_on_interaction'] ?? config('slidewire.slides.auto_slide_pause_on_interaction', true))),
         @js($gridShape),
         @js(collect($effectiveSlides)->map(fn ($s) => ['h' => $s['h'], 'v' => $s['v']])->values()->all()),
         @js($themeTypography)
@@ -30,7 +30,7 @@
     @endif
 
     <div class="slidewire-stage" x-on:click="next()">
-        @if(($deckMeta['show_progress'] ?? config('slidewire.defaults.show_progress', true)) !== 'false' && ($deckMeta['show_progress'] ?? config('slidewire.defaults.show_progress', true)) !== false)
+        @if(($deckMeta['show_progress'] ?? config('slidewire.slides.show_progress', true)) !== 'false' && ($deckMeta['show_progress'] ?? config('slidewire.slides.show_progress', true)) !== false)
             <div class="slidewire-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"
                 :aria-valuenow="Math.round(((index + 1) / count) * 100)">
                 <div class="slidewire-progress-bar" :style="`width: ${((index + 1) / count) * 100}%`"></div>
@@ -72,8 +72,8 @@
                 x-ref="slide{{ $slideIndex }}"
                 wire:key="slide-{{ $slide['id'] }}"
                 class="slidewire-frame {{ $slide['class'] }} {{ ($effective['theme'] ?? '') !== '' ? 'slidewire-theme-' . ($effective['theme'] ?? '') : '' }}"
-                data-transition="{{ $effective['transition'] ?? config('slidewire.defaults.transition') }}"
-                data-transition-speed="{{ $effective['transition_speed'] ?? config('slidewire.defaults.transition_speed', 'default') }}"
+                data-transition="{{ $effective['transition'] ?? config('slidewire.slides.transition') }}"
+                data-transition-speed="{{ $effective['transition_speed'] ?? config('slidewire.slides.transition_speed', 'default') }}"
                 data-auto-animate="{{ $meta['auto_animate'] ?? $deckMeta['auto_animate'] ?? 'false' }}"
                 data-auto-animate-duration="{{ $meta['auto_animate_duration'] ?? $deckMeta['auto_animate_duration'] ?? '420' }}"
                 data-auto-animate-easing="{{ $meta['auto_animate_easing'] ?? $deckMeta['auto_animate_easing'] ?? 'ease' }}"
@@ -99,7 +99,7 @@
                 @endif
 
                 @php
-                    $slideThemeName = $effective['theme'] ?? $deckMeta['theme'] ?? config('slidewire.defaults.theme', 'default');
+                    $slideThemeName = $effective['theme'] ?? $deckMeta['theme'] ?? config('slidewire.slides.theme', 'default');
                     $slideTypography = $themeTypography[$slideThemeName] ?? ['title' => '', 'text' => ''];
                 @endphp
 
@@ -109,7 +109,7 @@
             </section>
         @endforeach
 
-        @if(($deckMeta['show_controls'] ?? config('slidewire.defaults.show_controls', true)) !== 'false' && ($deckMeta['show_controls'] ?? config('slidewire.defaults.show_controls', true)) !== false)
+        @if(($deckMeta['show_controls'] ?? config('slidewire.slides.show_controls', true)) !== 'false' && ($deckMeta['show_controls'] ?? config('slidewire.slides.show_controls', true)) !== false)
             <nav class="slidewire-controls" aria-label="Slide controls">
                 <button type="button" x-on:click.stop="navigateLeft()" aria-label="Previous slide" class="slidewire-control-arrow slidewire-control-left" :disabled="!canGoLeft()">
                     <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
@@ -125,7 +125,7 @@
                 <button type="button" x-on:click.stop="navigateRight()" aria-label="Next slide" class="slidewire-control-arrow slidewire-control-right" :disabled="!canGoRight()">
                     <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
                 </button>
-                @if(($deckMeta['show_fullscreen_button'] ?? config('slidewire.defaults.show_fullscreen_button', true)) !== 'false' && ($deckMeta['show_fullscreen_button'] ?? config('slidewire.defaults.show_fullscreen_button', true)) !== false)
+                @if(($deckMeta['show_fullscreen_button'] ?? config('slidewire.slides.show_fullscreen_button', true)) !== 'false' && ($deckMeta['show_fullscreen_button'] ?? config('slidewire.slides.show_fullscreen_button', true)) !== false)
                     <button type="button" x-on:click.stop="toggleFullscreen()" x-text="isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'" aria-label="Toggle fullscreen"></button>
                 @endif
             </nav>

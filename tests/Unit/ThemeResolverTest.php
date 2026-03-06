@@ -18,7 +18,7 @@ it('builds background class map for all built-in themes', function (): void {
     $resolver = app(ThemeResolver::class);
     $map = $resolver->backgroundClassMap();
 
-    $builtInThemes = ['default', 'black', 'white', 'league', 'beige', 'night', 'serif', 'simple', 'solarized'];
+    $builtInThemes = ['default', 'black', 'white', 'aurora', 'sunset', 'neon', 'solarized'];
 
     foreach ($builtInThemes as $theme) {
         expect($map)->toHaveKey($theme)
@@ -50,7 +50,7 @@ it('builds typography class map for all built-in themes', function (): void {
     $resolver = app(ThemeResolver::class);
     $map = $resolver->typographyClassMap();
 
-    $builtInThemes = ['default', 'black', 'white', 'league', 'beige', 'night', 'serif', 'simple', 'solarized'];
+    $builtInThemes = ['default', 'black', 'white', 'aurora', 'sunset', 'neon', 'solarized'];
 
     foreach ($builtInThemes as $theme) {
         expect($map)->toHaveKey($theme)
@@ -129,7 +129,7 @@ it('resolves code font family from configured mono font', function (): void {
     $resolver = app(ThemeResolver::class);
     $fontFamily = $resolver->codeFontFamily();
 
-    expect($fontFamily)->toContain('JetBrains Mono')
+    expect($fontFamily)->toContain('JetBrainsMono')
         ->and($fontFamily)->toContain('monospace');
 });
 
@@ -146,12 +146,12 @@ it('extracts slide themes from effective slides', function (): void {
     $resolver = app(ThemeResolver::class);
 
     $slides = [
-        ['effective' => ['theme' => 'night']],
+        ['effective' => ['theme' => 'black']],
         ['effective' => ['theme' => null]],
         ['effective' => ['theme' => 'white']],
     ];
 
-    expect($resolver->slideThemes($slides))->toBe(['night', null, 'white']);
+    expect($resolver->slideThemes($slides))->toBe(['black', null, 'white']);
 });
 
 it('detects vertical slides in grid shape', function (): void {

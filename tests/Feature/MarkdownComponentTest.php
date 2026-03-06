@@ -25,7 +25,7 @@ it('preserves Blade component syntax inside code fences', function (): void {
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::markdown>
 ```blade
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide>Hello</x-slidewire::slide>
 </x-slidewire::deck>
 ```
@@ -60,9 +60,9 @@ BLADE);
 });
 
 it('inherits slide theme override for highlight theme resolution', function (): void {
-    // Deck uses 'night' (catppuccin-mocha) but slide overrides with 'white' (catppuccin-latte)
+    // Deck uses 'black' (catppuccin-mocha) but slide overrides with 'white' (catppuccin-latte)
     $html = Blade::render(<<<'BLADE'
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide theme="white">
         <x-slidewire::markdown>
 ```php
@@ -109,7 +109,7 @@ it('clears slide context after slide renders', function (): void {
     $context = app(SlideContext::class);
 
     Blade::render(<<<'BLADE'
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide theme="white">
         <p>Content</p>
     </x-slidewire::slide>

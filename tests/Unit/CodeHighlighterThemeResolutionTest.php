@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
+use WendellAdriel\SlideWire\Support\ThemeConfig;
 
 it('resolves highlight theme from explicit parameter', function (): void {
     $highlighter = app(CodeHighlighter::class);
-    $resolved = $highlighter->resolveHighlightTheme('monokai', 'night');
+    $resolved = $highlighter->resolveHighlightTheme('monokai', 'black');
 
     expect($resolved)->toBe('monokai');
 });
@@ -15,7 +16,7 @@ it('resolves highlight theme from nested theme config highlight_theme', function
     $highlighter = app(CodeHighlighter::class);
 
     expect($highlighter->resolveHighlightTheme(null, 'white'))->toBe('catppuccin-latte');
-    expect($highlighter->resolveHighlightTheme(null, 'night'))->toBe('catppuccin-mocha');
+    expect($highlighter->resolveHighlightTheme(null, 'black'))->toBe('catppuccin-mocha');
     expect($highlighter->resolveHighlightTheme(null, 'solarized'))->toBe('catppuccin-latte');
 });
 
@@ -39,7 +40,7 @@ it('resolves highlight theme for all built-in themes', function (): void {
     $themes = config('slidewire.themes', []);
 
     foreach ($themes as $name => $config) {
-        $expected = is_array($config) ? ($config['highlight_theme'] ?? 'catppuccin-mocha') : 'catppuccin-mocha';
+        $expected = $config instanceof ThemeConfig ? $config->highlightTheme : 'catppuccin-mocha';
         $resolved = $highlighter->resolveHighlightTheme(null, $name);
 
         expect($resolved)->toBe($expected, "Theme '{$name}' should resolve to '{$expected}'");

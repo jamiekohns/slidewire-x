@@ -17,8 +17,12 @@ class ThemeResolver
      */
     public function backgroundClassMap(): array
     {
-        return collect(config('slidewire.themes', []))
+        return collect(config(ConfigKeys::THEMES, []))
             ->map(function (mixed $theme): string {
+                if ($theme instanceof ThemeConfig) {
+                    return (string) $theme;
+                }
+
                 if (is_array($theme)) {
                     return (string) ($theme['background'] ?? '');
                 }
@@ -35,25 +39,29 @@ class ThemeResolver
      */
     public function typographyClassMap(): array
     {
-        return collect(config('slidewire.themes', []))
+        return collect(config(ConfigKeys::THEMES, []))
             ->map(function (mixed $theme): array {
+                if ($theme instanceof ThemeConfig) {
+                    return [
+                        'title' => (string) $theme->title,
+                        'text' => (string) $theme->text,
+                    ];
+                }
+
                 if (! is_array($theme)) {
                     return ['title' => '', 'text' => ''];
                 }
 
-                $title = $theme['title'] ?? [];
-                $text = $theme['text'] ?? [];
-
                 return [
                     'title' => implode(' ', array_filter([
-                        $title['font'] ?? '',
-                        $title['color'] ?? '',
-                        $title['size'] ?? '',
+                        $theme['title']['font'] ?? '',
+                        $theme['title']['color'] ?? '',
+                        $theme['title']['size'] ?? '',
                     ])),
                     'text' => implode(' ', array_filter([
-                        $text['font'] ?? '',
-                        $text['color'] ?? '',
-                        $text['size'] ?? '',
+                        $theme['text']['font'] ?? '',
+                        $theme['text']['color'] ?? '',
+                        $theme['text']['size'] ?? '',
                     ])),
                 ];
             })
@@ -68,21 +76,14 @@ class ThemeResolver
      */
     public function codeFontFamily(): string
     {
-        $fontConfig = config('slidewire.fonts', []);
+        $font = (string) config(ConfigKeys::SLIDES_HIGHLIGHT_FONT, '');
+        $fonts = config(ConfigKeys::FONTS, []);
 
-        // Find the first monospace/code font in the config
-        $codeFont = collect($fontConfig)
-            ->filter(fn (mixed $config, string $family): bool => str_contains($family, 'Mono'))
-            ->keys()
-            ->first();
-
-        $fallback = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
-
-        if ($codeFont !== null) {
-            return "'{$codeFont}', {$fallback}";
+        if ($font === '' || ! array_key_exists($font, $fonts)) {
+            return $this->resolveFontStack();
         }
 
-        return $fallback;
+        return $this->resolveFontStack($font);
     }
 
     /**
@@ -90,12 +91,21 @@ class ThemeResolver
      */
     public function googleFontsUrl(): ?string
     {
-        $fontConfig = config('slidewire.fonts', []);
+        $fontConfig = config(ConfigKeys::FONTS, []);
 
         $googleFontFamilies = collect($fontConfig)
-            ->filter(fn (mixed $config): bool => is_array($config) && ($config['source'] ?? 'system') === 'google')
-            ->map(function (array $config, string $family): string {
-                $weights = $config['weights'] ?? [400];
+            ->filter(fn (mixed $config): bool => $config instanceof FontConfig || (is_array($config) && (($config['source'] ?? 'system') === FontSource::Google->value)))
+            ->map(function (mixed $config, string $family): string {
+                $font = $config instanceof FontConfig
+                    ? $config
+                    : new FontConfig(
+                        source: (($config['source'] ?? FontSource::System->value) === FontSource::Google->value) ? FontSource::Google : FontSource::System,
+                        weights: is_array($config['weights'] ?? null)
+                            ? array_values(array_map(intval(...), $config['weights']))
+                            : [],
+                    );
+
+                $weights = $font->weights !== [] ? $font->weights : [400];
                 $weightStr = implode(';', array_map(intval(...), $weights));
 
                 return urlencode($family) . ':wght@' . $weightStr;
@@ -110,6 +120,18 @@ class ThemeResolver
         return 'https://fonts.googleapis.com/css2?'
             . implode('&', array_map(fn (string $f): string => 'family=' . $f, $googleFontFamilies))
             . '&display=swap';
+    }
+
+    public function resolveFontStack(?string $font = null): string
+    {
+        $fallback = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+        $font = trim((string) $font);
+
+        if ($font === '') {
+            return $fallback;
+        }
+
+        return "'{$font}', {$fallback}";
     }
 
     /**

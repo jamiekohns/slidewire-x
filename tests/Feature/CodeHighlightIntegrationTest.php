@@ -17,13 +17,13 @@ it('renders code blocks with phiki syntax highlighting through the full pipeline
         ->and($content)->toContain('language-php');
 });
 
-it('applies night theme highlight (catppuccin-mocha) for deck with theme=night', function (): void {
+it('applies black theme highlight (catppuccin-mocha) for deck with theme=black', function (): void {
     Route::slidewire('/slides/codeblock', 'codeblock');
 
     $response = test()->get('/slides/codeblock');
     $content = $response->getContent();
 
-    // First slide inherits deck theme=night, which maps to catppuccin-mocha
+    // First slide inherits deck theme=black, which maps to catppuccin-mocha
     expect($content)->toContain('catppuccin-mocha');
 });
 

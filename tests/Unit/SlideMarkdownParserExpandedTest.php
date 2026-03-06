@@ -24,11 +24,11 @@ it('parses multiple slides separated by horizontal rules', function (): void {
 });
 
 it('applies global frontmatter to first slide only', function (): void {
-    $content = "---\ntheme: night\ntransition: fade\n---\n\n# First\n\n---\n\n# Second";
+    $content = "---\ntheme: black\ntransition: fade\n---\n\n# First\n\n---\n\n# Second";
     $slides = app(SlideMarkdownParser::class)->parse($content);
 
     expect($slides)->toHaveCount(2)
-        ->and($slides[0]['meta']['theme'])->toBe('night')
+        ->and($slides[0]['meta']['theme'])->toBe('black')
         ->and($slides[0]['meta']['transition'])->toBe('fade')
         ->and($slides[1]['meta'])->toBe([]);
 });

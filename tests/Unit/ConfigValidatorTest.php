@@ -60,12 +60,12 @@ it('rejects non-array font entries', function (): void {
 
 it('rejects invalid transition value', function (): void {
     $validator = new ConfigValidator();
-    $validator->validateDefaults(['transition' => 'flip']);
+    $validator->validateSlides(['transition' => 'flip']);
 })->throws(InvalidArgumentException::class, 'invalid');
 
 it('rejects invalid transition speed', function (): void {
     $validator = new ConfigValidator();
-    $validator->validateDefaults(['transition_speed' => 'instant']);
+    $validator->validateSlides(['transition_speed' => 'instant']);
 })->throws(InvalidArgumentException::class, 'invalid');
 
 it('accepts valid font configurations', function (): void {
@@ -76,9 +76,9 @@ it('accepts valid font configurations', function (): void {
     ]);
 })->throwsNoExceptions();
 
-it('accepts valid defaults', function (): void {
+it('accepts valid slide settings', function (): void {
     $validator = new ConfigValidator();
-    $validator->validateDefaults([
+    $validator->validateSlides([
         'transition' => 'fade',
         'transition_speed' => 'fast',
     ]);

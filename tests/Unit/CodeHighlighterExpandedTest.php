@@ -5,7 +5,7 @@ declare(strict_types=1);
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
 
 it('returns fallback HTML when highlighting is disabled', function (): void {
-    config()->set('slidewire.defaults.highlight.enabled', false);
+    config()->set('slidewire.slides.highlight.enabled', false);
 
     $html = app(CodeHighlighter::class)->highlight('echo "test";', 'php')->toHtml();
 
@@ -23,7 +23,7 @@ it('returns fallback HTML for unknown language gracefully', function (): void {
 });
 
 it('escapes code in fallback mode', function (): void {
-    config()->set('slidewire.defaults.highlight.enabled', false);
+    config()->set('slidewire.slides.highlight.enabled', false);
 
     $html = app(CodeHighlighter::class)->highlight('<script>alert("xss")</script>', 'html')->toHtml();
 

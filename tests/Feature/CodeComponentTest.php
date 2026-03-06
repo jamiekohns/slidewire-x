@@ -29,7 +29,7 @@ BLADE);
 it('preserves Blade syntax literals inside code component slot', function (): void {
     $html = Blade::render(<<<'BLADE'
 <x-slidewire::code language="blade">
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide>Hello</x-slidewire::slide>
 </x-slidewire::deck>
 </x-slidewire::code>
@@ -57,9 +57,9 @@ BLADE);
 });
 
 it('inherits slide theme override for highlight resolution', function (): void {
-    // Deck uses 'night' (catppuccin-mocha) but slide overrides with 'white' (catppuccin-latte)
+    // Deck uses 'black' (catppuccin-mocha) but slide overrides with 'white' (catppuccin-latte)
     $html = Blade::render(<<<'BLADE'
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide theme="white">
         <x-slidewire::code language="php">
 echo 'hello';
@@ -94,6 +94,27 @@ BLADE);
 
     // Default highlight theme from config is catppuccin-mocha
     expect($html)->toContain('catppuccin-mocha');
+});
+
+it('uses configured highlight font by default', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::code language="php">
+echo 'hello';
+</x-slidewire::code>
+BLADE);
+
+    expect($html)->toContain('JetBrainsMono');
+});
+
+it('respects explicit font override on code component', function (): void {
+    $html = Blade::render(<<<'BLADE'
+<x-slidewire::code language="php" font="FiraCode">
+echo 'hello';
+</x-slidewire::code>
+BLADE);
+
+    expect($html)->toContain('FiraCode')
+        ->and($html)->not->toContain('JetBrainsMono');
 });
 
 it('defaults to text language when language attribute is omitted', function (): void {

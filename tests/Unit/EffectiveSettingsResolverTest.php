@@ -12,7 +12,7 @@ it('resolves effective settings with slide > deck > config precedence', function
         ['id' => 'test-1', 'html' => '', 'meta' => [], 'fragments' => 0, 'class' => '', 'h' => 1, 'v' => 0],
     ];
 
-    $deckMeta = ['theme' => 'night', 'transition' => 'fade'];
+    $deckMeta = ['theme' => 'black', 'transition' => 'fade'];
 
     $result = $resolver->resolve($slides, $deckMeta);
 
@@ -21,11 +21,11 @@ it('resolves effective settings with slide > deck > config precedence', function
         ->and($result[0]['effective']['transition'])->toBe('zoom');
 
     // Slide 1: inherits deck-level
-    expect($result[1]['effective']['theme'])->toBe('night')
+    expect($result[1]['effective']['theme'])->toBe('black')
         ->and($result[1]['effective']['transition'])->toBe('fade');
 });
 
-it('falls back to config defaults when deck and slide have no overrides', function (): void {
+it('falls back to slide config when deck and slide have no overrides', function (): void {
     $resolver = app(EffectiveSettingsResolver::class);
 
     $slides = [

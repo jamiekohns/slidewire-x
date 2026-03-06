@@ -2,9 +2,14 @@
 
 declare(strict_types=1);
 
-arch('support classes are in the Support namespace')
+arch('support types are in the Support namespace')
     ->expect('WendellAdriel\SlideWire\Support')
-    ->toBeClasses();
+    ->toBeClasses()
+    ->ignoring(WendellAdriel\SlideWire\Support\FontSource::class);
+
+arch('support enums are in the Support namespace')
+    ->expect(WendellAdriel\SlideWire\Support\FontSource::class)
+    ->toBeEnums();
 
 arch('view components extend Illuminate Component')
     ->expect('WendellAdriel\SlideWire\View\Components')

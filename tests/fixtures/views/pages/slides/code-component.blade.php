@@ -1,4 +1,4 @@
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide class="bg-slate-900 text-white">
         <x-slidewire::code language="php">
 $deck = new PresentationCompiler();
@@ -14,7 +14,7 @@ echo 'light theme';
 
     <x-slidewire::slide class="bg-slate-900 text-white">
         <x-slidewire::code language="blade">
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide>Hello</x-slidewire::slide>
 </x-slidewire::deck>
         </x-slidewire::code>

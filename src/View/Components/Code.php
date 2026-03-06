@@ -18,6 +18,7 @@ class Code extends Component
         protected SlideContext $context,
         public string $language = 'text',
         public ?string $theme = null,
+        public ?string $font = null,
     ) {}
 
     public function render(): View|Closure|string
@@ -35,6 +36,7 @@ class Code extends Component
             $this->language,
             $this->theme ?? $this->context->highlightTheme(),
             $this->context->presentationTheme(),
+            $this->font,
         )->toHtml();
     }
 }

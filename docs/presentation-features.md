@@ -85,7 +85,7 @@ Automatically advance to next slide after a delay.
 </x-slidewire::slide>
 ```
 
-You can also define a global default via config (`defaults.auto_slide`) or deck-level attribute:
+You can also define a global default via config (`slides.auto_slide`) or deck-level attribute:
 
 ```blade
 <x-slidewire::deck auto-slide="3000">
@@ -165,9 +165,9 @@ SlideWire supports reveal-like slide backgrounds.
 
 Built-in presets:
 
-- `default`, `black`, `white`, `league`, `beige`, `night`, `serif`, `simple`, `solarized`
+- `default`, `black`, `white`, `aurora`, `sunset`, `neon`, `solarized`
 
-Theme presets are structured arrays configured in `config/slidewire.php` with keys for `background`, `highlight_theme`, `title` (font/color/size), and `text` (font/color/size).
+Theme presets are configured in `config/slidewire.php` using `ThemeConfig` and `ThemeFont` DTOs.
 
 ## Theme-Coupled Code Highlighting
 
@@ -192,6 +192,14 @@ Custom fonts can be configured in the `fonts` config key. Google Fonts families 
 ```
 
 System fonts require no loading configuration.
+
+Code blocks use the configured `slides.highlight.font` by default. Override per component when needed:
+
+```blade
+<x-slidewire::code language="php" font="FiraCode">
+echo 'custom font';
+</x-slidewire::code>
+```
 
 ## Settings Precedence
 

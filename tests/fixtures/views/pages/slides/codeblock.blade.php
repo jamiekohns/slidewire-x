@@ -1,4 +1,4 @@
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide class="bg-slate-900 text-white">
         <x-slidewire::markdown>
 ## Code Highlighting
@@ -25,7 +25,7 @@ echo 'light theme';
 ## Blade Example
 
 ```blade
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide>Hello</x-slidewire::slide>
 </x-slidewire::deck>
 ```

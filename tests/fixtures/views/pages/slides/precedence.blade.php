@@ -1,4 +1,4 @@
-<x-slidewire::deck theme="night" transition="fade" auto-slide="5000">
+<x-slidewire::deck theme="black" transition="fade" auto-slide="5000">
     <x-slidewire::slide class="bg-slate-900 text-white">
         <h1>Inherits Deck Defaults</h1>
     </x-slidewire::slide>

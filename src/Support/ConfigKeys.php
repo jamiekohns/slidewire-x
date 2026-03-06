@@ -13,35 +13,35 @@ final class ConfigKeys
 
     public const string PRESENTATION_ROOTS = 'slidewire.presentation_roots';
 
-    public const string DEFAULTS = 'slidewire.defaults';
+    public const string SLIDES = 'slidewire.slides';
 
-    public const string DEFAULTS_THEME = 'slidewire.defaults.theme';
+    public const string SLIDES_THEME = 'slidewire.slides.theme';
 
-    public const string DEFAULTS_SHOW_CONTROLS = 'slidewire.defaults.show_controls';
+    public const string SLIDES_SHOW_CONTROLS = 'slidewire.slides.show_controls';
 
-    public const string DEFAULTS_SHOW_PROGRESS = 'slidewire.defaults.show_progress';
+    public const string SLIDES_SHOW_PROGRESS = 'slidewire.slides.show_progress';
 
-    public const string DEFAULTS_SHOW_FULLSCREEN_BUTTON = 'slidewire.defaults.show_fullscreen_button';
+    public const string SLIDES_SHOW_FULLSCREEN_BUTTON = 'slidewire.slides.show_fullscreen_button';
 
-    public const string DEFAULTS_KEYBOARD = 'slidewire.defaults.keyboard';
+    public const string SLIDES_KEYBOARD = 'slidewire.slides.keyboard';
 
-    public const string DEFAULTS_TOUCH = 'slidewire.defaults.touch';
+    public const string SLIDES_TOUCH = 'slidewire.slides.touch';
 
-    public const string DEFAULTS_TRANSITION = 'slidewire.defaults.transition';
+    public const string SLIDES_TRANSITION = 'slidewire.slides.transition';
 
-    public const string DEFAULTS_TRANSITION_DURATION = 'slidewire.defaults.transition_duration';
+    public const string SLIDES_TRANSITION_DURATION = 'slidewire.slides.transition_duration';
 
-    public const string DEFAULTS_TRANSITION_SPEED = 'slidewire.defaults.transition_speed';
+    public const string SLIDES_TRANSITION_SPEED = 'slidewire.slides.transition_speed';
 
-    public const string DEFAULTS_AUTO_SLIDE = 'slidewire.defaults.auto_slide';
+    public const string SLIDES_AUTO_SLIDE = 'slidewire.slides.auto_slide';
 
-    public const string DEFAULTS_AUTO_SLIDE_PAUSE = 'slidewire.defaults.auto_slide_pause_on_interaction';
+    public const string SLIDES_AUTO_SLIDE_PAUSE = 'slidewire.slides.auto_slide_pause_on_interaction';
 
-    public const string DEFAULTS_MARKDOWN_SEPARATOR = 'slidewire.defaults.markdown.separator';
+    public const string SLIDES_HIGHLIGHT_ENABLED = 'slidewire.slides.highlight.enabled';
 
-    public const string DEFAULTS_HIGHLIGHT_ENABLED = 'slidewire.defaults.highlight.enabled';
+    public const string SLIDES_HIGHLIGHT_THEME = 'slidewire.slides.highlight.theme';
 
-    public const string DEFAULTS_HIGHLIGHT_THEME = 'slidewire.defaults.highlight.theme';
+    public const string SLIDES_HIGHLIGHT_FONT = 'slidewire.slides.highlight.font';
 
     public const string THEMES = 'slidewire.themes';
 

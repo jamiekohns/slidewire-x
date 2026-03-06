@@ -35,7 +35,7 @@ File path:
 Set attributes on the deck to apply defaults to all slides:
 
 ```blade
-<x-slidewire::deck theme="night" transition="fade" auto-slide="3000">
+<x-slidewire::deck theme="black" transition="fade" auto-slide="3000">
     <x-slidewire::slide>
         <h2>Inherits deck defaults</h2>
     </x-slidewire::slide>

@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 /**
  * Validates and normalizes the slidewire configuration to catch
- * misconfigured themes, fonts, and defaults before runtime consumption.
+ * misconfigured themes, fonts, and slide settings before runtime consumption.
  */
 class ConfigValidator
 {
@@ -22,9 +22,16 @@ class ConfigValidator
     public function validateThemes(array $themes): void
     {
         foreach ($themes as $name => $theme) {
+            if ($theme instanceof ThemeConfig) {
+                $this->validateThemeTypography($name, $theme->title, 'title');
+                $this->validateThemeTypography($name, $theme->text, 'text');
+
+                continue;
+            }
+
             if (! is_array($theme)) {
                 throw new InvalidArgumentException(
-                    "SlideWire theme [{$name}] must be an array with keys: "
+                    "SlideWire theme [{$name}] must be an array or ThemeConfig with keys: "
                     . implode(', ', ConfigKeys::THEME_REQUIRED_KEYS) . '.'
                 );
             }
@@ -38,9 +45,15 @@ class ConfigValidator
             }
 
             foreach (['title', 'text'] as $typo) {
+                if ($theme[$typo] instanceof ThemeFont) {
+                    $this->validateThemeTypography($name, $theme[$typo], $typo);
+
+                    continue;
+                }
+
                 if (! is_array($theme[$typo])) {
                     throw new InvalidArgumentException(
-                        "SlideWire theme [{$name}] key [{$typo}] must be an array with keys: "
+                        "SlideWire theme [{$name}] key [{$typo}] must be an array or ThemeFont with keys: "
                         . implode(', ', ConfigKeys::TYPOGRAPHY_REQUIRED_KEYS) . '.'
                     );
                 }
@@ -66,56 +79,57 @@ class ConfigValidator
     public function validateFonts(array $fonts): void
     {
         foreach ($fonts as $family => $config) {
+            if ($config instanceof FontConfig) {
+                $this->validateFontConfig($family, $config);
+
+                continue;
+            }
+
             if (! is_array($config)) {
                 throw new InvalidArgumentException(
-                    "SlideWire font [{$family}] must be an array with at least a 'source' key."
+                    "SlideWire font [{$family}] must be an array or FontConfig with at least a 'source' key."
                 );
             }
 
-            if (! isset($config['source'])) {
+            if (array_key_exists('source', $config) && FontSource::tryFrom((string) $config['source']) === null) {
+                $validSources = array_map(static fn (FontSource $source): string => $source->value, FontSource::cases());
+
                 throw new InvalidArgumentException(
-                    "SlideWire font [{$family}] is missing required key [source]."
+                    'SlideWire font [' . $family . '] has invalid source [' . $config['source'] . ']. Valid sources: ' . implode(', ', $validSources) . '.'
                 );
             }
 
-            $validSources = ['system', 'google'];
-
-            if (! in_array($config['source'], $validSources, true)) {
-                throw new InvalidArgumentException(
-                    "SlideWire font [{$family}] has invalid source [{$config['source']}]. Valid sources: " . implode(', ', $validSources) . '.'
-                );
-            }
-
-            if ($config['source'] === 'google' && isset($config['weights']) && ! is_array($config['weights'])) {
-                throw new InvalidArgumentException(
-                    "SlideWire font [{$family}] weights must be an array of integers."
-                );
-            }
+            $this->validateFontConfig($family, new FontConfig(
+                source: FontSource::tryFrom((string) ($config['source'] ?? '')) ?? FontSource::System,
+                weights: is_array($config['weights'] ?? null)
+                    ? array_values(array_map(intval(...), $config['weights']))
+                    : [],
+            ), $config);
         }
     }
 
     /**
-     * Validate the defaults configuration.
+     * Validate the slide configuration.
      *
-     * @param  array<string, mixed>  $defaults
+     * @param  array<string, mixed>  $slides
      *
-     * @throws InvalidArgumentException when a default value is invalid
+     * @throws InvalidArgumentException when a slide config value is invalid
      */
-    public function validateDefaults(array $defaults): void
+    public function validateSlides(array $slides): void
     {
         $validTransitions = ['slide', 'fade', 'zoom', 'convex', 'concave', 'none'];
 
-        if (isset($defaults['transition']) && ! in_array($defaults['transition'], $validTransitions, true)) {
+        if (isset($slides['transition']) && ! in_array($slides['transition'], $validTransitions, true)) {
             throw new InvalidArgumentException(
-                "SlideWire default transition [{$defaults['transition']}] is invalid. Valid transitions: " . implode(', ', $validTransitions) . '.'
+                "SlideWire slide transition [{$slides['transition']}] is invalid. Valid transitions: " . implode(', ', $validTransitions) . '.'
             );
         }
 
         $validSpeeds = ['fast', 'default', 'slow'];
 
-        if (isset($defaults['transition_speed']) && ! in_array($defaults['transition_speed'], $validSpeeds, true)) {
+        if (isset($slides['transition_speed']) && ! in_array($slides['transition_speed'], $validSpeeds, true)) {
             throw new InvalidArgumentException(
-                "SlideWire default transition_speed [{$defaults['transition_speed']}] is invalid. Valid speeds: " . implode(', ', $validSpeeds) . '.'
+                "SlideWire slide transition_speed [{$slides['transition_speed']}] is invalid. Valid speeds: " . implode(', ', $validSpeeds) . '.'
             );
         }
     }
@@ -129,6 +143,43 @@ class ConfigValidator
     {
         $this->validateThemes(config(ConfigKeys::THEMES, []));
         $this->validateFonts(config(ConfigKeys::FONTS, []));
-        $this->validateDefaults(config(ConfigKeys::DEFAULTS, []));
+        $this->validateSlides(config(ConfigKeys::SLIDES, []));
+    }
+
+    protected function validateThemeTypography(string $themeName, ThemeFont $font, string $key): void
+    {
+        foreach (ConfigKeys::TYPOGRAPHY_REQUIRED_KEYS as $requiredKey) {
+            if ($font->{$requiredKey} === '') {
+                throw new InvalidArgumentException(
+                    "SlideWire theme [{$themeName}] typography [{$key}] is missing required key [{$requiredKey}]."
+                );
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $rawConfig
+     */
+    protected function validateFontConfig(string $family, FontConfig $config, ?array $rawConfig = null): void
+    {
+        if (($rawConfig !== null && ! array_key_exists('source', $rawConfig)) || (string) $config === '') {
+            throw new InvalidArgumentException(
+                'SlideWire font [' . $family . '] is missing required key [source].'
+            );
+        }
+
+        $validSources = array_map(static fn (FontSource $source): string => $source->value, FontSource::cases());
+
+        if (! in_array($config->source->value, $validSources, true)) {
+            throw new InvalidArgumentException(
+                'SlideWire font [' . $family . '] has invalid source [' . $config->source->value . ']. Valid sources: ' . implode(', ', $validSources) . '.'
+            );
+        }
+
+        if ($config->source === FontSource::Google && $rawConfig !== null && array_key_exists('weights', $rawConfig) && ! is_array($rawConfig['weights'])) {
+            throw new InvalidArgumentException(
+                "SlideWire font [{$family}] weights must be an array of integers."
+            );
+        }
     }
 }

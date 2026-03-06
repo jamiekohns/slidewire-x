@@ -69,7 +69,7 @@ BLADE);
 
 it('renders diagram inside a deck and slide context', function (): void {
     $html = Blade::render(<<<'BLADE'
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide>
         <x-slidewire::diagram>
 flowchart LR

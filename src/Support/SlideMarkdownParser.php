@@ -16,7 +16,7 @@ class SlideMarkdownParser
     public function parse(string $content): array
     {
         [$globalMeta, $body] = $this->extractFrontmatter($content);
-        $chunks = explode((string) config('slidewire.defaults.markdown.separator', "\n---\n"), $body);
+        $chunks = explode("\n---\n", $body);
 
         return collect($chunks)
             ->filter(fn (string $chunk): bool => trim($chunk) !== '')

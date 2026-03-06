@@ -7,6 +7,7 @@ namespace WendellAdriel\SlideWire\View\Components;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use WendellAdriel\SlideWire\Support\ConfigKeys;
 use WendellAdriel\SlideWire\Support\SlideContext;
 
 class Slide extends Component
@@ -31,7 +32,7 @@ class Slide extends Component
         public ?string $autoSlide = null,
         public ?string $theme = null,
     ) {
-        $this->transition ??= (string) config('slidewire.defaults.transition', 'slide');
+        $this->transition ??= (string) config(ConfigKeys::SLIDES_TRANSITION, 'slide');
         $this->context->setSlide($this->theme);
     }
 

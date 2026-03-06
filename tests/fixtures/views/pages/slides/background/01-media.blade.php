@@ -1,7 +1,7 @@
 <x-slidewire::slide
     transition="fade"
     transition-speed="slow"
-    theme="night"
+    theme="black"
     auto-animate="true"
     auto-animate-duration="600"
     auto-animate-easing="linear"

@@ -132,7 +132,7 @@ it('protects Blade component syntax inside code blocks from compilation', functi
 
     $template = '<x-slidewire::markdown>
 ```blade
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide>Hello</x-slidewire::slide>
 </x-slidewire::deck>
 ```
@@ -147,7 +147,7 @@ it('protects Blade component syntax inside code blocks from compilation', functi
     // After decoding, the original Blade syntax should be restored
     $decoded = CodeBlockPrecompiler::decode($result);
 
-    expect($decoded)->toContain('<x-slidewire::deck theme="night">')
+    expect($decoded)->toContain('<x-slidewire::deck theme="black">')
         ->and($decoded)->toContain('<x-slidewire::slide>Hello</x-slidewire::slide>');
 });
 
@@ -225,7 +225,7 @@ it('protects Blade component syntax inside code component from compilation', fun
     $precompiler = new CodeBlockPrecompiler();
 
     $template = '<x-slidewire::code language="blade">
-<x-slidewire::deck theme="night">
+<x-slidewire::deck theme="black">
     <x-slidewire::slide>Hello</x-slidewire::slide>
 </x-slidewire::deck>
 </x-slidewire::code>';
@@ -239,7 +239,7 @@ it('protects Blade component syntax inside code component from compilation', fun
     // After decoding, the original Blade syntax should be restored
     $decoded = CodeBlockPrecompiler::decode($result);
 
-    expect($decoded)->toContain('<x-slidewire::deck theme="night">')
+    expect($decoded)->toContain('<x-slidewire::deck theme="black">')
         ->and($decoded)->toContain('<x-slidewire::slide>Hello</x-slidewire::slide>');
 });
 

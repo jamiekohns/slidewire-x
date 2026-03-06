@@ -8,7 +8,7 @@ it('extracts deck-level metadata from the deck wrapper', function (): void {
     $compiled = app(PresentationCompiler::class)->compile('precedence');
 
     expect($compiled['deck_meta'])->toMatchArray([
-        'theme' => 'night',
+        'theme' => 'black',
         'transition' => 'fade',
         'auto_slide' => '5000',
     ]);
