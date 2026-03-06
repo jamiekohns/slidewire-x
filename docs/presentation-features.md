@@ -196,10 +196,10 @@ use WendellAdriel\SlideWire\Enums\FontSource;
 
 System fonts require no loading configuration.
 
-Code blocks use the configured `slides.highlight.font` and `slides.highlight.font_size` by default. Override per component when needed:
+Code blocks use the configured `slides.highlight.font` and `slides.highlight.font_size` by default. Override per component with Tailwind text size classes when needed:
 
 ```blade
-<x-slidewire::code language="php" font="FiraCode" size="lg">
+<x-slidewire::code language="php" font="FiraCode" size="text-lg">
 echo 'custom font';
 </x-slidewire::code>
 ```
@@ -207,7 +207,7 @@ echo 'custom font';
 Markdown code fences can also override the size for that component:
 
 ~~~blade
-<x-slidewire::markdown size="xl">
+<x-slidewire::markdown size="text-xl">
 ```php
 echo 'larger example';
 ```

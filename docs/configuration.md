@@ -92,8 +92,8 @@ Each theme is configured as a `ThemeConfig` DTO:
 
 ```php
 use Phiki\\Theme\\Theme;
-use WendellAdriel\\SlideWire\\Support\\ThemeConfig;
-use WendellAdriel\\SlideWire\\Support\\ThemeFont;
+use WendellAdriel\\SlideWire\\DTOs\\ThemeConfig;
+use WendellAdriel\\SlideWire\\DTOs\\ThemeFont;
 
 'themes' => [
     'corporate' => new ThemeConfig(
@@ -142,12 +142,12 @@ Map font family names to their loading strategy. System fonts require no loading
 
 ```php
 use Phiki\\Theme\\Theme;
-use WendellAdriel\\SlideWire\\Support\\FontConfig;
-use WendellAdriel\\SlideWire\\Support\\FontSource;
-use WendellAdriel\\SlideWire\\Support\\HighlightConfig;
-use WendellAdriel\\SlideWire\\Support\\SlidesConfig;
-use WendellAdriel\\SlideWire\\Support\\SlideTransition;
-use WendellAdriel\\SlideWire\\Support\\SlideTransitionSpeed;
+use WendellAdriel\\SlideWire\\DTOs\\FontConfig;
+use WendellAdriel\\SlideWire\\DTOs\\HighlightConfig;
+use WendellAdriel\\SlideWire\\DTOs\\SlidesConfig;
+use WendellAdriel\\SlideWire\\Enums\\FontSource;
+use WendellAdriel\\SlideWire\\Enums\\SlideTransition;
+use WendellAdriel\\SlideWire\\Enums\\SlideTransitionSpeed;
 
 'slides' => new SlidesConfig(
     transition: SlideTransition::Slide,
@@ -156,7 +156,7 @@ use WendellAdriel\\SlideWire\\Support\\SlideTransitionSpeed;
         enabled: true,
         theme: Theme::CatppuccinMocha,
         font: 'JetBrainsMono',
-        fontSize: 'md',
+        fontSize: 'text-base',
     ),
 ),
 
@@ -167,11 +167,11 @@ use WendellAdriel\\SlideWire\\Support\\SlideTransitionSpeed;
 ],
 ```
 
-When a Google Fonts family is configured, SlideWire automatically injects preconnect and stylesheet `<link>` tags into the deck view. Code blocks use `slides.highlight.font` and `slides.highlight.font_size` by default, and both `<x-slidewire::code>` and `<x-slidewire::markdown>` can override the size with a `size` attribute. The `size` value accepts raw CSS sizes or the aliases `xs`, `sm`, `md`, `lg`, `xl`, and `2xl`.
+When a Google Fonts family is configured, SlideWire automatically injects preconnect and stylesheet `<link>` tags into the deck view. Code blocks use `slides.highlight.font` and `slides.highlight.font_size` by default, and both `<x-slidewire::code>` and `<x-slidewire::markdown>` can override the size with a `size` attribute. Use Tailwind text size classes such as `text-sm`, `text-base`, `text-lg`, or `text-xl`.
 
 Defaults to an empty array (no custom fonts loaded).
 
 ## PDF Export
 
 PDF export is handled by the `slidewire:pdf` Artisan command and defaults to A4 landscape.
-Override via command options `--format=` and `--orientation=`.
+Override via command options `--format=` and `--orientation=`. The command renders the deck with Browsershot, so Chrome or Chromium must be available on the system.

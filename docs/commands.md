@@ -39,7 +39,7 @@ php artisan slidewire:pdf demo/q1-kickoff --output=storage/app/q1-kickoff.pdf
 ### Signature
 
 ```text
-slidewire:pdf {presentation} {--output=} {--format=} {--orientation=} {--notes}
+slidewire:pdf {presentation} {--output=} {--format=a4} {--orientation=landscape}
 ```
 
 ### Options
@@ -47,9 +47,8 @@ slidewire:pdf {presentation} {--output=} {--format=} {--orientation=} {--notes}
 - `--output=`: destination file path
 - `--format=`: paper size (`a4`, `letter`, ...)
 - `--orientation=`: `portrait` or `landscape`
-- `--notes`: include notes metadata in output template
 
 ### Notes
 
-- Requires `spatie/laravel-pdf` runtime driver configuration.
-- Command returns a clear error if PDF driver is unavailable.
+- Uses Browsershot to render the deck, so Node.js plus Chrome or Chromium must be available on the system.
+- Command returns a clear error when the PDF runtime dependencies are unavailable.
