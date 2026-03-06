@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace WendellAdriel\SlideWire\Support;
 
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
+use Livewire\Component as LivewireComponent;
+use Livewire\Drawer\BaseUtils as LivewireBaseUtils;
+use Livewire\Drawer\Utils as LivewireUtils;
+use ReflectionMethod;
 use RuntimeException;
 use Throwable;
 use WendellAdriel\SlideWire\DTOs\Slide;
@@ -65,7 +70,7 @@ class PresentationCompiler
         }
 
         try {
-            $html = Blade::render($content, [], deleteCachedView: true);
+            $html = $this->renderPresentation($path, $content);
         } catch (Throwable $e) {
             throw new RuntimeException("Failed to render presentation [{$path}]: {$e->getMessage()}", $e->getCode(), previous: $e);
         }
@@ -79,6 +84,76 @@ class PresentationCompiler
         }
 
         return ['deck_meta' => $deckMeta, 'slides' => $this->parseStructuredSlides($deckInner, $path)];
+    }
+
+    protected function renderPresentation(string $path, string $content): string
+    {
+        if (! $this->isLivewireSingleFileComponent($content)) {
+            return Blade::render($content, [], deleteCachedView: true);
+        }
+
+        $component = $this->resolveSingleFileComponent($path);
+        $this->callMountIfPossible($component);
+
+        $properties = LivewireBaseUtils::getPublicPropertiesDefinedOnSubclass($component);
+        $view = LivewireUtils::generateBladeView($this->resolveComponentView($component), $properties);
+
+        if (method_exists($component, 'with')) {
+            $withData = $component->with();
+
+            if (is_array($withData)) {
+                $view->with($withData);
+            }
+        }
+
+        return $view->render();
+    }
+
+    protected function isLivewireSingleFileComponent(string $content): bool
+    {
+        return preg_match('/<\?php\s+.*new\s+class(?:\(\))?\s+extends\s+Component/s', $content) === 1;
+    }
+
+    protected function resolveSingleFileComponent(string $path): LivewireComponent
+    {
+        $className = app('livewire.compiler')->compile($path);
+        $component = app($className);
+
+        if (! $component instanceof LivewireComponent) {
+            throw new RuntimeException("Compiled presentation [{$path}] is not a Livewire component.");
+        }
+
+        return $component;
+    }
+
+    protected function callMountIfPossible(LivewireComponent $component): void
+    {
+        if (! method_exists($component, 'mount')) {
+            return;
+        }
+
+        $method = new ReflectionMethod($component, 'mount');
+
+        foreach ($method->getParameters() as $parameter) {
+            if (! $parameter->isOptional()) {
+                return;
+            }
+        }
+
+        $method->invoke($component);
+    }
+
+    protected function resolveComponentView(LivewireComponent $component): ViewContract|string
+    {
+        if (method_exists($component, 'render')) {
+            return $component->render();
+        }
+
+        if ($component->hasProvidedView()) {
+            return $component->getProvidedView();
+        }
+
+        throw new RuntimeException('Livewire SFC presentation must define a renderable view.');
     }
 
     protected function extractDeckInner(string $html): ?string

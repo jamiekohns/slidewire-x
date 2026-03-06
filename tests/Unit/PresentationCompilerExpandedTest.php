@@ -92,3 +92,13 @@ it('extracts deck metadata when deck classes use single quotes', function (): vo
 
     expect($meta)->toBe(['theme' => 'white']);
 });
+
+it('renders livewire sfc public properties and render data during compilation', function (): void {
+    $compiled = app(PresentationCompiler::class)->compile('render-data');
+    $slides = collect($compiled['slides'])->flatten(1)->values()->all();
+
+    expect($compiled['deck_meta'])->toMatchArray(['theme' => 'black'])
+        ->and($slides)->toHaveCount(1)
+        ->and($slides[0]->html)->toContain('With Data Override')
+        ->and($slides[0]->html)->toContain('Public properties and render data compile correctly.');
+});
