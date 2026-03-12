@@ -170,8 +170,3 @@ use WendellAdriel\\SlideWire\\Enums\\SlideTransitionSpeed;
 When a Google Fonts family is configured, SlideWire automatically injects preconnect and stylesheet `<link>` tags into the deck view. Code blocks use `slides.highlight.font` and `slides.highlight.font_size` by default, and both `<x-slidewire::code>` and `<x-slidewire::markdown>` can override the size with a `size` attribute. Use Tailwind text size classes such as `text-sm`, `text-base`, `text-lg`, or `text-xl`.
 
 Defaults to an empty array (no custom fonts loaded).
-
-## PDF Export
-
-PDF export is handled by the `slidewire:pdf` Artisan command and defaults to A4 landscape.
-Override via command options `--format=` and `--orientation=`. The command renders the deck with Browsershot, so Chrome or Chromium must be available on the system.

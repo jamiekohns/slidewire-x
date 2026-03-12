@@ -31,7 +31,6 @@ The test suite covers all documented package features:
 
 | Feature | Test Type | Test File(s) |
 |---------|-----------|-------------|
-| Command rename (`slidewire:pdf`) | Feature | `SlidePdfCommandTest.php` |
 | Scaffold command (`make:slidewire`) | Feature | `MakeSlideCommandTest.php` |
 | Presentation rendering | Feature | `PresentationDeckComponentTest.php`, `PresentationDeckExpandedTest.php` |
 | Controls, progress, and fullscreen toggles | Feature | `ControlsToggleTest.php` |

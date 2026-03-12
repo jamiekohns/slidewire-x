@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use WendellAdriel\SlideWire\Commands\MakeSlideCommand;
-use WendellAdriel\SlideWire\Commands\SlidePdfCommand;
 use WendellAdriel\SlideWire\Support\CodeBlockPrecompiler;
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
@@ -68,7 +67,6 @@ class SlideWireServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 MakeSlideCommand::class,
-                SlidePdfCommand::class,
             ]);
         }
     }

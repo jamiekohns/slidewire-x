@@ -29,7 +29,7 @@ it('generates unique slide IDs per horizontal index', function (): void {
     expect(count($ids))->toBe(count(array_unique($ids)));
 });
 
-it('flattens 2D slide grid for PDF export', function (): void {
+it('flattens 2D slide grid for runtime navigation', function (): void {
     $compiler = app(PresentationCompiler::class);
     $compiled = $compiler->compile('vertical');
 

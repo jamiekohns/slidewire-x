@@ -13,7 +13,7 @@
     <a href="https://github.com/WendellAdriel/slidewire/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/WendellAdriel/slidewire/tests.yml?branch=main&label=Tests"></a>
 </p>
 
-SlideWire is a Laravel package for building presentation decks with Livewire, with reveal-style navigation, transitions, theming, fragments, auto-slide support, and PDF export.
+SlideWire is a Laravel package for building presentation decks with Livewire, with reveal-style navigation, transitions, theming, fragments, and auto-slide support.
 
 ## Documentation
 
@@ -42,7 +42,6 @@ composer require wendelladriel/slidewire
 - Syntax highlighting with Phiki and theme-aware configuration
 - Reveal-style backgrounds with color, image, and video support
 - Structured theme presets with typography controls
-- PDF export with `slidewire:pdf`
 
 ## Credits
 
