@@ -2,35 +2,33 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "wendelladriel/slidewire",
     "type": "library",
-    "description": "Reveal-style presentations for Laravel using Livewire.",
+    "description": "Create beautiful presentations powered by Livewire",
     "keywords": [
         "laravel",
-        "framework"
+        "livewire",
+        "presentations",
+        "slides",
+        "blade"
     ],
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "illuminate/console": "^12.0",
-        "illuminate/contracts": "^12.0",
-        "illuminate/filesystem": "^12.0",
-        "illuminate/support": "^12.0",
-        "illuminate/view": "^12.0",
-        "livewire/flux": "^2.0",
-        "livewire/livewire": "^4.0",
+        "illuminate/console": "^12.0|^13.0",
+        "illuminate/contracts": "^12.0|^13.0",
+        "illuminate/filesystem": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
+        "illuminate/view": "^12.0|^13.0",
+        "livewire/livewire": "^4.2",
         "phiki/phiki": "^2.1"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.23",
-        "laravel/pint": "^1.24",
-        "laravel/framework": "^12.0",
-        "mockery/mockery": "^1.6",
-        "nunomaduro/collision": "^8.6",
-        "orchestra/testbench": "^10.0",
+        "laravel/pint": "^1.28",
+        "orchestra/testbench": "^10.9",
         "pestphp/pest": "^4.4",
-        "pestphp/pest-plugin-browser": "^4.0",
-        "pestphp/pest-plugin-laravel": "^4.0",
+        "pestphp/pest-plugin-browser": "^4.3",
+        "pestphp/pest-plugin-laravel": "^4.1",
         "pestphp/pest-plugin-type-coverage": "^4.0",
-        "rector/rector": "^2.2"
+        "rector/rector": "^2.3"
     },
     "autoload": {
         "psr-4": {
@@ -86,6 +84,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
