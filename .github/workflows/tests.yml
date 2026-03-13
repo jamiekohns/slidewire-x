@@ -8,12 +8,20 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        php-version: ['8.4', '8.5']
-        laravel-version: ['12', '13']
+        os: [ubuntu-latest]
+        php: ['8.4', '8.5']
+        laravel: ['12.*', '13.*']
+        dependency-version: [prefer-stable]
+        include:
+          - laravel: '12.*'
+            testbench: '10.*'
+          - laravel: '13.*'
+            testbench: '11.*'
+
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.dependency-version }}
 
     steps:
       - name: Checkout code
@@ -22,7 +30,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: ${{ matrix.php }}
           tools: composer:v2
           coverage: xdebug
 
@@ -31,16 +39,10 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Set Laravel test matrix
-        run: |
-          if [ "${{ matrix.laravel-version }}" = "12" ]; then
-            composer require --dev laravel/framework:^12.0 orchestra/testbench:^10.9 --no-update --no-interaction
-          else
-            composer require --dev laravel/framework:^13.0@dev orchestra/testbench:^11.0@dev --no-update --no-interaction
-          fi
-
       - name: Install Dependencies
-        run: composer update --no-interaction --prefer-dist --optimize-autoloader
+        run: |
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --optimize-autoloader
 
       - name: Install Playwright package
         run: npm install
