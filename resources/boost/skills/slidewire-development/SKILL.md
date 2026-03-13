@@ -34,8 +34,8 @@ Each presentation should be a single Blade file with one `<x-slidewire::deck>` c
 ```blade
 <x-slidewire::deck>
     <x-slidewire::slide class="bg-slate-900 text-white">
-        <flux:heading size="xl">Product Launch</flux:heading>
-        <flux:text>Opening slide</flux:text>
+        <h1 class="text-4xl font-semibold tracking-tight">Product Launch</h1>
+        <p class="text-lg text-slate-300">Opening slide</p>
     </x-slidewire::slide>
 
     <x-slidewire::slide class="bg-white text-slate-900">
