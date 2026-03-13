@@ -13,17 +13,7 @@
     <a href="https://github.com/WendellAdriel/slidewire/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/WendellAdriel/slidewire/tests.yml?branch=main&label=Tests"></a>
 </p>
 
-SlideWire is a Laravel package for building presentation decks with Livewire, with reveal-style navigation, transitions, theming, fragments, and auto-slide support.
-
-## Documentation
-
-- [Installation](./docs/installation.md)
-- [Quickstart](./docs/quickstart.md)
-- [Routing](./docs/routing.md)
-- [Authoring Slides](./docs/authoring.md)
-- [Presentation Features](./docs/presentation-features.md)
-- [Configuration](./docs/configuration.md)
-- [Commands](./docs/commands.md)
+SlideWire is a Laravel package for building presentation decks with Livewire. Presentations are built as Blade files, rendered as a full-page Livewire experience, and support navigation, themes, fragments, code highlighting, diagrams, vertical stacks, and timed auto-slide flows.
 
 ## Installation
 
