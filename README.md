@@ -15,6 +15,10 @@
 
 SlideWire is a Laravel package for building presentation decks with Livewire. Presentations are built as Blade files, rendered as a full-page Livewire experience, and support navigation, themes, fragments, code highlighting, diagrams, vertical stacks, and timed auto-slide flows.
 
+## Documentation
+
+[![Docs Button]][Docs Link]
+
 ## Installation
 
 ```bash
@@ -37,3 +41,11 @@ composer require wendelladriel/slidewire
 
 - [Wendell Adriel](https://github.com/WendellAdriel)
 - [All Contributors](../../contributors)
+
+## Contributing
+
+Check the **[Contributing Guide](CONTRIBUTING.md)**.
+
+<!---------------------------------------------------------------------------->
+[Docs Button]: https://img.shields.io/badge/Website-0dB816?style=for-the-badge&logoColor=white&logo=GitBook
+[Docs Link]: https://slidewire.dev
