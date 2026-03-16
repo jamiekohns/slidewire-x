@@ -16,10 +16,10 @@
         @js($themeTypography)
     )"
     x-bind:class="currentThemeClass()"
-    x-on:keydown.window.prevent.right="navigateRight()"
-    x-on:keydown.window.prevent.left="navigateLeft()"
-    x-on:keydown.window.prevent.down="navigateDown()"
-    x-on:keydown.window.prevent.up="navigateUp()"
+    x-on:keydown.window.right="onArrowKey($event, 'right')"
+    x-on:keydown.window.left="onArrowKey($event, 'left')"
+    x-on:keydown.window.down="onArrowKey($event, 'down')"
+    x-on:keydown.window.up="onArrowKey($event, 'up')"
     x-on:keydown.window.prevent.space="next()"
     class="slidewire-shell"
 >
@@ -124,13 +124,13 @@
     <style>
         .slidewire-shell { width: 100%; height: 100dvh; min-height: 100dvh; overflow: hidden; }
         .slidewire-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
-        .slidewire-frame { position: absolute; inset: 0; display: grid; place-items: center; padding: clamp(1rem, 3vw, 3rem); transform-origin: center center; isolation: isolate; }
+        .slidewire-frame { position: absolute; inset: 0; display: flex; justify-content: center; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; padding: clamp(1rem, 3vw, 3rem); transform-origin: center center; isolation: isolate; box-sizing: border-box; }
         .slidewire-frame.is-idle { opacity: 0; visibility: hidden; pointer-events: none; }
         .slidewire-frame.is-active,
         .slidewire-frame.is-leaving { visibility: visible; }
         .slidewire-frame::before { content: ""; position: absolute; inset: 0; background: rgb(3 8 20 / var(--slidewire-background-opacity, 0)); z-index: -1; }
         .slidewire-background-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; z-index: -2; }
-        .slidewire-content { width: min(1400px, 94vw); }
+        .slidewire-content { width: min(1400px, 94vw); margin-block: auto; }
         .slidewire-controls { position: absolute; left: 50%; bottom: .9rem; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .45rem .7rem; border-radius: 999px; backdrop-filter: blur(8px); background: rgb(2 6 23 / 45%); z-index: 30; }
         .slidewire-controls button { border: 1px solid rgb(148 163 184 / 50%); border-radius: 999px; padding: 0.45rem 0.65rem; background: rgb(15 23 42 / 95%); color: #f8fafc; font-size: .95rem; display: inline-flex; align-items: center; justify-content: center; transition: opacity .15s ease; }
         .slidewire-controls button:disabled { opacity: .35; cursor: not-allowed; }
@@ -169,6 +169,7 @@
                 themeTypography: themeTypography || {},
                 touchStartX: null,
                 touchStartY: null,
+                touchScrollState: null,
                 isFullscreen: false,
                 autoAnimateSnapshot: null,
                 leavingIndex: null,
@@ -190,6 +191,7 @@
                     this.$el.addEventListener('touchstart', (event) => {
                         this.touchStartX = event.touches[0].clientX;
                         this.touchStartY = event.touches[0].clientY;
+                        this.touchScrollState = this.captureScrollState(event.target);
                     }, { passive: true });
 
                     this.$el.addEventListener('touchend', (event) => {
@@ -211,6 +213,14 @@
                                 this.navigateLeft();
                             }
                         } else {
+                            if (this.shouldPreserveVerticalScroll(dy)) {
+                                this.touchStartX = null;
+                                this.touchStartY = null;
+                                this.touchScrollState = null;
+
+                                return;
+                            }
+
                             if (dy < 0) {
                                 this.navigateDown();
                             } else {
@@ -220,6 +230,7 @@
 
                         this.touchStartX = null;
                         this.touchStartY = null;
+                        this.touchScrollState = null;
                     }, { passive: true });
 
                     this.$watch('index', (value, oldValue) => {
@@ -306,6 +317,35 @@
                 navigateUp() {
                     this.interruptAutoSlide();
                     this.$wire.navigateUp();
+                },
+                onArrowKey(event, direction) {
+                    if (direction === 'up' || direction === 'down') {
+                        if (this.canScrollActiveSlide(direction)) {
+                            return;
+                        }
+                    }
+
+                    event.preventDefault();
+
+                    if (direction === 'right') {
+                        this.navigateRight();
+
+                        return;
+                    }
+
+                    if (direction === 'left') {
+                        this.navigateLeft();
+
+                        return;
+                    }
+
+                    if (direction === 'down') {
+                        this.navigateDown();
+
+                        return;
+                    }
+
+                    this.navigateUp();
                 },
                 updateHash() {
                     const { h, v } = this.currentCoords();
@@ -505,6 +545,52 @@
                     }
 
                     return Number((this.slideAutoSlides && this.slideAutoSlides[this.index]) || 0);
+                },
+                activeSlide() {
+                    return this.$refs[`slide${this.index}`] || null;
+                },
+                captureScrollState(target) {
+                    const container = this.activeSlide();
+
+                    if (!container) {
+                        return null;
+                    }
+
+                    return {
+                        container,
+                        scrollTop: container.scrollTop,
+                        clientHeight: container.clientHeight,
+                        scrollHeight: container.scrollHeight,
+                    };
+                },
+                canScrollContainer(direction, state) {
+                    if (!state || !state.container) {
+                        return false;
+                    }
+
+                    if (state.scrollHeight <= state.clientHeight + 1) {
+                        return false;
+                    }
+
+                    if (direction === 'up') {
+                        return state.scrollTop > 1;
+                    }
+
+                    return state.scrollTop + state.clientHeight < state.scrollHeight - 1;
+                },
+                canScrollActiveSlide(direction) {
+                    return this.canScrollContainer(direction, this.captureScrollState());
+                },
+                shouldPreserveVerticalScroll(dy) {
+                    if (!this.touchScrollState) {
+                        return false;
+                    }
+
+                    if (dy < 0) {
+                        return this.canScrollContainer('down', this.touchScrollState);
+                    }
+
+                    return this.canScrollContainer('up', this.touchScrollState);
                 },
                 interruptAutoSlide() {
                     if (!this.pauseOnInteraction) {
