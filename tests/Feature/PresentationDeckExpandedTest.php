@@ -98,3 +98,27 @@ it('injects alpine slidewireDeck function', function (): void {
 
     expect($content)->toContain('slidewireDeck');
 });
+
+it('allows active slides to scroll vertically when content overflows', function (): void {
+    Route::slidewire('/slides/demo', 'demo');
+
+    $response = test()->get('/slides/demo');
+    $content = $response->getContent();
+
+    expect($content)
+        ->toContain('overflow-y: auto')
+        ->toContain('-webkit-overflow-scrolling: touch')
+        ->toContain('margin-block: auto');
+});
+
+it('preserves vertical scroll gestures before triggering vertical navigation', function (): void {
+    Route::slidewire('/slides/vertical', 'vertical');
+
+    $response = test()->get('/slides/vertical');
+    $content = $response->getContent();
+
+    expect($content)
+        ->toContain('onArrowKey')
+        ->toContain('shouldPreserveVerticalScroll')
+        ->toContain('canScrollActiveSlide');
+});
