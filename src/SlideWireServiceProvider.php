@@ -9,11 +9,14 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use WendellAdriel\SlideWire\Commands\MakeSlideCommand;
+use WendellAdriel\SlideWire\Contracts\DatabaseDocumentProvider;
 use WendellAdriel\SlideWire\Support\CodeBlockPrecompiler;
 use WendellAdriel\SlideWire\Support\CodeHighlighter;
+use WendellAdriel\SlideWire\Support\ConfigValidator;
 use WendellAdriel\SlideWire\Support\EffectiveSettingsResolver;
 use WendellAdriel\SlideWire\Support\PresentationCompiler;
 use WendellAdriel\SlideWire\Support\PresentationPathResolver;
+use WendellAdriel\SlideWire\Support\PresenterSyncStore;
 use WendellAdriel\SlideWire\Support\SlideContext;
 use WendellAdriel\SlideWire\Support\ThemeResolver;
 
@@ -27,6 +30,7 @@ class SlideWireServiceProvider extends ServiceProvider
         $this->app->singleton(CodeHighlighter::class);
         $this->app->singleton(PresentationCompiler::class);
         $this->app->singleton(EffectiveSettingsResolver::class);
+        $this->app->singleton(PresenterSyncStore::class);
         $this->app->singleton(ThemeResolver::class);
         $this->app->singleton(SlideContext::class);
     }
@@ -39,9 +43,24 @@ class SlideWireServiceProvider extends ServiceProvider
         Blade::prepareStringsForCompilationUsing(new CodeBlockPrecompiler());
 
         if (! Route::hasMacro('slidewire')) {
-            Route::macro('slidewire', fn (string $uri, string $presentation): \Illuminate\Routing\Route => Route::livewire($uri, 'slidewire::presentation-deck')
-                ->name('slidewire.' . str_replace('/', '.', trim($presentation, '/')))
-                ->defaults('presentation', trim($presentation, '/')));
+            Route::macro('slidewire', function (string $uri, string $presentationOrProvider): \Illuminate\Routing\Route {
+                $trimmed = trim($uri, '/');
+
+                if (class_exists($presentationOrProvider) && is_subclass_of($presentationOrProvider, DatabaseDocumentProvider::class)) {
+                    $routeUri = $trimmed === '' ? '{document}' : "{$trimmed}/{document}";
+                    $routeName = $trimmed === '' ? 'slidewire.database.root' : 'slidewire.database.' . str_replace('/', '.', $trimmed);
+
+                    return Route::livewire($routeUri, 'slidewire::presentation-deck')
+                        ->name($routeName)
+                        ->defaults('presentation', 'database')
+                        ->defaults('documentSource', 'database')
+                        ->defaults('documentProvider', $presentationOrProvider);
+                }
+
+                return Route::livewire($uri, 'slidewire::presentation-deck')
+                    ->name('slidewire.' . str_replace('/', '.', trim($presentationOrProvider, '/')))
+                    ->defaults('presentation', trim($presentationOrProvider, '/'));
+            });
         }
 
         Livewire::addNamespace(
@@ -51,6 +70,8 @@ class SlideWireServiceProvider extends ServiceProvider
             classPath: __DIR__ . '/Livewire',
             classViewPath: __DIR__ . '/../resources/views/livewire',
         );
+
+        app(ConfigValidator::class)->validate();
 
         $this->publishes([
             __DIR__ . '/../config/slidewire.php' => config_path('slidewire.php'),

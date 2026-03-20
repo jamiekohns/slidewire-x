@@ -10,6 +10,8 @@ use WendellAdriel\SlideWire\Enums\SlideTransitionSpeed;
 final readonly class SlidesConfig
 {
     public function __construct(
+        public string $documentSource = 'filesystem', // 'filesystem' or 'database'
+        public bool $presenterMode = false,
         public string $theme = 'default',
         public bool $showControls = true,
         public bool $showProgress = true,

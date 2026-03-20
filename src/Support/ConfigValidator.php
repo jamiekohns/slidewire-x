@@ -105,6 +105,27 @@ class ConfigValidator
         $this->validateThemes(config('slidewire.themes', []));
         $this->validateFonts(config('slidewire.fonts', []));
         $this->validateSlides(config('slidewire.slides', new SlidesConfig()));
+        $this->validatePresenterSync(config('slidewire.presenter_sync', []));
+    }
+
+    /** @param array<string, mixed> $sync */
+    public function validatePresenterSync(array $sync): void
+    {
+        if (! isset($sync['enabled']) || ! is_bool($sync['enabled'])) {
+            throw new InvalidArgumentException('SlideWire presenter_sync.enabled must be a boolean.');
+        }
+
+        if (! isset($sync['poll_interval_ms']) || ! is_int($sync['poll_interval_ms']) || $sync['poll_interval_ms'] < 200) {
+            throw new InvalidArgumentException('SlideWire presenter_sync.poll_interval_ms must be an integer >= 200.');
+        }
+
+        if (! isset($sync['cache_ttl_seconds']) || ! is_int($sync['cache_ttl_seconds']) || $sync['cache_ttl_seconds'] < 5) {
+            throw new InvalidArgumentException('SlideWire presenter_sync.cache_ttl_seconds must be an integer >= 5.');
+        }
+
+        if (! isset($sync['cache_key_prefix']) || ! is_string($sync['cache_key_prefix']) || trim($sync['cache_key_prefix']) === '') {
+            throw new InvalidArgumentException('SlideWire presenter_sync.cache_key_prefix must be a non-empty string.');
+        }
     }
 
     protected function validateThemeTypography(string $themeName, ThemeFont $font, string $key): void

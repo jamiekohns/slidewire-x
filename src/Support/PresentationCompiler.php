@@ -13,7 +13,9 @@ use Livewire\Drawer\Utils as LivewireUtils;
 use ReflectionMethod;
 use RuntimeException;
 use Throwable;
+use WendellAdriel\SlideWire\Contracts\DatabaseDocumentProvider;
 use WendellAdriel\SlideWire\DTOs\Slide;
+use WendellAdriel\SlideWire\DTOs\SlidesConfig;
 
 class PresentationCompiler
 {
@@ -24,8 +26,19 @@ class PresentationCompiler
      *
      * @throws RuntimeException when the presentation file cannot be read or rendered
      */
-    public function compile(string $presentation): array
-    {
+    public function compile(
+        string $presentation,
+        ?string $documentToken = null,
+        ?string $documentSource = null,
+        ?string $documentProvider = null,
+    ): array {
+        $slidesConfig = config('slidewire.slides', new SlidesConfig());
+        $source = $documentSource ?? $slidesConfig->documentSource;
+
+        if ($source === 'database') {
+            return $this->compileDatabaseDocument($documentToken, $documentProvider);
+        }
+
         $path = $this->resolver->presentationPath($presentation);
 
         if ($path === null) {
@@ -69,6 +82,64 @@ class PresentationCompiler
             throw new RuntimeException("Failed to read presentation file [{$path}]: {$e->getMessage()}", $e->getCode(), previous: $e);
         }
 
+        return $this->compileContent($path, $content);
+    }
+
+    /**
+     * @return array{deck_meta: array<string, string>, slides: array<int, array<int, Slide>>}
+     */
+    protected function compileDatabaseDocument(?string $documentToken, ?string $providerClass): array
+    {
+        $documentId = DatabaseDocumentKey::idFromToken($documentToken);
+
+        if ($documentId === null) {
+            return ['deck_meta' => [], 'slides' => []];
+        }
+
+        if ($providerClass === null || ! class_exists($providerClass)) {
+            throw new RuntimeException('SlideWire database document provider class is invalid or missing.');
+        }
+
+        if (! is_subclass_of($providerClass, DatabaseDocumentProvider::class)) {
+            throw new RuntimeException("SlideWire database document provider [{$providerClass}] must implement " . DatabaseDocumentProvider::class . '.');
+        }
+
+        $provider = app($providerClass);
+
+        if (! $provider instanceof DatabaseDocumentProvider) {
+            throw new RuntimeException("SlideWire database document provider [{$providerClass}] could not be resolved from the container.");
+        }
+
+        $document = $provider->findById($documentId);
+
+        if (! $document instanceof \WendellAdriel\SlideWire\DTOs\DatabaseDocument) {
+            return ['deck_meta' => [], 'slides' => []];
+        }
+
+        $content = $this->prepareDatabaseDocumentContent($document->content);
+        $virtualPath = "database-{$document->id}.blade.php";
+        $compiled = $this->compileContent($virtualPath, $content);
+        $compiled['deck_meta']['_slidewire_document_id'] = (string) $document->id;
+
+        if ($document->ownerId !== null) {
+            $compiled['deck_meta']['_slidewire_owner_id'] = (string) $document->ownerId;
+        }
+
+        if ($document->customCss !== null && trim($document->customCss) !== '') {
+            $compiled['deck_meta']['_slidewire_custom_css'] = $document->customCss;
+        }
+
+        return $compiled;
+    }
+
+    /**
+     * @return array{deck_meta: array<string, string>, slides: array<int, array<int, Slide>>}
+     *
+     * @throws RuntimeException when the presentation content cannot be rendered
+     */
+    protected function compileContent(string $path, string $content): array
+    {
+
         try {
             $html = $this->renderPresentation($path, $content);
         } catch (Throwable $e) {
@@ -84,6 +155,35 @@ class PresentationCompiler
         }
 
         return ['deck_meta' => $deckMeta, 'slides' => $this->parseStructuredSlides($deckInner, $path)];
+    }
+
+    protected function prepareDatabaseDocumentContent(string $content): string
+    {
+        $transformedSlides = preg_replace_callback(
+            '/<x-slidewire::slide\b([^>]*)>(.*?)<\/x-slidewire::slide>/is',
+            function (array $matches): string {
+                $attributes = $matches[1] ?? '';
+                $body = trim($matches[2] ?? '');
+
+                return "<x-slidewire::slide{$attributes}>\n<x-slidewire::markdown>\n{$body}\n</x-slidewire::markdown>\n</x-slidewire::slide>";
+            },
+            $content,
+        );
+
+        if (! is_string($transformedSlides)) {
+            return $this->wrapDatabaseDocumentInDeck($content);
+        }
+
+        return $this->wrapDatabaseDocumentInDeck($transformedSlides);
+    }
+
+    protected function wrapDatabaseDocumentInDeck(string $content): string
+    {
+        if (preg_match('/<x-slidewire::deck\b[^>]*>/i', $content) === 1) {
+            return $content;
+        }
+
+        return "<x-slidewire::deck>\n{$content}\n</x-slidewire::deck>";
     }
 
     protected function renderPresentation(string $path, string $content): string

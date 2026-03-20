@@ -37,6 +37,52 @@ composer require wendelladriel/slidewire
 - Reveal-style backgrounds with color, image, and video support
 - Structured theme presets with typography controls
 
+## Database Document Source
+
+SlideWire can compile decks from database markdown documents when the slide source is set to database.
+
+```php
+use Illuminate\Support\Facades\Route;
+use WendellAdriel\SlideWire\Contracts\DatabaseDocumentProvider;
+use WendellAdriel\SlideWire\DTOs\DatabaseDocument;
+
+final class AppDatabaseDocumentProvider implements DatabaseDocumentProvider
+{
+    public function findById(int $id): ?DatabaseDocument
+    {
+        $record = \App\Models\Document::query()->find($id);
+
+        if ($record === null) {
+            return null;
+        }
+
+        return new DatabaseDocument(
+            id: $record->id,
+            name: $record->name,
+            content: $record->markdown,
+            ownerId: $record->user_id,
+        );
+    }
+}
+
+Route::slidewire('/presentations', AppDatabaseDocumentProvider::class);
+```
+
+The example above registers `presentations/{document}` where `{document}` follows an id-slug format such as `1-First_Test`.
+Only the numeric id is used for lookup, and the trailing slug text is treated as a friendly URL label.
+
+When compiling database documents, each `<x-slidewire::slide>...</x-slidewire::slide>` block is interpreted as markdown body content and rendered as if it were authored as:
+
+```blade
+<x-slidewire::slide>
+    <x-slidewire::markdown>
+        ...slide markdown body...
+    </x-slidewire::markdown>
+</x-slidewire::slide>
+```
+
+If the document content does not include an explicit `<x-slidewire::deck>` wrapper, SlideWire wraps the content in one during compilation.
+
 ## Credits
 
 - [Wendell Adriel](https://github.com/WendellAdriel)
