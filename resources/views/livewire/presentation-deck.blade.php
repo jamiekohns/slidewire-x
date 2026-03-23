@@ -1,5 +1,8 @@
 <div
     x-ref="deckRoot"
+    @if($shouldFollowPresenter)
+        wire:poll.{{ $presenterSyncPollMs }}ms="pollPresenterState"
+    @endif
     x-data="slidewireDeck(
         $wire,
         @entangle('activeIndex').live,
@@ -13,15 +16,18 @@
         @js((bool) ($deckMeta['auto_slide_pause_on_interaction'] ?? $slidesConfig->autoSlidePauseOnInteraction)),
         @js($gridShape),
         @js($deckPayload['coords']),
-        @js($themeTypography)
+        @js($themeTypography),
+        @js($canInteract)
     )"
     x-bind:class="currentThemeClass()"
-    x-on:keydown.window.right="onArrowKey($event, 'right')"
-    x-on:keydown.window.left="onArrowKey($event, 'left')"
-    x-on:keydown.window.down="onArrowKey($event, 'down')"
-    x-on:keydown.window.up="onArrowKey($event, 'up')"
-    x-on:keydown.window.prevent.space="next()"
+    x-on:keydown.window.right="canInteract && onArrowKey($event, 'right')"
+    x-on:keydown.window.left="canInteract && onArrowKey($event, 'left')"
+    x-on:keydown.window.down="canInteract && onArrowKey($event, 'down')"
+    x-on:keydown.window.up="canInteract && onArrowKey($event, 'up')"
+    x-on:keydown.window.prevent.space="canInteract && next()"
     class="slidewire-shell"
+    data-can-interact="{{ $canInteract ? 'true' : 'false' }}"
+    data-follow-presenter="{{ $shouldFollowPresenter ? 'true' : 'false' }}"
 >
     @if($googleFontsUrl)
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,7 +35,7 @@
         <link href="{{ $googleFontsUrl }}" rel="stylesheet">
     @endif
 
-    <div class="slidewire-stage" x-on:click="next()">
+    <div class="slidewire-stage" x-on:click="canInteract && next()">
         @if($showProgress)
             <div class="slidewire-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"
                 :aria-valuenow="Math.round(((index + 1) / count) * 100)">
@@ -87,7 +93,7 @@
             </section>
         @endforeach
 
-        @if($showControls)
+        @if($showControls && $canInteract)
             <nav class="slidewire-controls" aria-label="Slide controls">
                 <button type="button" x-on:click.stop="previous()" aria-label="Previous slide" class="slidewire-control-arrow slidewire-control-left" :disabled="!canGoLeft()">
                     <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
@@ -168,7 +174,7 @@
 
     @script
         <script>
-            window.slidewireDeck = function ($wire, index, fragment, count, slideThemes, configuredThemes, defaultTheme, slideTransitionDurations, slideAutoSlides, pauseOnInteraction, gridShape, slideCoords, themeTypography) {
+            window.slidewireDeck = function ($wire, index, fragment, count, slideThemes, configuredThemes, defaultTheme, slideTransitionDurations, slideAutoSlides, pauseOnInteraction, gridShape, slideCoords, themeTypography, canInteract) {
             return {
                 $wire,
                 index,
@@ -183,6 +189,7 @@
                 gridShape,
                 slideCoords,
                 themeTypography: themeTypography || {},
+                canInteract,
                 touchStartX: null,
                 touchStartY: null,
                 touchScrollState: null,
@@ -212,50 +219,52 @@
                         this.isFullscreen = document.fullscreenElement !== null;
                     });
 
-                    this.$el.addEventListener('touchstart', (event) => {
-                        this.touchStartX = event.touches[0].clientX;
-                        this.touchStartY = event.touches[0].clientY;
-                        this.touchScrollState = this.captureScrollState(event.target);
-                    }, { passive: true });
+                    if (this.canInteract) {
+                        this.$el.addEventListener('touchstart', (event) => {
+                            this.touchStartX = event.touches[0].clientX;
+                            this.touchStartY = event.touches[0].clientY;
+                            this.touchScrollState = this.captureScrollState(event.target);
+                        }, { passive: true });
 
-                    this.$el.addEventListener('touchend', (event) => {
-                        if (this.touchStartX === null || this.touchStartY === null) {
-                            return;
-                        }
-
-                        const dx = event.changedTouches[0].clientX - this.touchStartX;
-                        const dy = event.changedTouches[0].clientY - this.touchStartY;
-
-                        if (Math.abs(dx) < 35 && Math.abs(dy) < 35) {
-                            return;
-                        }
-
-                        if (Math.abs(dx) > Math.abs(dy)) {
-                            if (dx < 0) {
-                                this.navigateRight();
-                            } else {
-                                this.navigateLeft();
-                            }
-                        } else {
-                            if (this.shouldPreserveVerticalScroll(dy)) {
-                                this.touchStartX = null;
-                                this.touchStartY = null;
-                                this.touchScrollState = null;
-
+                        this.$el.addEventListener('touchend', (event) => {
+                            if (this.touchStartX === null || this.touchStartY === null) {
                                 return;
                             }
 
-                            if (dy < 0) {
-                                this.navigateDown();
-                            } else {
-                                this.navigateUp();
-                            }
-                        }
+                            const dx = event.changedTouches[0].clientX - this.touchStartX;
+                            const dy = event.changedTouches[0].clientY - this.touchStartY;
 
-                        this.touchStartX = null;
-                        this.touchStartY = null;
-                        this.touchScrollState = null;
-                    }, { passive: true });
+                            if (Math.abs(dx) < 35 && Math.abs(dy) < 35) {
+                                return;
+                            }
+
+                            if (Math.abs(dx) > Math.abs(dy)) {
+                                if (dx < 0) {
+                                    this.navigateRight();
+                                } else {
+                                    this.navigateLeft();
+                                }
+                            } else {
+                                if (this.shouldPreserveVerticalScroll(dy)) {
+                                    this.touchStartX = null;
+                                    this.touchStartY = null;
+                                    this.touchScrollState = null;
+
+                                    return;
+                                }
+
+                                if (dy < 0) {
+                                    this.navigateDown();
+                                } else {
+                                    this.navigateUp();
+                                }
+                            }
+
+                            this.touchStartX = null;
+                            this.touchStartY = null;
+                            this.touchScrollState = null;
+                        }, { passive: true });
+                    }
 
                     this.$watch('index', (value, oldValue) => {
                         this.queueHashUpdate();
@@ -319,6 +328,10 @@
                     return v < maxV;
                 },
                 navigateRight() {
+                    if (!this.canInteract) {
+                        return;
+                    }
+
                     this.interruptAutoSlide();
                     const { h } = this.currentCoords();
 
@@ -334,6 +347,10 @@
                     }
                 },
                 navigateLeft() {
+                    if (!this.canInteract) {
+                        return;
+                    }
+
                     this.interruptAutoSlide();
                     const { h } = this.currentCoords();
 
@@ -349,10 +366,18 @@
                     }
                 },
                 navigateDown() {
+                    if (!this.canInteract) {
+                        return;
+                    }
+
                     this.interruptAutoSlide();
                     this.$wire.navigateDown();
                 },
                 navigateUp() {
+                    if (!this.canInteract) {
+                        return;
+                    }
+
                     this.interruptAutoSlide();
                     this.$wire.navigateUp();
                 },
@@ -446,6 +471,10 @@
                     return fMatch ? Number(fMatch[1]) : -1;
                 },
                 syncFromHash() {
+                    if (!this.canInteract) {
+                        return;
+                    }
+
                     const fragment = this.parseFragmentFromHash();
                     const match2d = window.location.hash.match(/#\/slide\/(\d+)\/(\d+)/);
 
@@ -475,11 +504,19 @@
                     }
                 },
                 next() {
+                    if (!this.canInteract) {
+                        return;
+                    }
+
                     this.interruptAutoSlide();
                     this.captureAutoAnimateSnapshot(this.index + 1);
                     this.$wire.nextSlide();
                 },
                 previous() {
+                    if (!this.canInteract) {
+                        return;
+                    }
+
                     this.interruptAutoSlide();
                     this.captureAutoAnimateSnapshot(this.index - 1);
                     this.$wire.previousSlide();
@@ -880,6 +917,10 @@
                     if (this.autoSlideTimeout) {
                         window.clearTimeout(this.autoSlideTimeout);
                         this.autoSlideTimeout = null;
+                    }
+
+                    if (!this.canInteract) {
+                        return;
                     }
 
                     const duration = this.slideAutoSlideDuration();

@@ -92,3 +92,25 @@ it('rejects empty highlight font size', function (): void {
         highlight: new HighlightConfig(fontSize: '  '),
     ));
 })->throws(InvalidArgumentException::class, 'font_size must be a non-empty string');
+
+it('accepts valid presenter sync settings', function (): void {
+    $validator = new ConfigValidator();
+
+    $validator->validatePresenterSync([
+        'enabled' => true,
+        'poll_interval_ms' => 900,
+        'cache_ttl_seconds' => 1200,
+        'cache_key_prefix' => 'slidewire:presenter-sync',
+    ]);
+})->throwsNoExceptions();
+
+it('rejects invalid presenter sync polling interval', function (): void {
+    $validator = new ConfigValidator();
+
+    $validator->validatePresenterSync([
+        'enabled' => true,
+        'poll_interval_ms' => 150,
+        'cache_ttl_seconds' => 1200,
+        'cache_key_prefix' => 'slidewire:presenter-sync',
+    ]);
+})->throws(InvalidArgumentException::class, 'poll_interval_ms must be an integer >= 200');

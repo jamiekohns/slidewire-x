@@ -41,6 +41,7 @@ return [
     */
 
     'slides' => new SlidesConfig(
+        presenterMode: false,
         theme: 'default',
         showControls: true,
         showProgress: true,
@@ -59,6 +60,24 @@ return [
             fontSize: 'text-base',
         ),
     ),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Presenter Sync
+    |--------------------------------------------------------------------------
+    |
+    | When presenter mode is enabled for database-backed decks, the presenter
+    | writes current navigation state to cache and audience viewers poll for
+    | updates to follow along.
+    |
+    */
+
+    'presenter_sync' => [
+        'enabled' => true,
+        'poll_interval_ms' => 900,
+        'cache_ttl_seconds' => 1200,
+        'cache_key_prefix' => 'slidewire:presenter-sync',
+    ],
 
     /*
     |--------------------------------------------------------------------------
